@@ -13,7 +13,7 @@ To make it easy for you to get started with GitLab, here's a list of recommended
 
 ## Integrate with your tools
 
-* [Set up project integrations
+* Set up project integrations
 
 ## Collaborate with your team
 
