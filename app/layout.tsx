@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Maro Project", 
+  title: "Language Assistant!", 
   description: "Next.js App Router",
 };
 

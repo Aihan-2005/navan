@@ -4,7 +4,7 @@ const config: Config = {
   content: [
     './app/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}', // درصورتی که هنوز برخی کامپوننت‌ها در src هستند
+    './src/**/*.{ts,tsx}', 
   ],
   theme: {
     extend: {
