@@ -37,9 +37,9 @@ const LoginForm: React.FC = () => {
 
     // ZOD VALIDATION:
     const validation = loginSchema.safeParse({
-      username: username, // مقدار ورودی username
-      email: username, // مقدار ورودی username به عنوان email
-      password: password, // مقدار ورودی password
+      username: username, 
+      email: username, 
+      password: password, 
     });
 
     if (!validation.success) {
