@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Providers } from "../components/auth/providers";
+
 import "./globals.css";
 
 // main font
@@ -15,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Language Assistant!", 
-  description: "Next.js App Router",
+  title: "Language Assistant",
+  description: "AI powered language learning assistant",
 };
 
 export default function RootLayout({
@@ -25,13 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
+    <html suppressHydrationWarning
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased h-full`}
     >
-      
       <body className="min-h-full flex flex-col bg-primary-dark text-white dark:bg-primary-dark dark:text-white">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
