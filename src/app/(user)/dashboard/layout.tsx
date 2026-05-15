@@ -13,20 +13,11 @@ export default function DashboardLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // برای موبایل
 
   return (
-    <div className="flex h-screen overflow-hidden" >
-      {/* Sidebar */}
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
-        {/* Header */}
+     <div className="min-h-screen bg-[#0B1221] text-white">
+      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <div className="flex min-h-screen flex-col lg:pr-72">
         <Header setIsSidebarOpen={setIsSidebarOpen} />
-
-        {/* Dashboard Content */}
-        <main className="p-6 lg:p-8 flex-1 bg-[#232525]">
+        <main className="flex-1 bg-[#131c2f] px-4 py-6 sm:px-6 lg:px-8 lg:pr-80 pt-20" >
           {children}
         </main>
       </div>

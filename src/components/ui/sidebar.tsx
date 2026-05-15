@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 
 // placeholders for SVGs or actual icons
 const Logo = () => (
-  <Link href="/" className="flex items-center gap-2 mb-8 px-4">
-    <div className="w-8 h-8 bg-linear-to-br from-cyan-400 to-blue-500 rounded flex items-center justify-center">
+  <Link href="/" className="flex items-center gap-2 mb-8 px-4 lg:hidden">
+    <div className="w-8 h-8 bg-linear-to-br from-cyan-400 to-blue-500 rounded flex items-center justify-center ">
       <svg
         className="w-5 h-5 text-white"
         fill="none"
@@ -23,8 +23,8 @@ const Logo = () => (
       </svg>
     </div>
     <div>
-      <h1 className="text-xl font-bold text-transparent bg-clip-text bg-linear-to-r from-cyan-300 to-blue-400">
-        LinguaMind AI
+      <h1 className="text-xl font-bold text-transparent bg-clip-text bg-linear-to-r from-cyan-300 to-blue-400 ">
+        MeowLingo AI
       </h1>
       <p className="text-xs text-gray-400">Your AI Language Mentor</p>
     </div>
@@ -32,6 +32,7 @@ const Logo = () => (
 );
 
 const navigationItems = [
+  { name: "Dashboard", href: "/dashboard", icon: "" },
   { name: "Speaking", href: "/speaking", icon: "" },
   { name: "Writing", href: "/writing", icon: "" },
   { name: "Listening", href: "/listening", icon: "" },
@@ -86,30 +87,32 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Background overlay for mobile */}
-      {isSidebarOpen && (
-        <div
-          className="lg:hidden fixed inset-0 z-30 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+      <div
+        className={`lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+          isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsSidebarOpen(false)}
+      />
 
-      {/* Sidebar */}
       <aside
-        className={` fixed inset-y-0 right-0 z-40 w-64 lg:w-72 flex flex-col overflow-y-auto px-2 py-4 transition-transform duration-300 ease-out ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        } bg-[#0B1221] border-r border-white/15`}
+        className={`pt-22 fixed inset-y-0 right-0 z-50 w-64 lg:w-72 flex flex-col overflow-y-auto px-2 py-4 bg-[#0B1221] border-l border-white/15  transform-gpu will-change-transform lg:translate-x-0 lg:transition-none ${
+          isSidebarOpen
+            ? "translate-x-0 opacity-100 transition-all duration-300 ease-out"
+            : "translate-x-full opacity-100 transition-all duration-300 ease-in"
+        }`}
       >
-        <Logo />
+        <Logo/>
 
         <nav className="flex flex-1 flex-col">
           {navigationItems.map((item) => (
-            <Link dir="rtl"
+            <Link
+              dir="rtl"
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              onClick={() => setIsSidebarOpen(false)}
+              className={`flex items-center gap-x-3 px-3 lg:py-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 pathname === item.href
-                  ? "bg-linear-to-r from-cyan-500/30 to-blue-500/30 text-cyan-300 shadow-md"
+                  ? "bg-linear-to-r from-cyan-500/30 to-blue-500/30 text-cyan-300 shadow-md border-r-3 "
                   : "text-gray-400 hover:bg-white/5 hover:text-gray-200"
               }`}
             >

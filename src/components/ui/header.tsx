@@ -11,14 +11,12 @@ interface HeaderProps {
 }
 
 export default function Header({ setIsSidebarOpen }: HeaderProps) {
-  const { data: session, status } = useSession(); // وضعیت ورود کاربر
+  const { data: session, status } = useSession(); // Client's login status
 
   const isLoading = status === "loading";
   const isLoggedIn = status === "authenticated" && session?.user;
-
   return (
-    <header className="sticky top-0 z-40 bg-[#0B1221]/60 backdrop-blur-lg border-b border-white/10 px-6 lg:px-8 py-4 flex items-center justify-between" dir="rtl">
-      {/* Left side: Logo and Hamburger for mobile */}
+    <header className="fixed inset-x-0 top-0 z-80 bg-[#0B1221]/85 backdrop-blur-lg border-b border-white/10 px-6 lg:px-8 py-4 flex items-center justify-between" dir="rtl">
       <div className="flex items-center gap-x-4">
         <button
           type="button"
@@ -41,8 +39,7 @@ export default function Header({ setIsSidebarOpen }: HeaderProps) {
             />
           </svg>
         </button>
-        <Link href="/" className="flex items-center gap-2">
-          {/* Logo Placeholder - Replace with your SVG */}
+        <Link href="/" className="lg:flex hidden items-center gap-2">
           <div className="w-8 h-8 bg-linear-to-br from-cyan-400 to-blue-500 rounded flex items-center justify-center">
             <svg
               className="w-5 h-5 text-white"
@@ -64,26 +61,14 @@ export default function Header({ setIsSidebarOpen }: HeaderProps) {
         </Link>
       </div>
 
-      {/* Center: Search
-      <div className="flex-1 mx-4 hidden lg:flex">
-        <label htmlFor="search" className="sr-only">Search</label>
-        <input
-          id="search"
-          type="text"
-          placeholder="Search..."
-          className="block w-full rounded-md border-0 bg-white/5 py-2 pl-4 pr-3 text-sm placeholder:text-white/50 focus:ring-2 focus:ring-inset focus:ring-cyan-500 sm:text-sm"
-        />
-      </div> */}
-
-      {/* Right side: Icons and User/Login */}
       <div className="flex items-center gap-x-4">
         <button type="button" className="p-2.5 text-gray-400 hover:text-white">
           <span className="sr-only">View notifications</span>
-          <div className="icon w-6 h-6 bg-gray-500/40 rounded" />{" "}
+          <div className="icon w-6 h-6 bg-gray-500/40 rounded" />
         </button>
         <button type="button" className="p-2.5 text-gray-400 hover:text-white">
           <span className="sr-only">Settings</span>
-          <div className="icon w-6 h-6 bg-gray-500/40 rounded" />{" "}
+          <div className="icon w-6 h-6 bg-gray-500/40 rounded" />
         </button>
 
         {isLoading && (
@@ -94,7 +79,7 @@ export default function Header({ setIsSidebarOpen }: HeaderProps) {
           (isLoggedIn ? (
             <UserProfile />
           ) : (
-            <Link 
+            <Link
               href="/login"
               className="text-sm font-semibold leading-6 text-white bg-cyan-600 px-3 py-1.5 rounded-md hover:bg-cyan-700"
             >
