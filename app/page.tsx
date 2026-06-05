@@ -2,7 +2,7 @@
 "use client";
 import dynamic from 'next/dynamic';
 
-const LoginForm = dynamic(() => import('../src/components/auth/login'), {
+const LoginForm = dynamic(() => import('../components/auth/login'), {
   ssr: false, 
   loading: () => <p>Loading login form...</p>, 
 });
