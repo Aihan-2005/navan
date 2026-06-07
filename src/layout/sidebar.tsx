@@ -33,11 +33,11 @@ const Logo = () => (
 
 const navigationItems = [
   { name: "Dashboard", href: "/dashboard", icon: "" },
-  { name: "Speaking", href: "/speaking", icon: "" },
-  { name: "Writing", href: "/writing", icon: "" },
-  { name: "Listening", href: "/listening", icon: "" },
-  { name: "Exam", href: "/exam", icon: "" },
-  { name: "Online Class", href: "/online-class", icon: "" },
+  { name: "Speaking", href: "/dashboard/speaking", icon: "" },
+  { name: "Writing", href: "/dashboard/writing", icon: "" },
+  { name: "Listening", href: "/dashboard/listening", icon: "" },
+  { name: "Exam", href: "/dashboard/exam", icon: "" },
+  { name: "Online Class", href: "/dashboard/online-class", icon: "" },
 ];
 
 // Placeholder for Upgrade to Pro card
