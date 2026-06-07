@@ -37,7 +37,7 @@ const navigationItems = [
   { name: "Writing", href: "/dashboard/writing", icon: "" },
   { name: "Listening", href: "/dashboard/listening", icon: "" },
   { name: "Exam", href: "/dashboard/exam", icon: "" },
-  { name: "Online Class", href: "/dashboard/online-class", icon: "" },
+  { name: "Online Class", href: "/dashboard/onlineClass", icon: "" },
 ];
 
 // Placeholder for Upgrade to Pro card
