@@ -2,8 +2,8 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
-import { loginSchema } from "../../libs/auth";
+import { signIn } from "next-auth/react";
+import { loginSchema } from "../../utils/auth";
 import { useRouter } from "next/navigation";
 
 const gradientAnimation = {
@@ -51,21 +51,21 @@ const LoginForm: React.FC = () => {
 
     // Api
     try {
-      const response = await axios.post("/libs/api", {
-        username: validation.data.username,
+      const result = await signIn("credentials", {
         email: validation.data.email,
         password: validation.data.password,
+        redirect: false,
       });
 
-      console.log("Login successful:", response.data);
+      if (result?.error) {
+        setError("ایمیل یا رمز عبور نامعتبر است.");
+        return;
+      }
 
-      // Redirect after successful login
       router.push("/dashboard");
-    } catch (err: any) {
-      // نمایش خطای سرور
-      const message = err.response?.data?.message || "خطا در ارتباط با سرور";
-      setError(message);
-      console.error("Login error:", err.response?.data || err.message);
+    } catch (err) {
+      setError("خطا در ارتباط با سرور.");
+      console.error("Login error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -151,7 +151,7 @@ const LoginForm: React.FC = () => {
                 {error}
               </motion.p>
             )}
-  
+
             {/* forgot pass :)*/}
             <div className="flex justify-start">
               <Link

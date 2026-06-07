@@ -2,7 +2,7 @@
 "use client";
 
 // import Image from "next/image";
-import UserProfile from "../auth/userProfile/page"; 
+import UserProfile from "../app/(user)/profile/page";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
@@ -16,7 +16,10 @@ export default function Header({ setIsSidebarOpen }: HeaderProps) {
   const isLoading = status === "loading";
   const isLoggedIn = status === "authenticated" && session?.user;
   return (
-    <header className="fixed inset-x-0 top-0 z-80 bg-[#0B1221]/85 backdrop-blur-lg border-b border-white/10 px-6 lg:px-8 py-4 flex items-center justify-between" dir="rtl">
+    <header
+      className="fixed inset-x-0 top-0 z-80 bg-[#0B1221]/85 backdrop-blur-lg border-b border-white/10 px-6 lg:px-8 py-4 flex items-center justify-between"
+      dir="rtl"
+    >
       <div className="flex items-center gap-x-4">
         <button
           type="button"

@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
-import { registerSchema, type RegisterFormData } from "../../libs/auth";
+import { signIn } from "next-auth/react";
+import { registerSchema, type RegisterFormData } from "../../utils/auth";
 import { useRouter } from "next/navigation";
 
 const gradientAnimation = {
@@ -82,9 +82,18 @@ const RegisterForm: React.FC = () => {
       setIsLoading(true);
       setError("");
 
-      await axios.post("/api/register", parsed.data);
+      const result = await signIn("credentials", {
+        email: parsed.data.email,
+        password: parsed.data.password,
+        redirect: false,
+      });
 
-      router.push("/login");
+      if (result?.error) {
+        setError("ثبت‌نام انجام نشد. لطفاً دوباره تلاش کنید.");
+        return;
+      }
+
+      router.push("/dashboard");
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||
