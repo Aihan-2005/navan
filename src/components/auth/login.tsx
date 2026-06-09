@@ -3,7 +3,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { signIn } from "next-auth/react";
-import { loginSchema } from "../../utils/auth";
+import { loginSchema } from "../../utils/schema";
 import { useRouter } from "next/navigation";
 
 const gradientAnimation = {

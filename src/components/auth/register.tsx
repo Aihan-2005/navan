@@ -2,7 +2,7 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { motion } from "framer-motion";
 import { signIn } from "next-auth/react";
-import { registerSchema, type RegisterFormData } from "../../utils/auth";
+import { registerSchema, type RegisterFormData } from "../../utils/schema";
 import { useRouter } from "next/navigation";
 
 const gradientAnimation = {

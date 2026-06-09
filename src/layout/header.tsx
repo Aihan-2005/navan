@@ -83,7 +83,7 @@ export default function Header({ setIsSidebarOpen }: HeaderProps) {
             <UserProfile />
           ) : (
             <Link
-              href="/login"
+              href="../api/auth/login"
               className="text-sm font-semibold leading-6 text-white bg-cyan-600 px-3 py-1.5 rounded-md hover:bg-cyan-700"
             >
               ورود / ثبت‌نام
