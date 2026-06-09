@@ -1,9 +1,14 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 
-export function Providers({ children }: { children: React.ReactNode }) {
+type ProvidersProps = {
+  children: ReactNode;
+};
+
+export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
       <ThemeProvider
@@ -11,7 +16,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultTheme="dark"
         enableSystem={false}
         disableTransitionOnChange
-         storageKey="theme" 
+        storageKey="theme"
       >
         {children}
       </ThemeProvider>
