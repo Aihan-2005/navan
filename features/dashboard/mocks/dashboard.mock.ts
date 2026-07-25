@@ -1,15 +1,17 @@
 import type { DashboardOverview } from "../types/dashboard.types";
 
-export const dashboardMock = {
+export const dashboardMock: DashboardOverview = {
   user: {
-    id: "user_001",
-    firstName: "نیکا",
-    lastName: null,
+    id: "user-001",
+
+    firstName: "مجتبی",
+    lastName: "شبانی",
+
     avatarUrl: null,
 
     targetLanguage: {
       code: "en",
-      name: "انگلیسی",
+      name: "English",
     },
 
     nativeLanguage: {
@@ -20,244 +22,247 @@ export const dashboardMock = {
     cefrLevel: "B1",
 
     learningGoal:
-      "تقویت مکالمه روزمره و افزایش اعتمادبه‌نفس",
+      "بهبود مکالمه و درک زبان انگلیسی",
   },
+
 
   summary: {
-    streakDays: 7,
+    streakDays: 12,
 
-    todayCompletedMinutes: 18,
-    dailyGoalMinutes: 30,
+    todayCompletedMinutes: 25,
+    dailyGoalMinutes: 45,
 
-    weeklyCompletedMinutes: 95,
-    weeklyGoalMinutes: 150,
+    weeklyCompletedMinutes: 180,
+    weeklyGoalMinutes: 300,
 
-    completedActivitiesThisWeek: 12,
+    completedActivitiesThisWeek: 14,
   },
 
+
   continueLearning: {
-    activityId: "restaurant-roleplay",
-    title: "مکالمه در رستوران",
+    activityId: "activity-speaking-001",
+
+    title: "تمرین مکالمه روزانه",
 
     description:
-      "در این تمرین، سفارش غذا و صحبت با پیشخدمت را تمرین می‌کنی.",
+      "تمرین مکالمه برای افزایش سرعت پاسخ‌گویی",
 
     skill: "speaking",
 
     progressPercent: 65,
-    estimatedMinutesRemaining: 8,
 
-    lastActivityAt: "2026-07-24T16:30:00.000Z",
+    estimatedMinutesRemaining: 15,
 
-    href: "/speaking/practice/restaurant-roleplay",
+    lastActivityAt:
+      "2026-07-25T10:30:00.000Z",
+
+    href: "/speaking/activity-speaking-001",
   },
+
 
   dailyPlan: {
     date: "2026-07-25",
 
-    completionPercent: 25,
-    completedTasks: 1,
-    totalTasks: 4,
-    estimatedRemainingMinutes: 28,
+    completionPercent: 40,
+
+    completedTasks: 2,
+
+    totalTasks: 5,
+
+    estimatedRemainingMinutes: 35,
+
 
     tasks: [
       {
-        id: "daily-vocabulary-001",
-        title: "مرور ۱۰ لغت روزانه",
+        id: "task-001",
+
+        title: "مرور لغات جدید",
 
         description:
-          "مرور واژگان مربوط به سفر و رستوران",
+          "مرور لغات ذخیره شده امروز",
 
         skill: "vocabulary",
+
         status: "completed",
 
-        estimatedMinutes: 5,
-        xpReward: 10,
+        estimatedMinutes: 10,
 
-        href: null,
+        xpReward: 50,
+
+        href: "/vocabulary",
       },
 
+
       {
-        id: "daily-listening-001",
-        title: "تمرین شنیداری سطح B1",
+        id: "task-002",
+
+        title: "تمرین شنیداری",
 
         description:
-          "گوش‌دادن به یک گفت‌وگوی کوتاه روزمره",
+          "گوش دادن به فایل صوتی سطح B1",
 
         skill: "listening",
-        status: "pending",
 
-        estimatedMinutes: 8,
-        xpReward: 20,
+        status: "in_progress",
+
+        estimatedMinutes: 15,
+
+        xpReward: 70,
 
         href: "/listening",
       },
 
-      {
-        id: "daily-speaking-001",
-        title: "مکالمه با معلم هوشمند",
-
-        description:
-          "تمرین مکالمه درباره سفارش غذا",
-
-        skill: "speaking",
-        status: "in_progress",
-
-        estimatedMinutes: 10,
-        xpReward: 30,
-
-        href: "/speaking",
-      },
 
       {
-        id: "daily-writing-001",
-        title: "نوشتن یک متن کوتاه",
+        id: "task-003",
+
+        title: "تمرین گرامر",
 
         description:
-          "توصیف یک تجربه از سفر گذشته",
+          "مرور زمان‌های انگلیسی",
 
-        skill: "writing",
+        skill: "grammar",
+
         status: "pending",
 
         estimatedMinutes: 10,
-        xpReward: 20,
 
-        href: "/writing",
+        xpReward: 40,
+
+        href: "/grammar",
       },
     ],
   },
 
+
   skillProgress: [
     {
       skill: "speaking",
+
       score: 72,
-      previousScore: 66,
+
+      previousScore: 65,
+
       cefrLevel: "B1",
-      completedActivities: 18,
-      totalPracticeMinutes: 210,
+
+      completedActivities: 24,
+
+      totalPracticeMinutes: 420,
     },
+
 
     {
       skill: "listening",
-      score: 64,
-      previousScore: 61,
+
+      score: 68,
+
+      previousScore: 60,
+
       cefrLevel: "B1",
-      completedActivities: 14,
-      totalPracticeMinutes: 165,
+
+      completedActivities: 20,
+
+      totalPracticeMinutes: 350,
     },
 
-    {
-      skill: "reading",
-      score: 78,
-      previousScore: 76,
-      cefrLevel: "B1",
-      completedActivities: 11,
-      totalPracticeMinutes: 130,
-    },
-
-    {
-      skill: "writing",
-      score: 55,
-      previousScore: 58,
-      cefrLevel: "A2",
-      completedActivities: 9,
-      totalPracticeMinutes: 105,
-    },
-
-    {
-      skill: "grammar",
-      score: 69,
-      previousScore: 65,
-      cefrLevel: "B1",
-      completedActivities: 16,
-      totalPracticeMinutes: 180,
-    },
 
     {
       skill: "vocabulary",
-      score: 74,
-      previousScore: 70,
-      cefrLevel: "B1",
-      completedActivities: 22,
-      totalPracticeMinutes: 240,
+
+      score: 80,
+
+      previousScore: 75,
+
+      cefrLevel: "B2",
+
+      completedActivities: 45,
+
+      totalPracticeMinutes: 600,
     },
   ],
 
+
   reviewQueue: {
-    totalItems: 17,
+    totalItems: 8,
 
-    vocabularyCount: 12,
-    grammarCount: 3,
-    mistakeCount: 2,
+    vocabularyCount: 5,
 
-    estimatedMinutes: 10,
+    grammarCount: 2,
 
-    href: null,
+    mistakeCount: 1,
+
+    estimatedMinutes: 20,
+
+    href: "/review",
   },
+
 
   primaryInsight: {
     id: "insight-001",
 
-    type: "weakness",
+    type: "recommendation",
 
     title:
-      "زمان گذشته نیاز به تمرین بیشتری دارد",
+      "تمرین مکالمه را بیشتر کن",
 
     description:
-      "در تمرین‌های اخیر چند اشتباه تکراری در استفاده از Past Simple مشاهده شده است. پیشنهاد می‌شود امروز یک تمرین کوتاه نوشتاری انجام بدهی.",
+      "بر اساس فعالیت‌های اخیر، افزایش تمرین مکالمه باعث رشد سریع‌تر سطح زبان می‌شود.",
 
-    relatedSkill: "grammar",
+    relatedSkill: "speaking",
 
-    actionLabel: "شروع تمرین نوشتاری",
-    actionHref: "/writing",
+    actionLabel:
+      "شروع تمرین",
 
-    createdAt: "2026-07-25T08:00:00.000Z",
+    actionHref:
+      "/speaking",
+
+    createdAt:
+      "2026-07-25T09:00:00.000Z",
   },
+
 
   recentActivities: [
     {
-      id: "recent-speaking-001",
-      title: "مکالمه در فرودگاه",
+      id: "recent-001",
+
+      title:
+        "تمرین مکالمه انگلیسی",
 
       skill: "speaking",
+
       status: "completed",
 
-      score: 76,
-      durationMinutes: 14,
+      score: 85,
 
-      occurredAt: "2026-07-24T18:20:00.000Z",
+      durationMinutes: 20,
 
-      href: "/speaking",
+      occurredAt:
+        "2026-07-25T08:30:00.000Z",
+
+      href:
+        "/speaking/recent-001",
     },
 
-    {
-      id: "recent-listening-001",
-      title: "گفت‌وگوی روزمره شماره ۴",
-
-      skill: "listening",
-      status: "completed",
-
-      score: 68,
-      durationMinutes: 9,
-
-      occurredAt: "2026-07-23T15:40:00.000Z",
-
-      href: "/listening",
-    },
 
     {
-      id: "recent-writing-001",
-      title: "توصیف آخر هفته",
+      id: "recent-002",
 
-      skill: "writing",
+      title:
+        "مرور لغات",
+
+      skill: "vocabulary",
+
       status: "completed",
 
-      score: 71,
-      durationMinutes: 18,
+      score: 90,
 
-      occurredAt: "2026-07-22T11:15:00.000Z",
+      durationMinutes: 15,
 
-      href: "/writing",
+      occurredAt:
+        "2026-07-24T18:00:00.000Z",
+
+      href:
+        "/vocabulary",
     },
   ],
-} satisfies DashboardOverview;
+};

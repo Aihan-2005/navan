@@ -18,9 +18,13 @@ import type {
   skillTypeSchema,
 } from "../schemas/dashboard.schema";
 
-export type SkillType = z.infer<typeof skillTypeSchema>;
+export type SkillType = z.infer<
+  typeof skillTypeSchema
+>;
 
-export type CefrLevel = z.infer<typeof cefrLevelSchema>;
+export type CefrLevel = z.infer<
+  typeof cefrLevelSchema
+>;
 
 export type ActivityStatus = z.infer<
   typeof activityStatusSchema
@@ -70,6 +74,10 @@ export type RecentActivity = z.infer<
   typeof recentActivitySchema
 >;
 
-export type DashboardOverview = z.infer<
+export type DashboardOverview = z.output<
+  typeof dashboardOverviewSchema
+>;
+
+export type DashboardOverviewInput = z.input<
   typeof dashboardOverviewSchema
 >;

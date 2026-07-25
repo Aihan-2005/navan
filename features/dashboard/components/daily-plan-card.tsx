@@ -24,28 +24,43 @@ import type {
   DailyTask,
 } from "../types/dashboard.types";
 
-type DailyPlanCardProps = {
-  plan: DailyPlan;
-};
+type DailyPlanCardProps = Readonly<{
+  plan?: DailyPlan | null;
+}>;
 
-const numberFormatter = new Intl.NumberFormat("fa-IR");
+const numberFormatter =
+  new Intl.NumberFormat("fa-IR");
+
+const EMPTY_DAILY_PLAN: DailyPlan = {
+  date: "",
+  completionPercent: 0,
+  completedTasks: 0,
+  totalTasks: 0,
+  estimatedRemainingMinutes: 0,
+  tasks: [],
+};
 
 const statusStyles = {
   pending: {
     icon: Circle,
     iconClassName: "text-slate-500",
-    wrapperClassName: "border-white/[0.06] bg-white/[0.02]",
+
+    wrapperClassName:
+      "border-white/[0.06] bg-white/[0.02]",
   },
 
   in_progress: {
     icon: Play,
     iconClassName: "text-cyan-300",
-    wrapperClassName: "border-cyan-400/15 bg-cyan-400/[0.04]",
+
+    wrapperClassName:
+      "border-cyan-400/15 bg-cyan-400/[0.04]",
   },
 
   completed: {
     icon: Check,
     iconClassName: "text-emerald-300",
+
     wrapperClassName:
       "border-emerald-400/15 bg-emerald-400/[0.04]",
   },
@@ -53,7 +68,9 @@ const statusStyles = {
   skipped: {
     icon: Circle,
     iconClassName: "text-slate-600",
-    wrapperClassName: "border-white/[0.04] bg-white/[0.01]",
+
+    wrapperClassName:
+      "border-white/[0.04] bg-white/[0.01]",
   },
 } satisfies Record<
   ActivityStatus,
@@ -68,8 +85,15 @@ function formatNumber(value: number): string {
   return numberFormatter.format(value);
 }
 
-function DailyTaskItem({ task }: { task: DailyTask }) {
-  const statusStyle = statusStyles[task.status];
+function DailyTaskItem({
+  task,
+}: {
+  task: DailyTask;
+}) {
+  const statusStyle =
+    statusStyles[task.status] ??
+    statusStyles.pending;
+
   const StatusIcon = statusStyle.icon;
 
   const content = (
@@ -78,7 +102,9 @@ function DailyTaskItem({ task }: { task: DailyTask }) {
         "flex items-start gap-3 rounded-2xl border p-3.5",
         "transition duration-200",
         statusStyle.wrapperClassName,
-        task.href && "hover:border-white/15 hover:bg-white/[0.05]",
+
+        task.href &&
+          "hover:border-white/15 hover:bg-white/[0.05]",
       )}
     >
       <div
@@ -90,7 +116,10 @@ function DailyTaskItem({ task }: { task: DailyTask }) {
       >
         <StatusIcon
           aria-hidden="true"
-          className={cn("h-4 w-4", statusStyle.iconClassName)}
+          className={cn(
+            "h-4 w-4",
+            statusStyle.iconClassName,
+          )}
         />
       </div>
 
@@ -99,6 +128,7 @@ function DailyTaskItem({ task }: { task: DailyTask }) {
           <h3
             className={cn(
               "text-sm font-semibold text-slate-100",
+
               task.status === "completed" &&
                 "text-slate-400 line-through",
             )}
@@ -109,10 +139,13 @@ function DailyTaskItem({ task }: { task: DailyTask }) {
           <span
             className="
               rounded-full bg-white/[0.05]
-              px-2 py-0.5 text-[10px] text-slate-400
+              px-2 py-0.5 text-[10px]
+              text-slate-400
             "
           >
-            {DASHBOARD_SKILL_LABELS[task.skill]}
+            {DASHBOARD_SKILL_LABELS[
+              task.skill
+            ]}
           </span>
         </div>
 
@@ -124,9 +157,15 @@ function DailyTaskItem({ task }: { task: DailyTask }) {
 
         <div className="mt-2.5 flex flex-wrap items-center gap-3">
           <span className="flex items-center gap-1 text-xs text-slate-500">
-            <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
+            <Clock3
+              aria-hidden="true"
+              className="h-3.5 w-3.5"
+            />
 
-            {formatNumber(task.estimatedMinutes)} دقیقه
+            {formatNumber(
+              task.estimatedMinutes,
+            )}{" "}
+            دقیقه
           </span>
 
           <span className="flex items-center gap-1 text-xs text-amber-300/80">
@@ -135,11 +174,16 @@ function DailyTaskItem({ task }: { task: DailyTask }) {
               className="h-3.5 w-3.5"
             />
 
-            {formatNumber(task.xpReward)} امتیاز
+            {formatNumber(task.xpReward)}{" "}
+            امتیاز
           </span>
 
           <span className="text-xs text-slate-600">
-            {DASHBOARD_ACTIVITY_STATUS_LABELS[task.status]}
+            {
+              DASHBOARD_ACTIVITY_STATUS_LABELS[
+                task.status
+              ]
+            }
           </span>
         </div>
       </div>
@@ -162,7 +206,15 @@ function DailyTaskItem({ task }: { task: DailyTask }) {
   }
 
   return (
-    <Link href={task.href} className="group block">
+    <Link
+      href={task.href}
+      className="
+        group block rounded-2xl
+        focus-visible:outline-none
+        focus-visible:ring-2
+        focus-visible:ring-cyan-300/60
+      "
+    >
       {content}
     </Link>
   );
@@ -171,11 +223,26 @@ function DailyTaskItem({ task }: { task: DailyTask }) {
 export function DailyPlanCard({
   plan,
 }: DailyPlanCardProps) {
-  const hasTasks = plan.tasks.length > 0;
+  const safePlan =
+    plan ?? EMPTY_DAILY_PLAN;
+
+  const tasks = Array.isArray(
+    safePlan.tasks,
+  )
+    ? safePlan.tasks
+    : [];
+
+  const hasTasks = tasks.length > 0;
 
   return (
     <Card className="h-full p-5 sm:p-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div
+        className="
+          flex flex-col gap-4
+          sm:flex-row sm:items-start
+          sm:justify-between
+        "
+      >
         <div>
           <div className="flex items-center gap-2 text-cyan-300">
             <ListChecks
@@ -193,14 +260,28 @@ export function DailyPlanCard({
           </h2>
 
           <p className="mt-2 text-sm leading-7 text-slate-500">
-            {formatNumber(plan.completedTasks)} مورد از{" "}
-            {formatNumber(plan.totalTasks)} تمرین انجام شده است.
+            {formatNumber(
+              safePlan.completedTasks,
+            )}{" "}
+            مورد از{" "}
+            {formatNumber(
+              safePlan.totalTasks,
+            )}{" "}
+            تمرین انجام شده است.
           </p>
         </div>
 
-        <div className="rounded-xl bg-white/[0.04] px-3 py-2 text-xs text-slate-400">
-          حدود {formatNumber(plan.estimatedRemainingMinutes)} دقیقه باقی
-          مانده
+        <div
+          className="
+            rounded-xl bg-white/[0.04]
+            px-3 py-2 text-xs text-slate-400
+          "
+        >
+          حدود{" "}
+          {formatNumber(
+            safePlan.estimatedRemainingMinutes,
+          )}{" "}
+          دقیقه باقی مانده
         </div>
       </div>
 
@@ -211,12 +292,17 @@ export function DailyPlanCard({
           </span>
 
           <span className="text-sm font-bold text-white">
-            {formatNumber(plan.completionPercent)}٪
+            {formatNumber(
+              safePlan.completionPercent,
+            )}
+            ٪
           </span>
         </div>
 
         <Progress
-          value={plan.completionPercent}
+          value={
+            safePlan.completionPercent
+          }
           label="پیشرفت برنامه امروز"
           indicatorClassName="from-emerald-300 to-cyan-400"
         />
@@ -224,15 +310,19 @@ export function DailyPlanCard({
 
       {hasTasks ? (
         <div className="mt-6 space-y-3">
-          {plan.tasks.map((task) => (
-            <DailyTaskItem key={task.id} task={task} />
+          {tasks.map((task) => (
+            <DailyTaskItem
+              key={task.id}
+              task={task}
+            />
           ))}
         </div>
       ) : (
         <div
           className="
-            mt-6 rounded-2xl border border-dashed
-            border-white/10 bg-white/[0.02]
+            mt-6 rounded-2xl border
+            border-dashed border-white/10
+            bg-white/[0.02]
             px-5 py-8 text-center
           "
         >
@@ -241,7 +331,8 @@ export function DailyPlanCard({
           </p>
 
           <p className="mt-2 text-xs leading-6 text-slate-500">
-            برنامه شخصی تو بعد از اولین ارزیابی ساخته می‌شود.
+            برنامه شخصی تو بعد از اولین
+            ارزیابی ساخته می‌شود.
           </p>
         </div>
       )}

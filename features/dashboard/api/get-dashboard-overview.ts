@@ -1,8 +1,12 @@
 import { dashboardMock } from "../mocks/dashboard.mock";
 
-import { dashboardOverviewSchema } from "../schemas/dashboard.schema";
+import {
+  dashboardOverviewSchema,
+} from "../schemas/dashboard.schema";
 
-import type { DashboardOverview } from "../types/dashboard.types";
+import type {
+  DashboardOverview,
+} from "../types/dashboard.types";
 
 const DASHBOARD_OVERVIEW_PATH =
   "/api/v1/dashboard/overview";
@@ -12,7 +16,8 @@ function shouldUseMockData(): boolean {
 }
 
 function getApiBaseUrl(): string {
-  const apiBaseUrl = process.env.API_BASE_URL;
+  const apiBaseUrl =
+    process.env.API_BASE_URL;
 
   if (!apiBaseUrl) {
     throw new Error(
@@ -23,9 +28,29 @@ function getApiBaseUrl(): string {
   return apiBaseUrl;
 }
 
+function parseDashboardOverview(
+  payload: unknown,
+): DashboardOverview {
+  const result =
+    dashboardOverviewSchema.safeParse(payload);
+
+  if (!result.success) {
+    console.error(
+      "Invalid dashboard overview payload:",
+      result.error.flatten(),
+    );
+
+    throw new Error(
+      "Dashboard overview payload is invalid.",
+    );
+  }
+
+  return result.data;
+}
+
 export async function getDashboardOverview(): Promise<DashboardOverview> {
   if (shouldUseMockData()) {
-    return dashboardOverviewSchema.parse(
+    return parseDashboardOverview(
       dashboardMock,
     );
   }
@@ -35,15 +60,18 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
     getApiBaseUrl(),
   );
 
-  const response = await fetch(requestUrl, {
-    method: "GET",
+  const response = await fetch(
+    requestUrl,
+    {
+      method: "GET",
 
-    headers: {
-      Accept: "application/json",
+      headers: {
+        Accept: "application/json",
+      },
+
+      cache: "no-store",
     },
-
-    cache: "no-store",
-  });
+  );
 
   if (!response.ok) {
     throw new Error(
@@ -54,7 +82,5 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
   const payload: unknown =
     await response.json();
 
-  return dashboardOverviewSchema.parse(
-    payload,
-  );
+  return parseDashboardOverview(payload);
 }
