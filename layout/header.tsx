@@ -89,7 +89,7 @@ export default function Header({ setIsSidebarOpen }: HeaderProps) {
           </button>
 
           <Link
-            href="/dashboard/settings"
+            href="/settings"
             className="rounded-xl p-2.5 text-gray-300 transition hover:bg-white/10 hover:text-white"
             aria-label="تنظیمات"
           >

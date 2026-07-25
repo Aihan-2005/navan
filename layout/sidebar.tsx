@@ -1,130 +1,284 @@
 "use client";
 
+import { useEffect, type ComponentType, type SVGProps } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Bot,
+  BookOpenCheck,
+  ClipboardCheck,
+  Crown,
+  Headphones,
+  Languages,
+  LayoutDashboard,
+  Mic2,
+  PenLine,
+  Settings,
+  X,
+} from "lucide-react";
 
-type NavigationItem = {
-  name: string;
+import { cn } from "../lib/utils/cn";
+
+type NavigationIcon = ComponentType<
+  SVGProps<SVGSVGElement> & {
+    size?: number | string;
+  }
+>;
+
+type NavigationItem = Readonly<{
+  label: string;
   href: string;
-  iconPath: string;
-};
+  icon: NavigationIcon;
+  exact?: boolean;
+}>;
 
-const navigationItems: NavigationItem[] = [
+type SidebarProps = Readonly<{
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: (open: boolean) => void;
+}>;
+
+const primaryNavigationItems = [
   {
-    name: "Dashboard",
+    label: "داشبورد",
     href: "/dashboard",
-    iconPath:
-      "M4 13h6V4H4v9Zm10 7h6V4h-6v16ZM4 20h6v-5H4v5Z",
+    icon: LayoutDashboard,
+    exact: true,
   },
   {
-    name: "Speaking",
-    href: "/dashboard/speaking",
-    iconPath:
-      "M12 14a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v4a4 4 0 0 0 4 4Zm7-4a7 7 0 0 1-14 0M12 17v4m-4 0h8",
+    label: "مکالمه",
+    href: "/speaking",
+    icon: Mic2,
   },
   {
-    name: "Writing",
-    href: "/dashboard/writing",
-    iconPath:
-      "M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3Zm12-12 2 2",
+    label: "شنیداری",
+    href: "/listening",
+    icon: Headphones,
   },
   {
-    name: "Listening",
-    href: "/dashboard/listening",
-    iconPath:
-      "M4 12a8 8 0 0 1 16 0v4a3 3 0 0 1-3 3h-1v-7h4M4 12v4a3 3 0 0 0 3 3h1v-7H4",
+    label: "نوشتن",
+    href: "/writing",
+    icon: PenLine,
   },
   {
-    name: "Exam",
-    href: "/dashboard/exam",
-    iconPath:
-      "M7 3h10a2 2 0 0 1 2 2v16l-4-2-3 2-3-2-4 2V5a2 2 0 0 1 2-2Zm3 6h6M10 13h6",
+    label: "ارزیابی‌ها",
+    href: "/assessments",
+    icon: ClipboardCheck,
   },
   {
-    name: "Online Class",
-    href: "/dashboard/online-class",
-    iconPath:
-      "M4 6h16v10H4V6Zm4 14h8m-4-4v4m-5-8 3-3 3 3 4-4",
+    label: "معلم هوشمند",
+    href: "/tutor",
+    icon: Bot,
   },
-];
+] satisfies readonly NavigationItem[];
 
-function isActivePath(pathname: string, href: string) {
-  if (href === "/dashboard") {
-    return pathname === href;
+const secondaryNavigationItems = [
+  {
+    label: "مرور آموخته‌ها",
+    href: "/review",
+    icon: BookOpenCheck,
+  },
+  {
+    label: "تنظیمات",
+    href: "/settings",
+    icon: Settings,
+  },
+] satisfies readonly NavigationItem[];
+
+function isNavigationItemActive(
+  pathname: string,
+  item: NavigationItem,
+): boolean {
+  if (item.exact) {
+    return pathname === item.href;
   }
 
-  return pathname === href || pathname.startsWith(`${href}/`);
+  return (
+    pathname === item.href ||
+    pathname.startsWith(`${item.href}/`)
+  );
 }
 
-function Logo() {
+function BrandLogo() {
   return (
-    <Link href="/" className="mb-8 flex items-center gap-3 px-4">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#22d3ee,#2563eb)] shadow-lg shadow-cyan-500/20">
-        <svg
-          className="h-5 w-5 text-white"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="1.8"
-          stroke="currentColor"
+    <Link
+      href="/dashboard"
+      aria-label="رفتن به داشبورد MeowLingo AI"
+      className="
+        flex min-w-0 items-center gap-3 rounded-2xl px-3 py-2
+        transition hover:bg-white/[0.04]
+        focus-visible:outline-none
+        focus-visible:ring-2
+        focus-visible:ring-cyan-300/60
+      "
+    >
+      <span
+        className="
+          flex h-11 w-11 shrink-0 items-center justify-center
+          rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600
+          text-white shadow-lg shadow-cyan-950/30
+        "
+      >
+        <Languages
           aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 6v12m0-12c-2.8 0-5 1.4-5 3.2S9.2 12.5 12 12.5m0-6.5c2.8 0 5 1.4 5 3.2s-2.2 3.3-5 3.3m0 0c-2.8 0-5 1.4-5 3.2S9.2 19 12 19m0-6.5c2.8 0 5 1.4 5 3.2S14.8 19 12 19"
-          />
-        </svg>
-      </div>
+          className="h-6 w-6"
+        />
+      </span>
 
-      <div>
-        <h1 className="bg-[linear-gradient(to_right,#67e8f9,#60a5fa)] bg-clip-text text-xl font-bold text-transparent">
+      <span className="min-w-0">
+        <span
+          className="
+            block truncate bg-gradient-to-l
+            from-cyan-300 to-blue-400 bg-clip-text
+            text-lg font-bold text-transparent
+          "
+        >
           MeowLingo AI
-        </h1>
-        <p className="text-xs text-gray-400">Your AI Language Mentor</p>
-      </div>
+        </span>
+
+        <span className="block truncate text-[11px] text-slate-500">
+          Your AI Language Mentor
+        </span>
+      </span>
     </Link>
   );
 }
 
-function UpgradeToPro() {
+function NavigationLink({
+  item,
+  pathname,
+}: {
+  item: NavigationItem;
+  pathname: string;
+}) {
+  const active = isNavigationItemActive(
+    pathname,
+    item,
+  );
+
+  const Icon = item.icon;
+
   return (
-    <div className="mt-auto px-4 py-6">
-      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(135deg,#7c3aed,#2563eb)] p-4 shadow-xl shadow-blue-950/30">
-        <div className="absolute inset-0 bg-white/5" />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(to_top,rgba(0,0,0,0.45),transparent)]" />
+    <Link
+      href={item.href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "group relative flex min-h-12 items-center gap-3",
+        "rounded-xl px-3 py-2.5",
+        "text-sm font-medium transition duration-200",
+        "focus-visible:outline-none focus-visible:ring-2",
+        "focus-visible:ring-cyan-300/60",
+        active
+          ? [
+              "bg-cyan-400/[0.1] text-cyan-100",
+              "shadow-lg shadow-cyan-950/20",
+            ]
+          : [
+              "text-slate-400",
+              "hover:bg-white/[0.04]",
+              "hover:text-slate-100",
+            ],
+      )}
+    >
+      {active ? (
+        <span
+          aria-hidden="true"
+          className="
+            absolute bottom-2 right-0 top-2
+            w-[3px] rounded-l-full bg-cyan-300
+          "
+        />
+      ) : null}
+
+      <span
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center",
+          "rounded-xl transition duration-200",
+          active
+            ? "bg-cyan-400/10 text-cyan-200"
+            : [
+                "bg-white/[0.025] text-slate-500",
+                "group-hover:bg-white/[0.06]",
+                "group-hover:text-slate-200",
+              ],
+        )}
+      >
+        <Icon
+          aria-hidden="true"
+          className="h-5 w-5"
+        />
+      </span>
+
+      <span className="min-w-0 flex-1 truncate">
+        {item.label}
+      </span>
+    </Link>
+  );
+}
+
+function UpgradeToProCard() {
+  return (
+    <div className="mt-auto px-3 pb-4 pt-6">
+      <div
+        className="
+          relative overflow-hidden rounded-2xl
+          border border-violet-300/15
+          bg-gradient-to-br from-violet-600/90 to-blue-700/90
+          p-4 shadow-xl shadow-blue-950/30
+        "
+      >
+        <div
+          aria-hidden="true"
+          className="
+            pointer-events-none absolute -left-12 -top-12
+            h-32 w-32 rounded-full bg-white/10 blur-2xl
+          "
+        />
+
+        <div
+          aria-hidden="true"
+          className="
+            pointer-events-none absolute inset-x-0 bottom-0
+            h-1/2 bg-gradient-to-t from-black/30 to-transparent
+          "
+        />
 
         <div className="relative">
-          <div className="mb-2 flex items-center gap-2">
-            <svg
-              className="h-5 w-5 text-purple-200"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.8"
-              stroke="currentColor"
-              aria-hidden="true"
+          <div className="flex items-center gap-2">
+            <span
+              className="
+                flex h-9 w-9 items-center justify-center
+                rounded-xl bg-white/10 text-violet-100
+              "
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m12 3 2.4 5 5.6.8-4 3.9.9 5.5L12 15.6 7.1 18.2 8 12.7 4 8.8 9.6 8 12 3Z"
+              <Crown
+                aria-hidden="true"
+                className="h-5 w-5"
               />
-            </svg>
+            </span>
 
-            <h3 className="text-base font-semibold text-white">
-              Upgrade to Pro
-            </h3>
+            <h2 className="text-sm font-bold text-white">
+              ارتقا به نسخه حرفه‌ای
+            </h2>
           </div>
 
-          <p className="mb-4 text-xs leading-6 text-gray-200">
-            Unlock advanced AI feedback, unlimited practice and smart exam
-            plans.
+          <p className="mt-3 text-xs leading-6 text-violet-100/80">
+            تحلیل پیشرفته هوش مصنوعی، تمرین نامحدود و
+            برنامه‌های شخصی‌سازی‌شده را فعال کن.
           </p>
 
           <Link
-            href="/dashboard/billing"
-            className="block w-full rounded-xl bg-white/15 px-3 py-2 text-center text-sm font-semibold text-white transition hover:bg-white/25"
+            href="/billing"
+            className="
+              mt-4 inline-flex w-full items-center justify-center
+              rounded-xl border border-white/15 bg-white/15
+              px-3 py-2.5 text-xs font-bold text-white
+              transition hover:bg-white/25
+              focus-visible:outline-none
+              focus-visible:ring-2
+              focus-visible:ring-white/70
+            "
           >
-            Upgrade Now
+            مشاهده پلن‌ها
           </Link>
         </div>
       </div>
@@ -132,75 +286,114 @@ function UpgradeToPro() {
   );
 }
 
-type SidebarProps = {
-  isSidebarOpen: boolean;
-  setIsSidebarOpen: (open: boolean) => void;
-};
-
 export default function Sidebar({
   isSidebarOpen,
   setIsSidebarOpen,
 }: SidebarProps) {
   const pathname = usePathname();
 
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname, setIsSidebarOpen]);
+
+  function closeSidebar(): void {
+    setIsSidebarOpen(false);
+  }
+
   return (
     <>
       <button
         type="button"
-        aria-label="بستن منو"
-        className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
-          isSidebarOpen ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        onClick={() => setIsSidebarOpen(false)}
+        aria-label="بستن منوی کناری"
+        aria-hidden={!isSidebarOpen}
+        tabIndex={isSidebarOpen ? 0 : -1}
+        onClick={closeSidebar}
+        className={cn(
+          "fixed inset-0 z-40 bg-black/60 backdrop-blur-sm",
+          "transition-opacity duration-300 lg:hidden",
+          isSidebarOpen
+            ? "opacity-100"
+            : "pointer-events-none opacity-0",
+        )}
       />
 
       <aside
-        className={`fixed inset-y-0 right-0 z-50 flex w-72 max-w-[85vw] flex-col overflow-y-auto border-l border-white/10 bg-[#0B1221] px-2 py-4 pt-[5.5rem] shadow-2xl shadow-black/30 transition-transform duration-300 lg:translate-x-0 ${
-          isSidebarOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-        dir="ltr"
+        aria-label="منوی اصلی برنامه"
+        aria-hidden={!isSidebarOpen ? undefined : false}
+        className={cn(
+          "fixed inset-y-0 right-0 z-50",
+          "flex w-72 max-w-[86vw] flex-col",
+          "overflow-y-auto border-l border-white/[0.08]",
+          "bg-[#081322]/95 px-2 py-4",
+          "shadow-2xl shadow-black/40 backdrop-blur-xl",
+          "transition-transform duration-300 ease-out",
+          "lg:translate-x-0",
+          isSidebarOpen
+            ? "translate-x-0"
+            : "translate-x-full",
+        )}
+        dir="rtl"
       >
-        <Logo />
+        <div className="flex items-center justify-between gap-3 px-1">
+          <div className="min-w-0 flex-1">
+            <BrandLogo />
+          </div>
 
-        <nav className="flex flex-1 flex-col gap-1 px-2">
-          {navigationItems.map((item) => {
-            const active = isActivePath(pathname, item.href);
+          <button
+            type="button"
+            onClick={closeSidebar}
+            aria-label="بستن منو"
+            className="
+              flex h-10 w-10 shrink-0 items-center justify-center
+              rounded-xl text-slate-400 transition
+              hover:bg-white/[0.06] hover:text-white
+              focus-visible:outline-none
+              focus-visible:ring-2
+              focus-visible:ring-cyan-300/60
+              lg:hidden
+            "
+          >
+            <X
+              aria-hidden="true"
+              className="h-5 w-5"
+            />
+          </button>
+        </div>
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsSidebarOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
-                  active
-                    ? "border-r-[3px] border-cyan-300 bg-cyan-400/10 text-cyan-200 shadow-lg shadow-cyan-950/20"
-                    : "text-gray-400 hover:bg-white/5 hover:text-gray-100"
-                }`}
-              >
-                <svg
-                  className={`h-5 w-5 shrink-0 ${
-                    active ? "text-cyan-200" : "text-gray-500"
-                  }`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.8"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d={item.iconPath}
-                  />
-                </svg>
+        <div
+          aria-hidden="true"
+          className="mx-3 my-5 h-px bg-white/[0.06]"
+        />
 
-                <span className="flex-1">{item.name}</span>
-              </Link>
-            );
-          })}
+        <nav
+          aria-label="بخش‌های اصلی"
+          className="flex flex-col gap-1 px-2"
+        >
+          {primaryNavigationItems.map((item) => (
+            <NavigationLink
+              key={item.href}
+              item={item}
+              pathname={pathname}
+            />
+          ))}
         </nav>
 
-        <UpgradeToPro />
+        <div className="mx-5 my-4 h-px bg-white/[0.05]" />
+
+        <nav
+          aria-label="تنظیمات و ابزارها"
+          className="flex flex-col gap-1 px-2"
+        >
+          {secondaryNavigationItems.map((item) => (
+            <NavigationLink
+              key={item.href}
+              item={item}
+              pathname={pathname}
+            />
+          ))}
+        </nav>
+
+        <UpgradeToProCard />
       </aside>
     </>
   );

@@ -30,6 +30,25 @@ export default function DashboardLoading() {
         <Skeleton className="h-72 lg:col-span-8" />
         <Skeleton className="h-72 lg:col-span-4" />
       </section>
+
+      <section className="grid gap-6 lg:grid-cols-12">
+        <Skeleton className="h-[32rem] lg:col-span-8" />
+        <Skeleton className="h-[32rem] lg:col-span-4" />
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-12">
+        <Skeleton className="h-[30rem] lg:col-span-8" />
+        <Skeleton className="h-[30rem] lg:col-span-4" />
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-12">
+        <Skeleton className="h-80 lg:col-span-8" />
+
+        <div className="space-y-6 lg:col-span-4">
+          <Skeleton className="h-64" />
+          <Skeleton className="h-96" />
+        </div>
+      </section>
     </main>
   );
 }

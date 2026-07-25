@@ -1,8 +1,11 @@
 import { dashboardMock } from "../mocks/dashboard.mock";
+
 import { dashboardOverviewSchema } from "../schemas/dashboard.schema";
+
 import type { DashboardOverview } from "../types/dashboard.types";
 
-const DASHBOARD_OVERVIEW_PATH = "/api/v1/dashboard/overview";
+const DASHBOARD_OVERVIEW_PATH =
+  "/api/v1/dashboard/overview";
 
 function shouldUseMockData(): boolean {
   return process.env.USE_MOCKS !== "false";
@@ -22,7 +25,9 @@ function getApiBaseUrl(): string {
 
 export async function getDashboardOverview(): Promise<DashboardOverview> {
   if (shouldUseMockData()) {
-    return dashboardMock;
+    return dashboardOverviewSchema.parse(
+      dashboardMock,
+    );
   }
 
   const requestUrl = new URL(
@@ -32,9 +37,11 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
 
   const response = await fetch(requestUrl, {
     method: "GET",
+
     headers: {
       Accept: "application/json",
     },
+
     cache: "no-store",
   });
 
@@ -44,7 +51,10 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
     );
   }
 
-  const payload: unknown = await response.json();
+  const payload: unknown =
+    await response.json();
 
-  return dashboardOverviewSchema.parse(payload);
+  return dashboardOverviewSchema.parse(
+    payload,
+  );
 }

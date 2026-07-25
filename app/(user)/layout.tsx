@@ -1,19 +1,30 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import DashboardShell from "../../components/ui/dashboard-shell";
 
-type DashboardLayoutProps = Readonly<{
+export const metadata: Metadata = {
+  title: {
+    default: "پنل یادگیری",
+    template: "%s | MeowLingo AI",
+  },
+  description:
+    "پنل شخصی یادگیری زبان، تمرین مکالمه و تحلیل هوشمند مهارت‌ها",
+};
+
+type UserLayoutProps = Readonly<{
   children: ReactNode;
 }>;
 
 /**
- * Shared layout for all routes nested under `/dashboard`.
+ * Shared layout for authenticated application routes.
  *
- * This component intentionally remains a Server Component.
- * Interactive layout behavior is delegated to DashboardShell.
+ * All user-facing features such as dashboard, speaking,
+ * listening, writing and assessments are rendered inside
+ * the same application shell.
  */
-export default function DashboardLayout({
+export default function UserLayout({
   children,
-}: DashboardLayoutProps) {
+}: UserLayoutProps) {
   return <DashboardShell>{children}</DashboardShell>;
 }

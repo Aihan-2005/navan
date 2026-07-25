@@ -5,10 +5,17 @@ import {
 } from "lucide-react";
 
 import {
+  AIInsightCard,
+  AITutorCTA,
   ContinueLearningCard,
+  DailyPlanCard,
   DashboardHeader,
   getDashboardOverview,
   OverviewStatCard,
+  QuickPracticeGrid,
+  RecentActivitiesCard,
+  ReviewQueueCard,
+  SkillProgressOverview,
   WeeklyGoalCard,
 } from "../../../features/dashboard";
 
@@ -25,6 +32,11 @@ export default async function DashboardPage() {
     user,
     summary,
     continueLearning,
+    dailyPlan,
+    skillProgress,
+    reviewQueue,
+    primaryInsight,
+    recentActivities,
   } = dashboard;
 
   const currentLevel = user.cefrLevel ?? "نامشخص";
@@ -34,10 +46,7 @@ export default async function DashboardPage() {
       className="mx-auto w-full max-w-7xl space-y-6"
       aria-labelledby="dashboard-page-title"
     >
-      <h1
-        id="dashboard-page-title"
-        className="sr-only"
-      >
+      <h1 id="dashboard-page-title" className="sr-only">
         داشبورد یادگیری زبان
       </h1>
 
@@ -85,7 +94,7 @@ export default async function DashboardPage() {
       </section>
 
       <section
-        aria-label="برنامه و هدف یادگیری"
+        aria-label="ادامه یادگیری و هدف هفتگی"
         className="grid gap-6 lg:grid-cols-12"
       >
         <div className="lg:col-span-8">
@@ -96,6 +105,48 @@ export default async function DashboardPage() {
 
         <div className="lg:col-span-4">
           <WeeklyGoalCard summary={summary} />
+        </div>
+      </section>
+
+      <section
+        aria-label="برنامه و مرورهای امروز"
+        className="grid gap-6 lg:grid-cols-12"
+      >
+        <div className="lg:col-span-8">
+          <DailyPlanCard plan={dailyPlan} />
+        </div>
+
+        <div className="lg:col-span-4">
+          <ReviewQueueCard queue={reviewQueue} />
+        </div>
+      </section>
+
+      <section
+        aria-label="پیشرفت و تحلیل هوشمند"
+        className="grid gap-6 lg:grid-cols-12"
+      >
+        <div className="lg:col-span-8">
+          <SkillProgressOverview skills={skillProgress} />
+        </div>
+
+        <div className="lg:col-span-4">
+          <AIInsightCard insight={primaryInsight} />
+        </div>
+      </section>
+
+      <section
+        aria-label="فعالیت‌ها و تمرین سریع"
+        className="grid gap-6 lg:grid-cols-12"
+      >
+        <div className="lg:col-span-8">
+          <RecentActivitiesCard
+            activities={recentActivities}
+          />
+        </div>
+
+        <div className="space-y-6 lg:col-span-4">
+          <AITutorCTA />
+          <QuickPracticeGrid />
         </div>
       </section>
     </main>
