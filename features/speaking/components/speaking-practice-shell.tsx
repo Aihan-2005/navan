@@ -294,8 +294,7 @@ export function SpeakingPracticeShell({
                 </p>
 
                 <p className="mt-2 text-xs leading-6 text-slate-500">
-                  در مرحله بعد، این فایل به API بک‌اند
-                  ارسال می‌شود و Transcript، امتیاز تلفظ،
+                  در مرحله بعد، این فایل به سرور ارسال می‌شود و Transcript، امتیاز تلفظ،
                   روانی، گرامر و پیشنهادهای اصلاحی دریافت
                   خواهد شد.
                 </p>

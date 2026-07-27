@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { RecordedAudio } from "../types/speaking.types";
 
@@ -63,41 +58,28 @@ function getRecorderErrorMessage(error: unknown): string {
   }
 }
 
-function stopMediaStream(
-  stream: MediaStream | null,
-): void {
+function stopMediaStream(stream: MediaStream | null): void {
   stream?.getTracks().forEach((track) => {
     track.stop();
   });
 }
 
-export function useAudioRecorder(
-  maxDurationSeconds = 120,
-) {
-  const recorderRef =
-    useRef<MediaRecorder | null>(null);
+export function useAudioRecorder(maxDurationSeconds = 120) {
+  const recorderRef = useRef<MediaRecorder | null>(null);
 
-  const streamRef = useRef<MediaStream | null>(
-    null,
-  );
+  const streamRef = useRef<MediaStream | null>(null);
 
   const chunksRef = useRef<Blob[]>([]);
 
-  const recordingUrlRef = useRef<string | null>(
-    null,
-  );
+  const recordingUrlRef = useRef<string | null>(null);
 
-  const [status, setStatus] =
-    useState<AudioRecorderStatus>("idle");
+  const [status, setStatus] = useState<AudioRecorderStatus>("idle");
 
-  const [elapsedSeconds, setElapsedSeconds] =
-    useState<number>(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
 
-  const [recording, setRecording] =
-    useState<RecordedAudio | null>(null);
+  const [recording, setRecording] = useState<RecordedAudio | null>(null);
 
-  const [errorMessage, setErrorMessage] =
-    useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const isSupported =
     typeof window !== "undefined" &&
@@ -105,216 +87,173 @@ export function useAudioRecorder(
     Boolean(navigator.mediaDevices?.getUserMedia);
 
   const isSecureContext =
-    typeof window === "undefined"
-      ? true
-      : window.isSecureContext;
+    typeof window === "undefined" ? true : window.isSecureContext;
 
-  const revokeCurrentRecordingUrl =
-    useCallback((): void => {
-      if (!recordingUrlRef.current) {
-        return;
-      }
+  const revokeCurrentRecordingUrl = useCallback((): void => {
+    if (!recordingUrlRef.current) {
+      return;
+    }
 
-      URL.revokeObjectURL(
-        recordingUrlRef.current,
+    URL.revokeObjectURL(recordingUrlRef.current);
+
+    recordingUrlRef.current = null;
+  }, []);
+
+  const resetRecording = useCallback((): void => {
+    const recorder = recorderRef.current;
+
+    if (recorder && recorder.state !== "inactive") {
+      recorder.stop();
+    }
+
+    stopMediaStream(streamRef.current);
+
+    recorderRef.current = null;
+    streamRef.current = null;
+    chunksRef.current = [];
+
+    revokeCurrentRecordingUrl();
+
+    setRecording(null);
+    setElapsedSeconds(0);
+    setErrorMessage(null);
+    setStatus("idle");
+  }, [revokeCurrentRecordingUrl]);
+
+  const stopRecording = useCallback((): void => {
+    const recorder = recorderRef.current;
+
+    if (!recorder || recorder.state === "inactive") {
+      return;
+    }
+
+    recorder.stop();
+  }, []);
+
+  const pauseRecording = useCallback((): void => {
+    const recorder = recorderRef.current;
+
+    if (!recorder || recorder.state !== "recording") {
+      return;
+    }
+
+    recorder.pause();
+    setStatus("paused");
+  }, []);
+
+  const resumeRecording = useCallback((): void => {
+    const recorder = recorderRef.current;
+
+    if (!recorder || recorder.state !== "paused") {
+      return;
+    }
+
+    recorder.resume();
+    setStatus("recording");
+  }, []);
+
+  const startRecording = useCallback(async (): Promise<void> => {
+    if (!isSupported) {
+      setStatus("error");
+      setErrorMessage("مرورگر فعلی از ضبط صدا پشتیبانی نمی‌کند.");
+      return;
+    }
+
+    if (!isSecureContext) {
+      setStatus("error");
+      setErrorMessage(
+        "برای استفاده از میکروفون، صفحه باید روی HTTPS یا localhost اجرا شود.",
       );
+      return;
+    }
 
-      recordingUrlRef.current = null;
-    }, []);
-
-  const resetRecording =
-    useCallback((): void => {
-      const recorder = recorderRef.current;
-
-      if (
-        recorder &&
-        recorder.state !== "inactive"
-      ) {
-        recorder.stop();
-      }
-
-      stopMediaStream(streamRef.current);
-
-      recorderRef.current = null;
-      streamRef.current = null;
-      chunksRef.current = [];
+    try {
+      setStatus("requesting_permission");
+      setErrorMessage(null);
+      setElapsedSeconds(0);
+      setRecording(null);
 
       revokeCurrentRecordingUrl();
 
-      setRecording(null);
-      setElapsedSeconds(0);
-      setErrorMessage(null);
-      setStatus("idle");
-    }, [revokeCurrentRecordingUrl]);
+      chunksRef.current = [];
 
-  const stopRecording =
-    useCallback((): void => {
-      const recorder = recorderRef.current;
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: false,
 
-      if (
-        !recorder ||
-        recorder.state === "inactive"
-      ) {
-        return;
-      }
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+        },
+      });
 
-      recorder.stop();
-    }, []);
+      streamRef.current = stream;
 
-  const pauseRecording =
-    useCallback((): void => {
-      const recorder = recorderRef.current;
+      const supportedMimeType = findSupportedMimeType();
 
-      if (
-        !recorder ||
-        recorder.state !== "recording"
-      ) {
-        return;
-      }
+      const recorder = supportedMimeType
+        ? new MediaRecorder(stream, {
+            mimeType: supportedMimeType,
+          })
+        : new MediaRecorder(stream);
 
-      recorder.pause();
-      setStatus("paused");
-    }, []);
+      recorderRef.current = recorder;
 
-  const resumeRecording =
-    useCallback((): void => {
-      const recorder = recorderRef.current;
+      recorder.ondataavailable = (event: BlobEvent): void => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
 
-      if (
-        !recorder ||
-        recorder.state !== "paused"
-      ) {
-        return;
-      }
+      recorder.onerror = (): void => {
+        stopMediaStream(streamRef.current);
 
-      recorder.resume();
-      setStatus("recording");
-    }, []);
+        setErrorMessage("هنگام ضبط صدا خطایی رخ داد.");
 
-  const startRecording =
-    useCallback(async (): Promise<void> => {
-      if (!isSupported) {
         setStatus("error");
-        setErrorMessage(
-          "مرورگر فعلی از ضبط صدا پشتیبانی نمی‌کند.",
-        );
-        return;
-      }
+      };
 
-      if (!isSecureContext) {
-        setStatus("error");
-        setErrorMessage(
-          "برای استفاده از میکروفون، صفحه باید روی HTTPS یا localhost اجرا شود.",
-        );
-        return;
-      }
+      recorder.onstop = (): void => {
+        const mimeType = recorder.mimeType || supportedMimeType || "audio/webm";
 
-      try {
-        setStatus("requesting_permission");
-        setErrorMessage(null);
-        setElapsedSeconds(0);
-        setRecording(null);
+        const blob = new Blob(chunksRef.current, {
+          type: mimeType,
+        });
 
-        revokeCurrentRecordingUrl();
+        const url = URL.createObjectURL(blob);
 
-        chunksRef.current = [];
+        recordingUrlRef.current = url;
 
-        const stream =
-          await navigator.mediaDevices.getUserMedia({
-            video: false,
+        setRecording({
+          blob,
+          url,
+          mimeType,
+          durationSeconds: elapsedSeconds,
+        });
 
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true,
-              channelCount: 1,
-            },
-          });
-
-        streamRef.current = stream;
-
-        const supportedMimeType =
-          findSupportedMimeType();
-
-        const recorder = supportedMimeType
-          ? new MediaRecorder(stream, {
-              mimeType: supportedMimeType,
-            })
-          : new MediaRecorder(stream);
-
-        recorderRef.current = recorder;
-
-        recorder.ondataavailable = (
-          event: BlobEvent,
-        ): void => {
-          if (event.data.size > 0) {
-            chunksRef.current.push(event.data);
-          }
-        };
-
-        recorder.onerror = (): void => {
-          stopMediaStream(streamRef.current);
-
-          setErrorMessage(
-            "هنگام ضبط صدا خطایی رخ داد.",
-          );
-
-          setStatus("error");
-        };
-
-        recorder.onstop = (): void => {
-          const mimeType =
-            recorder.mimeType ||
-            supportedMimeType ||
-            "audio/webm";
-
-          const blob = new Blob(
-            chunksRef.current,
-            {
-              type: mimeType,
-            },
-          );
-
-          const url = URL.createObjectURL(blob);
-
-          recordingUrlRef.current = url;
-
-          setRecording({
-            blob,
-            url,
-            mimeType,
-            durationSeconds: elapsedSeconds,
-          });
-
-          stopMediaStream(streamRef.current);
-
-          streamRef.current = null;
-          recorderRef.current = null;
-          chunksRef.current = [];
-
-          setStatus("stopped");
-        };
-
-        recorder.start(250);
-
-        setStatus("recording");
-      } catch (error) {
         stopMediaStream(streamRef.current);
 
         streamRef.current = null;
         recorderRef.current = null;
+        chunksRef.current = [];
 
-        setStatus("error");
-        setErrorMessage(
-          getRecorderErrorMessage(error),
-        );
-      }
-    }, [
-      elapsedSeconds,
-      isSecureContext,
-      isSupported,
-      revokeCurrentRecordingUrl,
-    ]);
+        setStatus("stopped");
+      };
+
+      recorder.start(250);
+
+      setStatus("recording");
+    } catch (error) {
+      stopMediaStream(streamRef.current);
+
+      streamRef.current = null;
+      recorderRef.current = null;
+
+      setStatus("error");
+      setErrorMessage(getRecorderErrorMessage(error));
+    }
+  }, [elapsedSeconds, isSecureContext, isSupported, revokeCurrentRecordingUrl]);
 
   useEffect(() => {
     if (status !== "recording") {
@@ -322,10 +261,7 @@ export function useAudioRecorder(
     }
 
     const timerId = window.setInterval(() => {
-      setElapsedSeconds(
-        (currentSeconds) =>
-          currentSeconds + 1,
-      );
+      setElapsedSeconds((currentSeconds) => currentSeconds + 1);
     }, 1000);
 
     return () => {
@@ -336,25 +272,18 @@ export function useAudioRecorder(
   useEffect(() => {
     if (
       status === "recording" &&
+      maxDurationSeconds !== Infinity &&
       elapsedSeconds >= maxDurationSeconds
     ) {
       stopRecording();
     }
-  }, [
-    elapsedSeconds,
-    maxDurationSeconds,
-    status,
-    stopRecording,
-  ]);
+  }, [elapsedSeconds, maxDurationSeconds, status, stopRecording]);
 
   useEffect(() => {
     return () => {
       const recorder = recorderRef.current;
 
-      if (
-        recorder &&
-        recorder.state !== "inactive"
-      ) {
+      if (recorder && recorder.state !== "inactive") {
         recorder.ondataavailable = null;
         recorder.onstop = null;
         recorder.onerror = null;
@@ -365,9 +294,7 @@ export function useAudioRecorder(
       stopMediaStream(streamRef.current);
 
       if (recordingUrlRef.current) {
-        URL.revokeObjectURL(
-          recordingUrlRef.current,
-        );
+        URL.revokeObjectURL(recordingUrlRef.current);
       }
     };
   }, []);

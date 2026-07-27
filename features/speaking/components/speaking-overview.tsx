@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import {
@@ -14,6 +15,7 @@ import {
 import { Card } from "../../../components/ui/card";
 import { cn } from "../../../lib/utils/cn";
 
+import { FreeSpeakingCard } from "./free-speaking-card";
 import {
   SPEAKING_MODE_DESCRIPTIONS,
   SPEAKING_MODE_FILTERS,
@@ -34,11 +36,8 @@ type SpeakingOverviewProps = {
 
 const numberFormatter = new Intl.NumberFormat("fa-IR");
 
-export function SpeakingOverview({
-  overview,
-}: SpeakingOverviewProps) {
-  const [activeMode, setActiveMode] =
-    useState<SpeakingModeFilter>("all");
+export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
+  const [activeMode, setActiveMode] = useState<SpeakingModeFilter>("all");
 
   const filteredScenarios = useMemo(() => {
     if (activeMode === "all") {
@@ -53,9 +52,7 @@ export function SpeakingOverview({
   const activeModeDescription =
     activeMode === "all"
       ? "از میان تمرین‌های متنوع، مناسب‌ترین گزینه را برای هدف امروزت انتخاب کن."
-      : SPEAKING_MODE_DESCRIPTIONS[
-          activeMode as SpeakingMode
-        ];
+      : SPEAKING_MODE_DESCRIPTIONS[activeMode as SpeakingMode];
 
   return (
     <main
@@ -98,11 +95,7 @@ export function SpeakingOverview({
         >
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-sm text-cyan-300">
-              <Sparkles
-                aria-hidden="true"
-                className="h-4 w-4"
-              />
-
+              <Sparkles aria-hidden="true" className="h-4 w-4" />
               مربی هوشمند مکالمه
             </div>
 
@@ -114,41 +107,32 @@ export function SpeakingOverview({
               "
             >
               انگلیسی را فقط یاد نگیر؛
-              <span className="text-cyan-300">
-                {" "}
-                واقعاً صحبت کن
-              </span>
+              <span className="text-cyan-300"> واقعاً صحبت کن</span>
             </h1>
 
             <p className="mt-4 max-w-2xl text-sm leading-8 text-slate-300 sm:text-base">
-              صدایت را ضبط کن، وارد موقعیت‌های واقعی شو و
-              درباره تلفظ، روانی، گرامر، واژگان و اعتمادبه‌نفس
-              بازخورد شخصی دریافت کن.
+              صدایت را ضبط کن، وارد موقعیت‌های واقعی شو و درباره تلفظ، روانی،
+              گرامر، واژگان و اعتمادبه‌نفس بازخورد شخصی دریافت کن.
             </p>
           </div>
 
-          <div
-            className="
-              flex h-32 w-32 shrink-0 items-center
-              justify-center self-center rounded-full
-              border border-cyan-300/20
-              bg-cyan-400/10
-              shadow-[0_0_60px_rgba(34,211,238,0.18)]
-            "
+          <Link
+            href="/speaking/free"
+            aria-label="رفتن به صفحه گفت‌وگوی آزاد"
+            className="group flex h-32 w-32 shrink-0 items-center justify-center self-center rounded-full border border-cyan-300/20 bg-cyan-400/10 shadow-[0_0_60px_rgba(34,211,238,0.18)] transition hover:-translate-y-1 hover:border-cyan-300/40 hover:bg-cyan-300/15"
           >
             <div
               className="
                 flex h-20 w-20 items-center
                 justify-center rounded-full
                 bg-cyan-300 text-slate-950
+                transition duration-300
+                group-hover:scale-105
               "
             >
-              <Mic2
-                aria-hidden="true"
-                className="h-9 w-9"
-              />
+              <Mic2 aria-hidden="true" className="h-9 w-9" />
             </div>
-          </div>
+          </Link>
         </div>
       </section>
 
@@ -158,9 +142,7 @@ export function SpeakingOverview({
       >
         <SpeakingStat
           title="جلسه‌های مکالمه"
-          value={numberFormatter.format(
-            overview.stats.totalSessions,
-          )}
+          value={numberFormatter.format(overview.stats.totalSessions)}
           description="تعداد کل تمرین‌ها"
           icon={AudioWaveform}
         />
@@ -185,9 +167,7 @@ export function SpeakingOverview({
 
         <SpeakingStat
           title="تداوم تمرین"
-          value={`${numberFormatter.format(
-            overview.stats.currentStreak,
-          )} روز`}
+          value={`${numberFormatter.format(overview.stats.currentStreak)} روز`}
           description="روزهای متوالی"
           icon={Flame}
         />
@@ -202,9 +182,7 @@ export function SpeakingOverview({
           "
         >
           <div>
-            <h2 className="text-2xl font-bold text-white">
-              تمرین مناسب امروز
-            </h2>
+            <h2 className="text-2xl font-bold text-white">تمرین مناسب امروز</h2>
 
             <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-500">
               {activeModeDescription}
@@ -218,22 +196,19 @@ export function SpeakingOverview({
             "
           >
             {SPEAKING_MODE_FILTERS.map((filter) => {
-              const isActive =
-                activeMode === filter.value;
+              const isActive = activeMode === filter.value;
 
               return (
                 <button
                   key={filter.value}
                   type="button"
-                  onClick={() =>
-                    setActiveMode(filter.value)
-                  }
+                  onClick={() => setActiveMode(filter.value)}
                   className={cn(
                     "shrink-0 rounded-xl border px-4 py-2",
                     "text-xs font-medium transition",
                     isActive
                       ? "border-cyan-300/30 bg-cyan-400/15 text-cyan-200"
-                      : "border-white/[0.06] bg-white/[0.02] text-slate-500 hover:bg-white/[0.05] hover:text-slate-300",
+                      : "border-white/6 bg-white/2 text-slate-500 hover:bg-white/5 hover:text-slate-300",
                   )}
                 >
                   {filter.label}
@@ -244,11 +219,17 @@ export function SpeakingOverview({
         </div>
 
         <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <FreeSpeakingCard
+            estimatedMinutes={10}
+            cefrLevel="همه ی سطح ها"
+            coachStyle="supportive"
+            focusAreas={["موضوع آزاد", "روان صحبت کردن", "استفاده از مهارت های مکالمه"]}
+            isFeatured={false}
+            isAvailable={true}
+          />
+
           {filteredScenarios.map((scenario) => (
-            <ScenarioCard
-              key={scenario.id}
-              scenario={scenario}
-            />
+            <ScenarioCard key={scenario.id} scenario={scenario} />
           ))}
         </div>
 
@@ -281,17 +262,11 @@ function SpeakingStat({
     <Card className="p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm text-slate-400">
-            {title}
-          </p>
+          <p className="text-sm text-slate-400">{title}</p>
 
-          <p className="mt-3 text-2xl font-bold text-white">
-            {value}
-          </p>
+          <p className="mt-3 text-2xl font-bold text-white">{value}</p>
 
-          <p className="mt-2 text-xs text-slate-600">
-            {description}
-          </p>
+          <p className="mt-2 text-xs text-slate-600">{description}</p>
         </div>
 
         <div
@@ -300,10 +275,7 @@ function SpeakingStat({
             rounded-xl bg-cyan-400/10 text-cyan-300
           "
         >
-          <Icon
-            aria-hidden="true"
-            className="h-5 w-5"
-          />
+          <Icon aria-hidden="true" className="h-5 w-5" />
         </div>
       </div>
     </Card>

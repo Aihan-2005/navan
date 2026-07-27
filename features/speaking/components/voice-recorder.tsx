@@ -21,29 +21,25 @@ import type { RecordedAudio } from "../types/speaking.types";
 type VoiceRecorderProps = {
   maxDurationSeconds?: number;
 
-  onRecordingReady?: (
-    recording: RecordedAudio,
-  ) => void;
+  onRecordingReady?: (recording: RecordedAudio) => void;
 };
 
-function formatDuration(
-  totalSeconds: number,
-): string {
-  const minutes = Math.floor(
-    totalSeconds / 60,
-  );
+function formatDuration(totalSeconds: number): string {
+  if (!Number.isFinite(totalSeconds)) {
+    return "بدون محدودیت";
+  }
+
+  const minutes = Math.floor(totalSeconds / 60);
 
   const seconds = totalSeconds % 60;
 
-  return `${minutes
-    .toString()
-    .padStart(2, "0")}:${seconds
+  return `${minutes.toString().padStart(2, "0")}:${seconds
     .toString()
     .padStart(2, "0")}`;
 }
 
 export function VoiceRecorder({
-  maxDurationSeconds = 120,
+  maxDurationSeconds = 240,
   onRecordingReady,
 }: VoiceRecorderProps) {
   const {
@@ -65,8 +61,7 @@ export function VoiceRecorder({
   const isRecording = status === "recording";
   const isPaused = status === "paused";
 
-  const isRequestingPermission =
-    status === "requesting_permission";
+  const isRequestingPermission = status === "requesting_permission";
 
   useEffect(() => {
     if (!recording) {
@@ -84,8 +79,8 @@ export function VoiceRecorder({
         </h2>
 
         <p className="mt-3 text-sm leading-7 text-slate-400">
-          مرورگر باید از MediaRecorder پشتیبانی کند و
-          پروژه باید روی HTTPS یا localhost اجرا شود.
+          مرورگر باید از MediaRecorder پشتیبانی کند و پروژه باید روی HTTPS یا
+          localhost اجرا شود.
         </p>
       </Card>
     );
@@ -124,10 +119,7 @@ export function VoiceRecorder({
               />
             ) : null}
 
-            <Mic2
-              aria-hidden="true"
-              className="relative h-9 w-9"
-            />
+            <Mic2 aria-hidden="true" className="relative h-9 w-9" />
           </div>
 
           <p className="mt-6 text-3xl font-bold tabular-nums text-white">
@@ -135,10 +127,7 @@ export function VoiceRecorder({
           </p>
 
           <p className="mt-2 text-sm text-slate-500">
-            حداکثر{" "}
-            {formatDuration(
-              maxDurationSeconds,
-            )}
+            حداکثر {formatDuration(maxDurationSeconds)}
           </p>
 
           <div
@@ -148,25 +137,20 @@ export function VoiceRecorder({
             "
             aria-hidden="true"
           >
-            {Array.from({ length: 18 }).map(
-              (_, index) => (
-                <span
-                  key={index}
-                  className={cn(
-                    "w-1 rounded-full bg-cyan-300/60",
-                    isRecording &&
-                      "animate-pulse",
-                  )}
-                  style={{
-                    height: isRecording
-                      ? `${12 + ((index * 13) % 28)}px`
-                      : "6px",
+            {Array.from({ length: 18 }).map((_, index) => (
+              <span
+                key={index}
+                className={cn(
+                  "w-1 rounded-full bg-cyan-300/60",
+                  isRecording && "animate-pulse",
+                )}
+                style={{
+                  height: isRecording ? `${12 + ((index * 13) % 28)}px` : "6px",
 
-                    animationDelay: `${index * 55}ms`,
-                  }}
-                />
-              ),
-            )}
+                  animationDelay: `${index * 55}ms`,
+                }}
+              />
+            ))}
           </div>
         </div>
 
@@ -176,7 +160,7 @@ export function VoiceRecorder({
             className="
               mt-6 rounded-xl
               border border-red-400/15
-              bg-red-400/[0.06]
+              bg-red-400/6
               px-4 py-3 text-sm
               leading-7 text-red-200
             "
@@ -191,8 +175,7 @@ export function VoiceRecorder({
             items-center justify-center gap-3
           "
         >
-          {status === "idle" ||
-          status === "error" ? (
+          {status === "idle" || status === "error" ? (
             <button
               type="button"
               onClick={() => {
@@ -209,14 +192,9 @@ export function VoiceRecorder({
                 disabled:opacity-60
               "
             >
-              <Mic2
-                aria-hidden="true"
-                className="h-4 w-4"
-              />
+              <Mic2 aria-hidden="true" className="h-4 w-4" />
 
-              {isRequestingPermission
-                ? "در انتظار اجازه..."
-                : "شروع ضبط"}
+              {isRequestingPermission ? "در انتظار اجازه..." : "شروع ضبط"}
             </button>
           ) : null}
 
@@ -229,16 +207,12 @@ export function VoiceRecorder({
                   inline-flex min-h-11 items-center
                   justify-center gap-2 rounded-xl
                   border border-white/10
-                  bg-white/[0.05] px-5 py-2.5
+                  bg-white/5 px-5 py-2.5
                   text-sm font-semibold text-white
-                  transition hover:bg-white/[0.1]
+                  transition hover:bg-white/10
                 "
               >
-                <Pause
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                />
-
+                <Pause aria-hidden="true" className="h-4 w-4" />
                 مکث
               </button>
 
@@ -253,11 +227,7 @@ export function VoiceRecorder({
                   transition hover:bg-red-300
                 "
               >
-                <CircleStop
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                />
-
+                <CircleStop aria-hidden="true" className="h-4 w-4" />
                 پایان ضبط
               </button>
             </>
@@ -275,11 +245,7 @@ export function VoiceRecorder({
                   text-sm font-bold text-slate-950
                 "
               >
-                <Play
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                />
-
+                <Play aria-hidden="true" className="h-4 w-4" />
                 ادامه ضبط
               </button>
 
@@ -305,15 +271,11 @@ export function VoiceRecorder({
             className="
               mt-7 rounded-2xl
               border border-emerald-400/15
-              bg-emerald-400/[0.05] p-4
+              bg-emerald-400/5 p-4
             "
           >
             <div className="flex items-center gap-2 text-sm font-medium text-emerald-200">
-              <ShieldCheck
-                aria-hidden="true"
-                className="h-4 w-4"
-              />
-
+              <ShieldCheck aria-hidden="true" className="h-4 w-4" />
               صدای شما با موفقیت ضبط شد
             </div>
 
@@ -323,8 +285,7 @@ export function VoiceRecorder({
               src={recording.url}
               className="mt-4 w-full"
             >
-              مرورگر شما از پخش فایل صوتی پشتیبانی
-              نمی‌کند.
+              مرورگر شما از پخش فایل صوتی پشتیبانی نمی‌کند.
             </audio>
 
             <button
@@ -336,11 +297,7 @@ export function VoiceRecorder({
                 transition hover:text-white
               "
             >
-              <RefreshCcw
-                aria-hidden="true"
-                className="h-4 w-4"
-              />
-
+              <RefreshCcw aria-hidden="true" className="h-4 w-4" />
               ضبط مجدد
             </button>
           </div>
@@ -357,9 +314,8 @@ export function VoiceRecorder({
             aria-hidden="true"
             className="mt-1 h-3.5 w-3.5 shrink-0"
           />
-
-          در این مرحله فایل صوتی فقط داخل مرورگر نگهداری
-          می‌شود و تا زمان ارسال برای تحلیل، آپلود نخواهد شد.
+          در این مرحله فایل صوتی فقط داخل مرورگر نگهداری می‌شود و تا زمان ارسال
+          برای تحلیل، آپلود نخواهد شد.
         </p>
       </div>
     </Card>

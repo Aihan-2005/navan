@@ -43,7 +43,7 @@ export const QUICK_PRACTICE_ITEMS = [
     title: "مکالمه",
     description: "تمرین مکالمه و تلفظ",
     skill: "speaking",
-    href: "/dashboard/speaking",
+    href: "/speaking",
     isAvailable: true,
   },
   {
