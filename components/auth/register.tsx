@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -69,7 +70,7 @@ export default function RegisterForm() {
         initial={{ opacity: 0, y: 18, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35 }}
-        className="w-full max-w-md rounded-[2rem] border border-white/15 bg-white/10 p-8 shadow-2xl backdrop-blur-xl"
+        className="w-full max-w-md rounded-4xl border border-white/15 bg-white/10 p-8 shadow-2xl backdrop-blur-xl"
       >
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold">ثبت‌نام</h1>
