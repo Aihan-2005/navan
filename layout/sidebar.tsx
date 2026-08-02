@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, type ComponentType, type SVGProps } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import {
+  usePathname,
+} from "next/navigation";
 import {
   Bot,
   BookOpenCheck,
+  BookOpenText,
   ClipboardCheck,
   Crown,
   Headphones,
@@ -15,26 +17,26 @@ import {
   PenLine,
   Settings,
   X,
+  type LucideIcon,
 } from "lucide-react";
 
-import { cn } from "../lib/utils/cn";
-
-type NavigationIcon = ComponentType<
-  SVGProps<SVGSVGElement> & {
-    size?: number | string;
-  }
->;
+import {
+  cn,
+} from "../lib/utils/cn";
 
 type NavigationItem = Readonly<{
   label: string;
   href: string;
-  icon: NavigationIcon;
+  icon: LucideIcon;
   exact?: boolean;
 }>;
 
 type SidebarProps = Readonly<{
   isSidebarOpen: boolean;
-  setIsSidebarOpen: (open: boolean) => void;
+
+  setIsSidebarOpen: (
+    open: boolean,
+  ) => void;
 }>;
 
 const primaryNavigationItems = [
@@ -53,6 +55,11 @@ const primaryNavigationItems = [
     label: "شنیداری",
     href: "/listening",
     icon: Headphones,
+  },
+  {
+    label: "خواندن",
+    href: "/reading",
+    icon: BookOpenText,
   },
   {
     label: "نوشتن",
@@ -94,14 +101,21 @@ function isNavigationItemActive(
 
   return (
     pathname === item.href ||
-    pathname.startsWith(`${item.href}/`)
+    pathname.startsWith(
+      `${item.href}/`,
+    )
   );
 }
 
-function BrandLogo() {
+function BrandLogo({
+  onNavigate,
+}: {
+  onNavigate: () => void;
+}) {
   return (
     <Link
       href="/dashboard"
+      onClick={onNavigate}
       aria-label="رفتن به داشبورد MeowLingo AI"
       className="
         flex min-w-0 items-center gap-3 rounded-2xl px-3 py-2
@@ -146,27 +160,34 @@ function BrandLogo() {
 function NavigationLink({
   item,
   pathname,
+  onNavigate,
 }: {
   item: NavigationItem;
   pathname: string;
+  onNavigate: () => void;
 }) {
-  const active = isNavigationItemActive(
-    pathname,
-    item,
-  );
+  const active =
+    isNavigationItemActive(
+      pathname,
+      item,
+    );
 
   const Icon = item.icon;
 
   return (
     <Link
       href={item.href}
-      aria-current={active ? "page" : undefined}
+      onClick={onNavigate}
+      aria-current={
+        active ? "page" : undefined
+      }
       className={cn(
         "group relative flex min-h-12 items-center gap-3",
         "rounded-xl px-3 py-2.5",
         "text-sm font-medium transition duration-200",
         "focus-visible:outline-none focus-visible:ring-2",
         "focus-visible:ring-cyan-300/60",
+
         active
           ? [
               "bg-cyan-400/[0.1] text-cyan-100",
@@ -193,6 +214,7 @@ function NavigationLink({
         className={cn(
           "flex h-9 w-9 shrink-0 items-center justify-center",
           "rounded-xl transition duration-200",
+
           active
             ? "bg-cyan-400/10 text-cyan-200"
             : [
@@ -215,7 +237,11 @@ function NavigationLink({
   );
 }
 
-function UpgradeToProCard() {
+function UpgradeToProCard({
+  onNavigate,
+}: {
+  onNavigate: () => void;
+}) {
   return (
     <div className="mt-auto px-3 pb-4 pt-6">
       <div
@@ -268,6 +294,7 @@ function UpgradeToProCard() {
 
           <Link
             href="/billing"
+            onClick={onNavigate}
             className="
               mt-4 inline-flex w-full items-center justify-center
               rounded-xl border border-white/15 bg-white/15
@@ -292,10 +319,6 @@ export default function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
 
-  useEffect(() => {
-    setIsSidebarOpen(false);
-  }, [pathname, setIsSidebarOpen]);
-
   function closeSidebar(): void {
     setIsSidebarOpen(false);
   }
@@ -306,11 +329,14 @@ export default function Sidebar({
         type="button"
         aria-label="بستن منوی کناری"
         aria-hidden={!isSidebarOpen}
-        tabIndex={isSidebarOpen ? 0 : -1}
+        tabIndex={
+          isSidebarOpen ? 0 : -1
+        }
         onClick={closeSidebar}
         className={cn(
           "fixed inset-0 z-40 bg-black/60 backdrop-blur-sm",
           "transition-opacity duration-300 lg:hidden",
+
           isSidebarOpen
             ? "opacity-100"
             : "pointer-events-none opacity-0",
@@ -318,8 +344,8 @@ export default function Sidebar({
       />
 
       <aside
+        id="application-sidebar"
         aria-label="منوی اصلی برنامه"
-        aria-hidden={!isSidebarOpen ? undefined : false}
         className={cn(
           "fixed inset-y-0 right-0 z-50",
           "flex w-72 max-w-[86vw] flex-col",
@@ -328,6 +354,7 @@ export default function Sidebar({
           "shadow-2xl shadow-black/40 backdrop-blur-xl",
           "transition-transform duration-300 ease-out",
           "lg:translate-x-0",
+
           isSidebarOpen
             ? "translate-x-0"
             : "translate-x-full",
@@ -336,7 +363,9 @@ export default function Sidebar({
       >
         <div className="flex items-center justify-between gap-3 px-1">
           <div className="min-w-0 flex-1">
-            <BrandLogo />
+            <BrandLogo
+              onNavigate={closeSidebar}
+            />
           </div>
 
           <button
@@ -369,13 +398,16 @@ export default function Sidebar({
           aria-label="بخش‌های اصلی"
           className="flex flex-col gap-1 px-2"
         >
-          {primaryNavigationItems.map((item) => (
-            <NavigationLink
-              key={item.href}
-              item={item}
-              pathname={pathname}
-            />
-          ))}
+          {primaryNavigationItems.map(
+            (item) => (
+              <NavigationLink
+                key={item.href}
+                item={item}
+                pathname={pathname}
+                onNavigate={closeSidebar}
+              />
+            ),
+          )}
         </nav>
 
         <div className="mx-5 my-4 h-px bg-white/[0.05]" />
@@ -384,16 +416,21 @@ export default function Sidebar({
           aria-label="تنظیمات و ابزارها"
           className="flex flex-col gap-1 px-2"
         >
-          {secondaryNavigationItems.map((item) => (
-            <NavigationLink
-              key={item.href}
-              item={item}
-              pathname={pathname}
-            />
-          ))}
+          {secondaryNavigationItems.map(
+            (item) => (
+              <NavigationLink
+                key={item.href}
+                item={item}
+                pathname={pathname}
+                onNavigate={closeSidebar}
+              />
+            ),
+          )}
         </nav>
 
-        <UpgradeToProCard />
+        <UpgradeToProCard
+          onNavigate={closeSidebar}
+        />
       </aside>
     </>
   );
