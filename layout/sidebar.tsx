@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import {
-  usePathname,
-} from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   Bot,
   BookOpenCheck,
@@ -20,9 +19,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import {
-  cn,
-} from "../lib/utils/cn";
+import { cn } from "../lib/utils/cn";
+import { PricingModal, subscriptionPlans } from "../features/subscription";
 
 type NavigationItem = Readonly<{
   label: string;
@@ -34,9 +32,7 @@ type NavigationItem = Readonly<{
 type SidebarProps = Readonly<{
   isSidebarOpen: boolean;
 
-  setIsSidebarOpen: (
-    open: boolean,
-  ) => void;
+  setIsSidebarOpen: (open: boolean) => void;
 }>;
 
 const primaryNavigationItems = [
@@ -72,18 +68,18 @@ const primaryNavigationItems = [
     icon: ClipboardCheck,
   },
   {
-    label: "معلم هوشمند",
-    href: "/tutor",
+    label: "کلاس",
+    href: "/classroom",
     icon: Bot,
   },
 ] satisfies readonly NavigationItem[];
 
 const secondaryNavigationItems = [
-  {
-    label: "مرور آموخته‌ها",
-    href: "/review",
-    icon: BookOpenCheck,
-  },
+  // {
+  //   label: "مرور آموخته‌ها",
+  //   href: "/review",
+  //   icon: BookOpenCheck,
+  // },
   {
     label: "تنظیمات",
     href: "/settings",
@@ -99,19 +95,10 @@ function isNavigationItemActive(
     return pathname === item.href;
   }
 
-  return (
-    pathname === item.href ||
-    pathname.startsWith(
-      `${item.href}/`,
-    )
-  );
+  return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-function BrandLogo({
-  onNavigate,
-}: {
-  onNavigate: () => void;
-}) {
+function BrandLogo({ onNavigate }: { onNavigate: () => void }) {
   return (
     <Link
       href="/dashboard"
@@ -132,10 +119,7 @@ function BrandLogo({
           text-white shadow-lg shadow-cyan-950/30
         "
       >
-        <Languages
-          aria-hidden="true"
-          className="h-6 w-6"
-        />
+        <Languages aria-hidden="true" className="h-6 w-6" />
       </span>
 
       <span className="min-w-0">
@@ -166,11 +150,7 @@ function NavigationLink({
   pathname: string;
   onNavigate: () => void;
 }) {
-  const active =
-    isNavigationItemActive(
-      pathname,
-      item,
-    );
+  const active = isNavigationItemActive(pathname, item);
 
   const Icon = item.icon;
 
@@ -178,9 +158,7 @@ function NavigationLink({
     <Link
       href={item.href}
       onClick={onNavigate}
-      aria-current={
-        active ? "page" : undefined
-      }
+      aria-current={active ? "page" : undefined}
       className={cn(
         "group relative flex min-h-12 items-center gap-3",
         "rounded-xl px-3 py-2.5",
@@ -189,15 +167,8 @@ function NavigationLink({
         "focus-visible:ring-cyan-300/60",
 
         active
-          ? [
-              "bg-cyan-400/[0.1] text-cyan-100",
-              "shadow-lg shadow-cyan-950/20",
-            ]
-          : [
-              "text-slate-400",
-              "hover:bg-white/[0.04]",
-              "hover:text-slate-100",
-            ],
+          ? ["bg-cyan-400/[0.1] text-cyan-100", "shadow-lg shadow-cyan-950/20"]
+          : ["text-slate-400", "hover:bg-white/[0.04]", "hover:text-slate-100"],
       )}
     >
       {active ? (
@@ -224,23 +195,20 @@ function NavigationLink({
               ],
         )}
       >
-        <Icon
-          aria-hidden="true"
-          className="h-5 w-5"
-        />
+        <Icon aria-hidden="true" className="h-5 w-5" />
       </span>
 
-      <span className="min-w-0 flex-1 truncate">
-        {item.label}
-      </span>
+      <span className="min-w-0 flex-1 truncate">{item.label}</span>
     </Link>
   );
 }
 
 function UpgradeToProCard({
   onNavigate,
+  onOpenPlans,
 }: {
   onNavigate: () => void;
+  onOpenPlans: () => void;
 }) {
   return (
     <div className="mt-auto px-3 pb-4 pt-6">
@@ -276,10 +244,7 @@ function UpgradeToProCard({
                 rounded-xl bg-white/10 text-violet-100
               "
             >
-              <Crown
-                aria-hidden="true"
-                className="h-5 w-5"
-              />
+              <Crown aria-hidden="true" className="h-5 w-5" />
             </span>
 
             <h2 className="text-sm font-bold text-white">
@@ -288,13 +253,16 @@ function UpgradeToProCard({
           </div>
 
           <p className="mt-3 text-xs leading-6 text-violet-100/80">
-            تحلیل پیشرفته هوش مصنوعی، تمرین نامحدود و
-            برنامه‌های شخصی‌سازی‌شده را فعال کن.
+            تحلیل پیشرفته هوش مصنوعی، تمرین نامحدود و برنامه‌های شخصی‌سازی‌شده
+            را فعال کن.
           </p>
 
-          <Link
-            href="/billing"
-            onClick={onNavigate}
+          <button
+            type="button"
+            onClick={() => {
+              onNavigate();
+              onOpenPlans();
+            }}
             className="
               mt-4 inline-flex w-full items-center justify-center
               rounded-xl border border-white/15 bg-white/15
@@ -306,7 +274,7 @@ function UpgradeToProCard({
             "
           >
             مشاهده پلن‌ها
-          </Link>
+          </button>
         </div>
       </div>
     </div>
@@ -318,9 +286,18 @@ export default function Sidebar({
   setIsSidebarOpen,
 }: SidebarProps) {
   const pathname = usePathname();
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
 
   function closeSidebar(): void {
     setIsSidebarOpen(false);
+  }
+
+  function openPricingModal(): void {
+    setIsPricingModalOpen(true);
+  }
+
+  function closePricingModal(): void {
+    setIsPricingModalOpen(false);
   }
 
   return (
@@ -329,17 +306,13 @@ export default function Sidebar({
         type="button"
         aria-label="بستن منوی کناری"
         aria-hidden={!isSidebarOpen}
-        tabIndex={
-          isSidebarOpen ? 0 : -1
-        }
+        tabIndex={isSidebarOpen ? 0 : -1}
         onClick={closeSidebar}
         className={cn(
           "fixed inset-0 z-40 bg-black/60 backdrop-blur-sm",
           "transition-opacity duration-300 lg:hidden",
 
-          isSidebarOpen
-            ? "opacity-100"
-            : "pointer-events-none opacity-0",
+          isSidebarOpen ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       />
 
@@ -355,17 +328,13 @@ export default function Sidebar({
           "transition-transform duration-300 ease-out",
           "lg:translate-x-0",
 
-          isSidebarOpen
-            ? "translate-x-0"
-            : "translate-x-full",
+          isSidebarOpen ? "translate-x-0" : "translate-x-full",
         )}
         dir="rtl"
       >
         <div className="flex items-center justify-between gap-3 px-1">
           <div className="min-w-0 flex-1">
-            <BrandLogo
-              onNavigate={closeSidebar}
-            />
+            <BrandLogo onNavigate={closeSidebar} />
           </div>
 
           <button
@@ -382,32 +351,21 @@ export default function Sidebar({
               lg:hidden
             "
           >
-            <X
-              aria-hidden="true"
-              className="h-5 w-5"
-            />
+            <X aria-hidden="true" className="h-5 w-5" />
           </button>
         </div>
 
-        <div
-          aria-hidden="true"
-          className="mx-3 my-5 h-px bg-white/[0.06]"
-        />
+        <div aria-hidden="true" className="mx-3 my-5 h-px bg-white/[0.06]" />
 
-        <nav
-          aria-label="بخش‌های اصلی"
-          className="flex flex-col gap-1 px-2"
-        >
-          {primaryNavigationItems.map(
-            (item) => (
-              <NavigationLink
-                key={item.href}
-                item={item}
-                pathname={pathname}
-                onNavigate={closeSidebar}
-              />
-            ),
-          )}
+        <nav aria-label="بخش‌های اصلی" className="flex flex-col gap-1 px-2">
+          {primaryNavigationItems.map((item) => (
+            <NavigationLink
+              key={item.href}
+              item={item}
+              pathname={pathname}
+              onNavigate={closeSidebar}
+            />
+          ))}
         </nav>
 
         <div className="mx-5 my-4 h-px bg-white/[0.05]" />
@@ -416,22 +374,27 @@ export default function Sidebar({
           aria-label="تنظیمات و ابزارها"
           className="flex flex-col gap-1 px-2"
         >
-          {secondaryNavigationItems.map(
-            (item) => (
-              <NavigationLink
-                key={item.href}
-                item={item}
-                pathname={pathname}
-                onNavigate={closeSidebar}
-              />
-            ),
-          )}
+          {secondaryNavigationItems.map((item) => (
+            <NavigationLink
+              key={item.href}
+              item={item}
+              pathname={pathname}
+              onNavigate={closeSidebar}
+            />
+          ))}
         </nav>
 
         <UpgradeToProCard
           onNavigate={closeSidebar}
+          onOpenPlans={openPricingModal}
         />
       </aside>
+
+      <PricingModal
+        isOpen={isPricingModalOpen}
+        onClose={closePricingModal}
+        plans={subscriptionPlans}
+      />
     </>
   );
 }
