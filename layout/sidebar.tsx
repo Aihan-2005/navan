@@ -21,6 +21,7 @@ import {
 
 import { cn } from "../lib/utils/cn";
 import { PricingModal, subscriptionPlans } from "../features/subscription";
+import { SupportCard } from "../components/ui/support-card";
 
 type NavigationItem = Readonly<{
   label: string;
@@ -299,6 +300,7 @@ export default function Sidebar({
   function closePricingModal(): void {
     setIsPricingModalOpen(false);
   }
+  const SHOW_PRICING = false;
 
   return (
     <>
@@ -384,17 +386,23 @@ export default function Sidebar({
           ))}
         </nav>
 
-        <UpgradeToProCard
-          onNavigate={closeSidebar}
-          onOpenPlans={openPricingModal}
-        />
+        <SupportCard />
+
+        {SHOW_PRICING && (
+          <UpgradeToProCard
+            onNavigate={closeSidebar}
+            onOpenPlans={openPricingModal}
+          />
+        )}
       </aside>
 
-      <PricingModal
-        isOpen={isPricingModalOpen}
-        onClose={closePricingModal}
-        plans={subscriptionPlans}
-      />
+      {SHOW_PRICING && (
+        <PricingModal
+          isOpen={isPricingModalOpen}
+          onClose={closePricingModal}
+          plans={subscriptionPlans}
+        />
+      )}
     </>
   );
 }
