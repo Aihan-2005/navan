@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   FileText,
@@ -14,6 +15,7 @@ import { Card } from "../../../../components/ui/card";
 
 import { useWritingDraft } from "../../hooks/use-writing-draft";
 import type { WritingDraft, WritingExercise } from "../../types/writing.types";
+import { submitWritingAnalysis } from "../../api/submit-writing-analysis";
 import { AnalysisSubmitBar } from "./analysis-submit-bar";
 import { DraftStatus } from "./draft-status";
 import { LiveWritingStats } from "./live-writing-stats";
@@ -27,6 +29,7 @@ type WritingWorkspaceProps = Readonly<{
   mode?: WritingMode;
   exercise?: WritingExercise;
   draft?: WritingDraft;
+  showHeader?: boolean;
 }>;
 
 function getWordCount(value: string): number {
@@ -49,10 +52,13 @@ export function WritingWorkspace({
   mode = "free",
   exercise,
   draft,
+  showHeader = true,
 }: WritingWorkspaceProps) {
+  const router = useRouter();
   const [analysisReady, setAnalysisReady] = useState(false);
   const [uploadState, setUploadState] = useState<"idle" | "uploading" | "done">("idle");
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -128,13 +134,33 @@ export function WritingWorkspace({
         ];
 
 
-  function handleSubmit() {
-    if (!canSubmit) {
+  async function handleSubmit() {
+    if (!canSubmit || isSubmitting) {
       return;
     }
 
+    setIsSubmitting(true);
     saveNow();
-    setAnalysisReady(true);
+
+    try {
+      const response = await submitWritingAnalysis({
+        content,
+        exerciseId: exercise?.id,
+        mode,
+      });
+
+      if (response.success && response.submissionId) {
+        router.push(`/writing/submissions/${response.submissionId}`);
+      } else {
+        console.error("Submission failed:", response.error);
+        setAnalysisReady(true);
+      }
+    } catch (error) {
+      console.error("Error submitting for analysis:", error);
+      setAnalysisReady(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function handleClear() {
@@ -178,40 +204,44 @@ export function WritingWorkspace({
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl space-y-6" dir="rtl">
-      <Link
-        href="/writing"
-        className="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
-      >
-        <ArrowRight aria-hidden="true" className="h-4 w-4" />
-        بازگشت به صفحه نوشتن
-      </Link>
+    <div className="space-y-6" dir="rtl">
+      {showHeader && (
+        <>
+          <Link
+            href="/writing"
+            className="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
+          >
+            <ArrowRight aria-hidden="true" className="h-4 w-4" />
+            بازگشت به صفحه نوشتن
+          </Link>
 
-      <section className="relative overflow-hidden rounded-3xl border border-cyan-400/15 bg-[linear-gradient(135deg,rgba(8,47,73,0.75),rgba(15,23,42,0.85))] p-6 sm:p-8">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-cyan-500/20 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-24 right-10 h-64 w-64 rounded-full bg-violet-500/15 blur-3xl"
-        />
+          <section className="relative overflow-hidden rounded-3xl border border-cyan-400/15 bg-[linear-gradient(135deg,rgba(8,47,73,0.75),rgba(15,23,42,0.85))] p-6 sm:p-8">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-cyan-500/20 blur-3xl"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-24 right-10 h-64 w-64 rounded-full bg-violet-500/15 blur-3xl"
+            />
 
-        <div className="relative">
-          <div className="flex flex-wrap items-center gap-2 text-sm text-cyan-300">
-            <PenSquare aria-hidden="true" className="h-4 w-4" />
-            {modeLabel}
-          </div>
+            <div className="relative">
+              <div className="flex flex-wrap items-center gap-2 text-sm text-cyan-300">
+                <PenSquare aria-hidden="true" className="h-4 w-4" />
+                {modeLabel}
+              </div>
 
-          <h1 className="mt-4 text-3xl font-bold leading-tight text-white sm:text-4xl">
-            {title}
-          </h1>
+              <h1 className="mt-4 text-3xl font-bold leading-tight text-white sm:text-4xl">
+                {title}
+              </h1>
 
-          <p className="mt-4 text-sm leading-8 text-slate-300 sm:text-base">
-            {description}
-          </p>
-        </div>
-      </section>
+              <p className="mt-4 text-sm leading-8 text-slate-300 sm:text-base">
+                {description}
+              </p>
+            </div>
+          </section>
+        </>
+      )}
 
       <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <div className="space-y-6">
@@ -320,9 +350,10 @@ export function WritingWorkspace({
             wordCount={wordCount}
             targetWords={targetWords}
             requiredWords={minimumWords}
+            isSubmitting={isSubmitting}
           />
         </div>
       </section>
-    </main>
+    </div>
   );
 }
