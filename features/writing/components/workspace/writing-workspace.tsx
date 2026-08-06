@@ -22,6 +22,9 @@ import { LiveWritingStats } from "./live-writing-stats";
 import { WritingEditor } from "./writing-editor";
 import { WritingPromptPanel } from "./writing-prompt-panel";
 import { WritingToolbar } from "./writing-toolbar";
+import { DocumentDropzone } from "../upload/document-dropzone";
+import { DocumentExtractionState } from "../upload/document-extraction-state";
+import { UploadedDocumentCard } from "../upload/uploaded-document-card";
 
 type WritingMode = "free" | "exercise" | "draft";
 
@@ -30,6 +33,7 @@ type WritingWorkspaceProps = Readonly<{
   exercise?: WritingExercise;
   draft?: WritingDraft;
   showHeader?: boolean;
+  category?: string;
 }>;
 
 function getWordCount(value: string): number {
@@ -53,11 +57,14 @@ export function WritingWorkspace({
   exercise,
   draft,
   showHeader = true,
+  category,
 }: WritingWorkspaceProps) {
   const router = useRouter();
   const [analysisReady, setAnalysisReady] = useState(false);
   const [uploadState, setUploadState] = useState<"idle" | "uploading" | "done">("idle");
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [uploadedFileSize, setUploadedFileSize] = useState<number | null>(null);
+  const [extractionState, setExtractionState] = useState<"idle" | "extracting" | "success" | "error">("idle");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -168,6 +175,8 @@ export function WritingWorkspace({
     setAnalysisReady(false);
     setUploadState("idle");
     setUploadedFileName(null);
+    setUploadedFileSize(null);
+    setExtractionState("idle");
   }
 
   function handleUpload(file?: File) {
@@ -176,6 +185,9 @@ export function WritingWorkspace({
     }
 
     setUploadState("uploading");
+    setExtractionState("extracting");
+    setUploadedFileName(file.name);
+    setUploadedFileSize(file.size);
 
     const reader = new FileReader();
 
@@ -186,21 +198,30 @@ export function WritingWorkspace({
         const nextValue = text.trim();
 
         if (!nextValue) {
+          setExtractionState("error");
           return previous;
         }
 
+        setExtractionState("success");
         return previous ? `${previous}\n\n---\n\n${nextValue}` : nextValue;
       });
 
-      setUploadedFileName(file.name);
       setUploadState("done");
     };
 
     reader.onerror = () => {
+      setExtractionState("error");
       setUploadState("idle");
     };
 
     reader.readAsText(file);
+  }
+
+  function handleRemoveUpload() {
+    setUploadState("idle");
+    setUploadedFileName(null);
+    setUploadedFileSize(null);
+    setExtractionState("idle");
   }
 
   return (
@@ -254,7 +275,7 @@ export function WritingWorkspace({
             instructions={instructions}
             writingGoal={writingGoal}
             targetWordCount={targetWords}
-            category={exercise?.category ?? "نوشتن آزاد"}
+            category={category ?? exercise?.category ?? "نوشتن آزاد"}
             difficulty={exercise?.difficulty ?? "متوسط"}
             estimatedMinutes={exercise?.estimatedMinutes ?? 10}
           />
@@ -276,65 +297,40 @@ export function WritingWorkspace({
             saveStatus={saveStatus}
           />
 
-          <Card className="p-4" dir="rtl">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm text-cyan-300">آپلود فایل</p>
-                <p className="mt-1 text-sm text-slate-400">
-                  متن یا فایل نوشته‌ی خودت را وارد کن و آن را به فضای نوشتن اضافه کن.
-                </p>
-              </div>
+          {uploadState === "idle" ? (
+            <DocumentDropzone onFileSelect={handleUpload} />
+          ) : (
+            <>
+              <DocumentExtractionState
+                state={extractionState}
+                fileName={uploadedFileName ?? undefined}
+                onDismiss={handleRemoveUpload}
+                onRetry={() => fileInputRef.current?.click()}
+              />
 
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-slate-100"
-              >
-                <UploadCloud aria-hidden="true" className="h-4 w-4" />
-                بارگذاری
-              </button>
-            </div>
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".txt,.md,.doc,.docx,.pdf"
-              onChange={(event) => {
-                handleUpload(event.target.files?.[0]);
-                event.target.value = "";
-              }}
-              className="sr-only"
-              aria-label="انتخاب فایل برای واردکردن متن"
-            />
-
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/60 p-4">
-              {uploadState === "uploading" ? (
-                <p className="text-sm text-cyan-200">در حال خواندن فایل...</p>
-              ) : uploadState === "done" && uploadedFileName ? (
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-sm text-slate-300">
-                    <FileText aria-hidden="true" className="h-4 w-4 text-cyan-300" />
-                    {uploadedFileName}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUploadState("idle");
-                      setUploadedFileName(null);
-                    }}
-                    className="rounded-lg border border-white/10 p-1.5 text-slate-400"
-                  >
-                    <X aria-hidden="true" className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : (
-                <p className="text-sm text-slate-400">
-                  این بخش برای آینده‌ی API آماده است و همین حالا متن فایل را در فضای نوشتن وارد می‌کند.
-                </p>
+              {uploadedFileName && (
+                <UploadedDocumentCard
+                  fileName={uploadedFileName}
+                  fileSize={uploadedFileSize ?? undefined}
+                  wordCount={wordCount}
+                  status={extractionState === "success" ? "ready" : extractionState === "error" ? "error" : "uploading"}
+                  onRemove={handleRemoveUpload}
+                />
               )}
-            </div>
-          </Card>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".txt,.md,.doc,.docx,.pdf"
+                onChange={(event) => {
+                  handleUpload(event.target.files?.[0]);
+                  event.target.value = "";
+                }}
+                className="sr-only"
+                aria-label="انتخاب فایل برای واردکردن متن"
+              />
+            </>
+          )}
 
           <WritingEditor
             value={content}

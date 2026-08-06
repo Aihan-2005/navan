@@ -31,33 +31,7 @@ export function WritingOverview({ overview }: WritingOverviewProps) {
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <ContinueDraftCard draft={overview.currentDraft} />
 
-        <Card className="flex flex-col justify-between p-6" dir="rtl">
-          <div>
-            <div className="flex items-center gap-2 text-sm text-cyan-300">
-              <BookOpenText aria-hidden="true" className="h-4 w-4" />
-              تمرین پیشنهادی امروز
-            </div>
-            <h3 className="mt-4 text-xl font-bold text-white">
-              {overview.recommendedExercise.title}
-            </h3>
-            <p className="mt-3 text-sm leading-8 text-slate-400">
-              {overview.recommendedExercise.description}
-            </p>
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
-            <span>{overview.recommendedExercise.difficulty}</span>
-            <span>{overview.recommendedExercise.estimatedMinutes} دقیقه</span>
-          </div>
-
-          <Link
-            href={`/writing/exercises/${overview.recommendedExercise.id}`}
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-300/20 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/15"
-          >
-            شروع تمرین
-            <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          </Link>
-        </Card>
+        <WritingModeCard exercise={overview.recommendedExercise} />
       </section>
 
       <section>

@@ -4,7 +4,9 @@ import Link from "next/link";
 import { ArrowRight, PenSquare, Sparkles, Target, Clock, FileText } from "lucide-react";
 
 import { Card } from "../../../../components/ui/card";
+import { cn } from "../../../../lib/utils/cn";
 import { WritingWorkspace } from "../workspace/writing-workspace";
+import { WRITING_DIFFICULTY_STYLES } from "../../constants/writing.constants";
 import type { WritingExercise } from "../../types/writing.types";
 
 type ExerciseWritingViewProps = Readonly<{
@@ -64,13 +66,13 @@ export function ExerciseWritingView({ exercise }: ExerciseWritingViewProps) {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1fr_1.5fr]">
-        <div className="space-y-6">
+        <div className="space-y-5">
           <Card className="p-6" dir="rtl">
             <div className="flex items-center gap-2 text-sm text-cyan-300">
               <FileText aria-hidden="true" className="h-4 w-4" />
               دستورالعمل
             </div>
-            <h2 className="mt-4 text-xl font-bold text-white">راهنمای تمرین</h2>
+            <h2 className="mt-4 text-lg font-bold text-white">راهنمای تمرین</h2>
             <ul className="mt-4 space-y-3">
               {exercise.instructions.map((instruction, index) => (
                 <li
@@ -89,7 +91,7 @@ export function ExerciseWritingView({ exercise }: ExerciseWritingViewProps) {
               <Target aria-hidden="true" className="h-4 w-4" />
               هدف نوشتاری
             </div>
-            <h2 className="mt-4 text-xl font-bold text-white">هدف این تمرین</h2>
+            <h2 className="mt-4 text-lg font-bold text-white">هدف این تمرین</h2>
             <p className="mt-4 text-sm leading-8 text-slate-400">
               {exercise.targetWritingGoal}
             </p>
@@ -100,7 +102,7 @@ export function ExerciseWritingView({ exercise }: ExerciseWritingViewProps) {
               <PenSquare aria-hidden="true" className="h-4 w-4" />
               موضوع تمرین
             </div>
-            <h2 className="mt-4 text-xl font-bold text-white">موضوع تمرین</h2>
+            <h2 className="mt-4 text-lg font-bold text-white">موضوع تمرین</h2>
             <p className="mt-4 text-sm leading-8 text-slate-400">
               {exercise.prompt}
             </p>
@@ -111,11 +113,16 @@ export function ExerciseWritingView({ exercise }: ExerciseWritingViewProps) {
               <Sparkles aria-hidden="true" className="h-4 w-4" />
               اطلاعات تکمیلی
             </div>
-            <h2 className="mt-4 text-xl font-bold text-white">اطلاعات تمرین</h2>
+            <h2 className="mt-4 text-lg font-bold text-white">اطلاعات تمرین</h2>
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-slate-400">سطح دشواری</span>
-                <span className="font-semibold text-white">
+                <span
+                  className={cn(
+                    "rounded-full border px-2.5 py-1 text-[11px] font-semibold",
+                    WRITING_DIFFICULTY_STYLES[exercise.difficulty],
+                  )}
+                >
                   {exercise.difficulty}
                 </span>
               </div>

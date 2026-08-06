@@ -6,6 +6,9 @@ export { submitWritingAnalysis } from "./api/submit-writing-analysis";
 export { WritingOverview } from "./components/overview/writing-overview";
 export { WritingWorkspace } from "./components/workspace/writing-workspace";
 export { WritingAnalysisView } from "./components/analysis/writing-analysis-view";
+export { WritingCategorySelector } from "./components/workspace/writing-category-selector";
+export * from "./components/upload";
+export { WRITING_DIFFICULTY_STYLES, WRITING_CATEGORIES } from "./constants/writing.constants";
 export { writingOverviewMock } from "./mocks/writing-overview.mock";
 
 export type {
