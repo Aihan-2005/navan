@@ -3,5 +3,16 @@ import { writingOverviewSchema } from "../schemas/writing.schema";
 import type { WritingOverviewData } from "../types/writing.types";
 
 export async function getWritingOverview(): Promise<WritingOverviewData> {
-  return writingOverviewSchema.parse(writingOverviewMock);
+  const overview = { ...writingOverviewMock };
+
+  // Use the first exercise as the recommended one (could be random in production)
+  const recommendedExercise = {
+    ...overview.exercises[0],
+    isFeatured: true,
+  };
+
+  return writingOverviewSchema.parse({
+    ...overview,
+    recommendedExercise,
+  });
 }

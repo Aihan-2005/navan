@@ -65,8 +65,8 @@ export function ExerciseWritingView({ exercise }: ExerciseWritingViewProps) {
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[1fr_1.5fr]">
-        <div className="space-y-5">
+      <section className="grid gap-6 xl:grid-cols-12">
+        <div className="space-y-5 xl:col-span-5">
           <Card className="p-6" dir="rtl">
             <div className="flex items-center gap-2 text-sm text-cyan-300">
               <FileText aria-hidden="true" className="h-4 w-4" />
@@ -142,7 +142,7 @@ export function ExerciseWritingView({ exercise }: ExerciseWritingViewProps) {
           </Card>
         </div>
 
-        <div>
+        <div className="xl:col-span-7">
           <WritingWorkspace
             mode="exercise"
             exercise={exercise}

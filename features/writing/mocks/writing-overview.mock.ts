@@ -1,6 +1,6 @@
 import type { WritingOverviewData } from "../types/writing.types";
 
-export const writingOverviewMock: WritingOverviewData = {
+export const writingOverviewMock: Omit<WritingOverviewData, 'recommendedExercise'> = {
   stats: {
     totalWritings: 18,
     weeklyWords: 6400,
@@ -15,28 +15,9 @@ export const writingOverviewMock: WritingOverviewData = {
       "در این متن به‌تدریج نکات اصلی و ساختار مناسب برای نوشتن یک نامه رسمی را مرور می‌کنم...",
     wordCount: 268,
   },
-  recommendedExercise: {
-    id: "exercise-1",
-    title: "توصیه‌شده امروز: توصیف تجربه",
-    description:
-      "با استفاده از زمان، مکان و احساسات، یک متن روان و قابل‌فهم درباره یک تجربه‌ی شخصی بنویس.",
-    difficulty: "متوسط",
-    estimatedMinutes: 12,
-    category: "توصیف",
-    isFeatured: true,
-    prompt:
-      "یک تجربه‌ی شخصی را در سه پاراگراف بنویس: موقعیت، احساسات و نتیجه‌ی آن.",
-    instructions: [
-      "در پاراگراف اول، زمینه را روشن کن.",
-      "در پاراگراف دوم، احساسات و جزئیات را اضافه کن.",
-      "در پاراگراف سوم، جمع‌بندی و نتیجه را بیان کن.",
-    ],
-    targetWritingGoal: "توصیف روان و منظم یک تجربه‌ی شخصی",
-    expectedWordCount: 220,
-  },
   exercises: [
     {
-      id: "exercise-2",
+      id: "professional-email-writing",
       title: "نوشتن ایمیل حرفه‌ای",
       description: "یک ایمیل رسمی و دقیق برای درخواست اطلاعات بنویس.",
       difficulty: "مبتدی",
@@ -53,7 +34,7 @@ export const writingOverviewMock: WritingOverviewData = {
       expectedWordCount: 180,
     },
     {
-      id: "exercise-3",
+      id: "opinion-response-writing",
       title: "پاسخ به یک نظر",
       description: "به یک دیدگاه مخالف با لحن محترمانه و دقیق پاسخ بده.",
       difficulty: "متوسط",
@@ -70,7 +51,7 @@ export const writingOverviewMock: WritingOverviewData = {
       expectedWordCount: 200,
     },
     {
-      id: "exercise-4",
+      id: "problem-analysis-writing",
       title: "تحلیل یک مشکل روزمره",
       description:
         "در مورد یک موضوع اجتماعی یا کاری با جزئیات و ساختار منطقی بنویس.",
@@ -86,6 +67,57 @@ export const writingOverviewMock: WritingOverviewData = {
       ],
       targetWritingGoal: "تحلیل دقیق و ساختارمند",
       expectedWordCount: 260,
+    },
+    {
+      id: "memory-description-writing",
+      title: "توصیف یک خاطره",
+      description: "یک خاطره‌ی شخصی مهم را با جزئیات احساسی و توصیفی بنویس.",
+      difficulty: "متوسط",
+      estimatedMinutes: 12,
+      category: "توصیف",
+      prompt:
+        "خاطره‌ای را که در زندگی‌ات تأثیر عمیقی داشته، با تمرکز بر احساسات و جزئیات توصیف کن.",
+      instructions: [
+        "زمان و مکان خاطره را مشخص کن.",
+        "احساسات و واکنش‌های خودت را توصیف کن.",
+        "تأثیر این خاطره بر زندگی‌ات را بیان کن.",
+      ],
+      targetWritingGoal: "توصیف احساسی و روایی",
+      expectedWordCount: 240,
+    },
+    {
+      id: "short-article-writing",
+      title: "نوشتن مقاله کوتاه",
+      description: "یک مقاله‌ی کوتاه درباره یک موضوع اجتماعی بنویس.",
+      difficulty: "پیشرفته",
+      estimatedMinutes: 20,
+      category: "تحلیل",
+      prompt:
+        "درباره یک موضوع اجتماعی مهم در جامعه امروز، یک مقاله تحلیلی کوتاه بنویس.",
+      instructions: [
+        "موضوع را با یک مقدمه جذاب شروع کن.",
+        "دو تا سه نکته اصلی را با مثال توضیح بده.",
+        "در پایان، جمع‌بندی و پیشنهاد ارائه بده.",
+      ],
+      targetWritingGoal: "نوشتن مقاله تحلیلی",
+      expectedWordCount: 350,
+    },
+    {
+      id: "short-story-writing",
+      title: "داستان کوتاه",
+      description: "یک داستان کوتاه با شخصیت و پیام مشخص بنویس.",
+      difficulty: "متوسط",
+      estimatedMinutes: 15,
+      category: "داستان",
+      prompt:
+        "یک داستان کوتاه درباره یک تصمیم مهم در زندگی یک شخصیت خیالی بنویس.",
+      instructions: [
+        "شخصیت و موقعیت را معرفی کن.",
+        "تصمیم‌گیری و چالش‌ها را توصیف کن.",
+        "نتیجه و پیام داستان را بیان کن.",
+      ],
+      targetWritingGoal: "داستان‌نویسی خلاقانه",
+      expectedWordCount: 300,
     },
   ],
   recentWritings: [
