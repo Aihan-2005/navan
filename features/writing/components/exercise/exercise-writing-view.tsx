@@ -1,19 +1,78 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, PenSquare, Sparkles, Target, Clock, FileText } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, PenSquare, Sparkles, Target, Clock } from "lucide-react";
 
-import { Card } from "../../../../components/ui/card";
-import { cn } from "../../../../lib/utils/cn";
-import { WritingWorkspace } from "../workspace/writing-workspace";
-import { WRITING_DIFFICULTY_STYLES } from "../../constants/writing.constants";
+import { WritingPromptPanel } from "../workspace/writing-prompt-panel";
+import { DraftStatus } from "../workspace/draft-status";
+import { LiveWritingStats } from "../workspace/live-writing-stats";
+import { WritingToolbar } from "../workspace/writing-toolbar";
+import { WritingEditor } from "../workspace/writing-editor";
+import { AnalysisSubmitBar } from "../workspace/analysis-submit-bar";
+import { useWritingDraft } from "../../hooks/use-writing-draft";
+import { submitWritingAnalysis } from "../../api/submit-writing-analysis";
 import type { WritingExercise } from "../../types/writing.types";
 
 type ExerciseWritingViewProps = Readonly<{
   exercise: WritingExercise;
 }>;
 
+function getWordCount(value: string): number {
+  const normalized = value.trim();
+  if (!normalized) {
+    return 0;
+  }
+  return normalized.split(/\s+/u).filter(Boolean).length;
+}
+
 export function ExerciseWritingView({ exercise }: ExerciseWritingViewProps) {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const sessionKey = exercise.id;
+  const { content, setContent, saveStatus, lastSavedAt, saveNow, clearDraft } =
+    useWritingDraft(sessionKey);
+
+  const wordCount = useMemo(() => getWordCount(content), [content]);
+  const characterCount = content.length;
+
+  const targetWords = exercise.expectedWordCount;
+  const minimumWords = Math.max(targetWords - 20, 100);
+  const canSubmit = wordCount >= minimumWords;
+
+  const tips = exercise.instructions;
+
+  async function handleSubmit() {
+    if (!canSubmit || isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    saveNow();
+
+    try {
+      const response = await submitWritingAnalysis({
+        content,
+        exerciseId: exercise.id,
+        mode: "exercise",
+      });
+
+      if (response.success && response.submissionId) {
+        router.push(`/writing/submissions/${response.submissionId}`);
+      }
+    } catch (error) {
+      console.error("Error submitting for analysis:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function handleClear() {
+    clearDraft();
+  }
+
   return (
     <main className="mx-auto w-full max-w-7xl space-y-6" dir="rtl">
       <Link
@@ -65,89 +124,54 @@ export function ExerciseWritingView({ exercise }: ExerciseWritingViewProps) {
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-12">
-        <div className="space-y-5 xl:col-span-5">
-          <Card className="p-6" dir="rtl">
-            <div className="flex items-center gap-2 text-sm text-cyan-300">
-              <FileText aria-hidden="true" className="h-4 w-4" />
-              دستورالعمل
-            </div>
-            <h2 className="mt-4 text-lg font-bold text-white">راهنمای تمرین</h2>
-            <ul className="mt-4 space-y-3">
-              {exercise.instructions.map((instruction, index) => (
-                <li
-                  key={index}
-                  className="flex items-start gap-3 text-sm leading-7 text-slate-300"
-                >
-                  <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-cyan-400" />
-                  {instruction}
-                </li>
-              ))}
-            </ul>
-          </Card>
+      <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+        <div className="space-y-6">
+          <WritingPromptPanel
+            title={exercise.title}
+            description={exercise.description}
+            prompt={exercise.prompt}
+            tips={tips}
+            modeLabel="تمرین هدف‌مند"
+            instructions={exercise.instructions}
+            writingGoal={exercise.targetWritingGoal}
+            targetWordCount={exercise.expectedWordCount}
+            category={exercise.category}
+            difficulty={exercise.difficulty}
+            estimatedMinutes={exercise.estimatedMinutes}
+          />
 
-          <Card className="p-6" dir="rtl">
-            <div className="flex items-center gap-2 text-sm text-cyan-300">
-              <Target aria-hidden="true" className="h-4 w-4" />
-              هدف نوشتاری
-            </div>
-            <h2 className="mt-4 text-lg font-bold text-white">هدف این تمرین</h2>
-            <p className="mt-4 text-sm leading-8 text-slate-400">
-              {exercise.targetWritingGoal}
-            </p>
-          </Card>
+          <LiveWritingStats
+            wordCount={wordCount}
+            characterCount={characterCount}
+            targetWords={targetWords}
+            requiredWords={minimumWords}
+          />
 
-          <Card className="p-6" dir="rtl">
-            <div className="flex items-center gap-2 text-sm text-cyan-300">
-              <PenSquare aria-hidden="true" className="h-4 w-4" />
-              موضوع تمرین
-            </div>
-            <h2 className="mt-4 text-lg font-bold text-white">موضوع تمرین</h2>
-            <p className="mt-4 text-sm leading-8 text-slate-400">
-              {exercise.prompt}
-            </p>
-          </Card>
-
-          <Card className="p-6" dir="rtl">
-            <div className="flex items-center gap-2 text-sm text-cyan-300">
-              <Sparkles aria-hidden="true" className="h-4 w-4" />
-              اطلاعات تکمیلی
-            </div>
-            <h2 className="mt-4 text-lg font-bold text-white">اطلاعات تمرین</h2>
-            <div className="mt-4 space-y-3 text-sm">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-slate-400">سطح دشواری</span>
-                <span
-                  className={cn(
-                    "rounded-full border px-2.5 py-1 text-[11px] font-semibold",
-                    WRITING_DIFFICULTY_STYLES[exercise.difficulty],
-                  )}
-                >
-                  {exercise.difficulty}
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-slate-400">زمان پیشنهادی</span>
-                <span className="font-semibold text-white">
-                  {exercise.estimatedMinutes} دقیقه
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-slate-400">تعداد کلمات هدف</span>
-                <span className="font-semibold text-white">
-                  {exercise.expectedWordCount} کلمه
-                </span>
-              </div>
-            </div>
-          </Card>
+          <DraftStatus status={saveStatus} lastSavedAt={lastSavedAt} />
         </div>
 
-        <div className="xl:col-span-7">
-          <WritingWorkspace
-            mode="exercise"
-            exercise={exercise}
-            draft={undefined}
-            showHeader={false}
+        <div className="space-y-6">
+          <WritingToolbar
+            onSaveNow={saveNow}
+            onClear={handleClear}
+            saveStatus={saveStatus}
+          />
+
+          <WritingEditor
+            value={content}
+            onChange={setContent}
+            placeholder="متن خودت را اینجا شروع کن..."
+          />
+
+          <AnalysisSubmitBar
+            canSubmit={canSubmit}
+            onSubmit={handleSubmit}
+            onClear={handleClear}
+            analysisReady={false}
+            wordCount={wordCount}
+            targetWords={targetWords}
+            requiredWords={minimumWords}
+            isSubmitting={isSubmitting}
           />
         </div>
       </section>

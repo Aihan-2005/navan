@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, PenTool } from "lucide-react";
+import { ArrowLeft, PenTool, ArrowLeft as ArrowIcon } from "lucide-react";
 
 import { Card } from "../../../../components/ui/card";
 import { cn } from "../../../../lib/utils/cn";
@@ -84,10 +84,8 @@ export function WritingCategorySelector({
             const isSelected = selectedCategory === category.value;
 
             return (
-              <button
+              <Card
                 key={category.value}
-                type="button"
-                onClick={() => handleCategorySelect(category.value)}
                 className={cn(
                   "group relative flex h-full flex-col overflow-hidden p-5",
                   "transition duration-300",
@@ -96,6 +94,7 @@ export function WritingCategorySelector({
                     ? "border-cyan-400/30 bg-cyan-400/5"
                     : "border-white/10 bg-white/[0.02]",
                 )}
+                dir="rtl"
               >
                 <div
                   aria-hidden="true"
@@ -107,19 +106,41 @@ export function WritingCategorySelector({
                   "
                 />
 
-                <div className="relative flex h-full flex-col items-center justify-center py-8">
-                  <p className="text-lg font-bold leading-8 text-white">
+                <div className="relative flex h-full flex-col">
+                  <h3 className="text-lg font-bold leading-8 text-white">
                     {category.label}
+                  </h3>
+
+                  <p className="mt-2 flex-1 text-sm leading-7 text-slate-400">
+                    {category.description}
                   </p>
 
-                  {isSelected && (
-                    <div className="mt-4 flex items-center gap-2 text-sm text-cyan-300">
-                      <span className="h-2 w-2 rounded-full bg-cyan-400" />
-                      انتخاب شده
-                    </div>
-                  )}
+                  <div
+                    className="
+                      mt-5 flex items-center justify-between
+                      border-t border-white/[0.06] pt-4
+                    "
+                  >
+                    {isSelected ? (
+                      <div className="flex items-center gap-2 text-sm text-cyan-300">
+                        <span className="h-2 w-2 rounded-full bg-cyan-400" />
+                        انتخاب شده
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-500">برای انتخاب کلیک کن</span>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => handleCategorySelect(category.value)}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-950 transition hover:bg-cyan-300"
+                      aria-label={`انتخاب ${category.label}`}
+                    >
+                      <ArrowIcon aria-hidden="true" className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
-              </button>
+              </Card>
             );
           })}
         </div>

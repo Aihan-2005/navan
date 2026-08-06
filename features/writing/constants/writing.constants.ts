@@ -13,30 +13,37 @@ export const WRITING_CATEGORIES = [
   {
     value: "all",
     label: "همه تمرین‌ها",
+    description: "همه دسته‌بندی‌های نوشتاری",
   },
   {
     value: "تحلیل",
     label: "تحلیل",
+    description: "تحلیل موضوعات و ارائه راه‌حل",
   },
   {
     value: "دیدگاه",
     label: "دیدگاه",
+    description: "بیان دیدگاه‌های شخصی",
   },
   {
     value: "داستان",
     label: "داستان",
+    description: "نوشتن داستان و روایت",
   },
   {
     value: "رسمی",
     label: "رسمی",
+    description: "نوشتن متن‌های رسمی",
   },
   {
     value: "توصیف",
     label: "توصیف",
+    description: "توصیف تجربیات و مکان‌ها",
   },
   {
     value: "استدلال",
     label: "استدلال",
+    description: "ارائه استدلال و منطق",
   },
 ] as const;
 
