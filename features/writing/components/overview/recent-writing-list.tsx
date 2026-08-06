@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowLeft, MessageCircleMore } from "lucide-react";
 
 import { Card } from "../../../../components/ui/card";
@@ -19,16 +20,25 @@ export function RecentWritingList({ writings }: RecentWritingListProps) {
           </p>
         </div>
 
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
-          <MessageCircleMore aria-hidden="true" className="h-5 w-5" />
+        <div className="flex items-center gap-3">
+          <Link
+            href="/writing/history"
+            className="text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
+          >
+            مشاهده همه
+          </Link>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
+            <MessageCircleMore aria-hidden="true" className="h-5 w-5" />
+          </div>
         </div>
       </div>
 
       <div className="mt-6 space-y-3">
         {writings.map((writing) => (
-          <div
+          <Link
             key={writing.id}
-            className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/3 p-4 sm:flex-row sm:items-center sm:justify-between"
+            href={`/writing/submissions/${writing.id}`}
+            className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/3 p-4 transition hover:bg-white/5 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
               <p className="font-semibold text-white">{writing.title}</p>
@@ -41,7 +51,7 @@ export function RecentWritingList({ writings }: RecentWritingListProps) {
               </span>
               <p className="text-sm text-slate-400">{writing.feedback}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </Card>

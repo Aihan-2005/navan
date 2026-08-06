@@ -35,7 +35,7 @@ export function ContinueDraftCard({ draft }: ContinueDraftCardProps) {
         </div>
 
         <Link
-          href="/writing/new"
+          href={`/writing/drafts/${draft.id}`}
           className="inline-flex items-center gap-2 rounded-2xl border border-cyan-300/20 bg-cyan-400/10 px-4 py-2.5 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/15"
         >
           ادامه دادن

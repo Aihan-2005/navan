@@ -21,6 +21,39 @@ export type WritingExercise = Readonly<{
   estimatedMinutes: number;
   category: string;
   isFeatured?: boolean;
+  prompt: string;
+  instructions: readonly string[];
+  targetWritingGoal: string;
+  expectedWordCount: number;
+}>;
+
+export type WritingAnalysisMetric = Readonly<{
+  label: string;
+  score: number;
+  detail: string;
+}>;
+
+export type WritingAnalysisIssue = Readonly<{
+  id: string;
+  title: string;
+  description: string;
+  severity: "کم" | "متوسط" | "زیاد";
+  suggestion: string;
+}>;
+
+export type WritingAnalysisResult = Readonly<{
+  overallScore: number;
+  grammar: WritingAnalysisMetric;
+  vocabulary: WritingAnalysisMetric;
+  coherence: WritingAnalysisMetric;
+  clarity: WritingAnalysisMetric;
+  tone: WritingAnalysisMetric;
+  highlightedMistakes: readonly string[];
+  issues: readonly WritingAnalysisIssue[];
+  repeatedWords: readonly string[];
+  betterVocabulary: readonly string[];
+  rewrittenVersion: string;
+  nextPractice: string;
 }>;
 
 export type RecentWriting = Readonly<{
@@ -29,6 +62,9 @@ export type RecentWriting = Readonly<{
   date: string;
   score: number;
   feedback: string;
+  excerpt: string;
+  mode: "free" | "exercise" | "draft";
+  analysis: WritingAnalysisResult;
 }>;
 
 export type WritingWeakPoint = Readonly<{
@@ -37,6 +73,7 @@ export type WritingWeakPoint = Readonly<{
   description: string;
   severity: "کم" | "متوسط" | "زیاد";
 }>;
+
 export type WritingOverviewData = Readonly<{
   stats: WritingOverviewStats;
   currentDraft: WritingDraft;
@@ -45,3 +82,5 @@ export type WritingOverviewData = Readonly<{
   recentWritings: readonly RecentWriting[];
   weakPoints: readonly WritingWeakPoint[];
 }>;
+
+export type WritingOverview = WritingOverviewData;

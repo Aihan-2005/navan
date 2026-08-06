@@ -23,6 +23,39 @@ export const writingExerciseSchema = z.object({
   estimatedMinutes: z.number(),
   category: z.string(),
   isFeatured: z.boolean().optional(),
+  prompt: z.string(),
+  instructions: z.array(z.string()),
+  targetWritingGoal: z.string(),
+  expectedWordCount: z.number(),
+});
+
+export const writingAnalysisMetricSchema = z.object({
+  label: z.string(),
+  score: z.number().min(0).max(100),
+  detail: z.string(),
+});
+
+export const writingAnalysisIssueSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  severity: z.enum(["کم", "متوسط", "زیاد"]),
+  suggestion: z.string(),
+});
+
+export const writingAnalysisResultSchema = z.object({
+  overallScore: z.number(),
+  grammar: writingAnalysisMetricSchema,
+  vocabulary: writingAnalysisMetricSchema,
+  coherence: writingAnalysisMetricSchema,
+  clarity: writingAnalysisMetricSchema,
+  tone: writingAnalysisMetricSchema,
+  highlightedMistakes: z.array(z.string()),
+  issues: z.array(writingAnalysisIssueSchema),
+  repeatedWords: z.array(z.string()),
+  betterVocabulary: z.array(z.string()),
+  rewrittenVersion: z.string(),
+  nextPractice: z.string(),
 });
 
 export const recentWritingSchema = z.object({
@@ -31,6 +64,9 @@ export const recentWritingSchema = z.object({
   date: z.string(),
   score: z.number(),
   feedback: z.string(),
+  excerpt: z.string(),
+  mode: z.enum(["free", "exercise", "draft"]),
+  analysis: writingAnalysisResultSchema,
 });
 
 export const writingWeakPointSchema = z.object({

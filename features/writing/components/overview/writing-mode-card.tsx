@@ -40,7 +40,7 @@ export function WritingModeCard({ exercise }: WritingModeCardProps) {
       </div>
 
       <Link
-        href="/writing/new"
+        href={`/writing/exercises/${exercise.id}`}
         className="mt-6 inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
       >
         شروع تمرین

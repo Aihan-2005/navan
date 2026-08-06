@@ -1,7 +1,7 @@
-import { writingOverviewMock } from "../mocks/writing.mock";
+import { writingOverviewMock } from "../mocks/writing-overview.mock";
 import { writingOverviewSchema } from "../schemas/writing.schema";
-import type { WritingOverview } from "../types/writing.types";
+import type { WritingOverviewData } from "../types/writing.types";
 
-export async function getWritingOverview(): Promise<WritingOverview> {
+export async function getWritingOverview(): Promise<WritingOverviewData> {
   return writingOverviewSchema.parse(writingOverviewMock);
 }
