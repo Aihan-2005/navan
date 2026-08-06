@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, FileText } from "lucide-react";
 
 import { Card } from "../../../../components/ui/card";
+import { Progress } from "../../../../components/ui/progress";
 
 import type { WritingDraft } from "../../types/writing.types";
 
@@ -41,6 +42,23 @@ export function ContinueDraftCard({ draft }: ContinueDraftCardProps) {
           ادامه دادن
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         </Link>
+      </div>
+
+      <div className="mt-5">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <span className="text-xs text-slate-600">
+            پیشرفت
+          </span>
+
+          <span className="text-xs font-semibold text-slate-300">
+            {draft.progressPercent ?? 0}٪
+          </span>
+        </div>
+
+        <Progress
+          value={draft.progressPercent ?? 0}
+          label={`پیشرفت ${draft.title}`}
+        />
       </div>
     </Card>
   );

@@ -11,6 +11,8 @@ export type WritingDraft = Readonly<{
   updatedAt: string;
   excerpt: string;
   wordCount: number;
+  targetWordCount?: number;
+  progressPercent?: number;
 }>;
 
 export type WritingExercise = Readonly<{

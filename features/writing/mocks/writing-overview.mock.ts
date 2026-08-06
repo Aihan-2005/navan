@@ -14,6 +14,8 @@ export const writingOverviewMock: Omit<WritingOverviewData, 'recommendedExercise
     excerpt:
       "در این متن به‌تدریج نکات اصلی و ساختار مناسب برای نوشتن یک نامه رسمی را مرور می‌کنم...",
     wordCount: 268,
+    targetWordCount: 350,
+    progressPercent: 77,
   },
   exercises: [
     {
