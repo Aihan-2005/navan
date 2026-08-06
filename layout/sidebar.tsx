@@ -300,7 +300,7 @@ export default function Sidebar({
   function closePricingModal(): void {
     setIsPricingModalOpen(false);
   }
-  const SHOW_PRICING = false;
+  const SHOW_PRICING = true;
 
   return (
     <>
