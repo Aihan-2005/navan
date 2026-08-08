@@ -25,6 +25,16 @@ import type {
   recentReadingActivitySchema,
 } from "../schemas/reading.schema";
 
+import type {
+  readingComprehensionOptionSchema,
+  readingComprehensionQuestionSchema,
+  readingGrammarExampleSchema,
+  readingGrammarPointSchema,
+  readingSectionDetailSchema,
+  readingTextBlockSchema,
+  readingVocabularyItemSchema,
+} from "../schemas/reading-section.schema";
+
 export type ReadingCefrLevel = z.infer<
   typeof readingCefrLevelSchema
 >;
@@ -71,6 +81,41 @@ export type ReadingResourceDetail = z.infer<
 
 export type ReadingSectionSummary = z.infer<
   typeof readingSectionSummarySchema
+>;
+
+/**
+ * Complete reading workspace models.
+ */
+export type ReadingTextBlock = z.infer<
+  typeof readingTextBlockSchema
+>;
+
+export type ReadingVocabularyItem = z.infer<
+  typeof readingVocabularyItemSchema
+>;
+
+export type ReadingGrammarExample = z.infer<
+  typeof readingGrammarExampleSchema
+>;
+
+export type ReadingGrammarPoint = z.infer<
+  typeof readingGrammarPointSchema
+>;
+
+export type ReadingComprehensionOption = z.infer<
+  typeof readingComprehensionOptionSchema
+>;
+
+export type ReadingComprehensionQuestion = z.infer<
+  typeof readingComprehensionQuestionSchema
+>;
+
+export type ReadingSectionDetail = z.output<
+  typeof readingSectionDetailSchema
+>;
+
+export type ReadingSectionDetailInput = z.input<
+  typeof readingSectionDetailSchema
 >;
 
 export type ReadingStats = z.infer<

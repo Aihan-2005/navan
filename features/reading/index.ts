@@ -1,4 +1,5 @@
-export {
+  
+ export {
   getReadingLibrary,
 } from "./api/get-reading-library";
 
@@ -9,6 +10,10 @@ export {
 export {
   getReadingResource,
 } from "./api/get-reading-resource";
+
+export {
+  getReadingSection,
+} from "./api/get-reading-section";
 
 export {
   uploadReadingSource,
@@ -47,28 +52,53 @@ export {
   ReadingSourceUploader,
 } from "./components/upload/reading-source-uploader";
 
+export {
+  ReadingSectionWorkspace,
+} from "./components/workspace/reading-section-workspace";
+
 export type {
   ContinueReading,
+
   ReadingAudioStatus,
   ReadingCefrLevel,
+
+  ReadingComprehensionOption,
+  ReadingComprehensionQuestion,
+
+  ReadingGrammarExample,
+  ReadingGrammarPoint,
+
   ReadingInsight,
   ReadingInsightType,
+
   ReadingJourneyStep,
   ReadingLearningJourney,
+
   ReadingLibrary as ReadingLibraryData,
+
   ReadingOverview as ReadingOverviewData,
   ReadingOverviewInput,
+
   ReadingProcessingStatus,
+
   ReadingResourceDetail as ReadingResourceDetailData,
   ReadingResourceStatus,
   ReadingResourceSummary,
   ReadingResourceType,
+
+  ReadingSectionDetail as ReadingSectionDetailData,
+  ReadingSectionDetailInput,
   ReadingSectionStatus,
   ReadingSectionSummary,
+
   ReadingSourceFileKind,
   ReadingSourceType,
   ReadingSourceUploadMetadata,
   ReadingSourceUploadResult,
+
   ReadingStats,
+  ReadingTextBlock,
+  ReadingVocabularyItem,
+
   RecentReadingActivity,
 } from "./types/reading.types";
