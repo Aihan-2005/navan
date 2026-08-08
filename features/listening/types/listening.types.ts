@@ -8,6 +8,14 @@ import type {
 } from "../schemas/listening-attempt.schema";
 
 import type {
+  listeningAttemptAnalysisSchema,
+  listeningComparisonKindSchema,
+  listeningComparisonSegmentSchema,
+  listeningScoreBreakdownSchema,
+  listeningTeacherFeedbackSchema,
+} from "../schemas/listening-analysis.schema";
+
+import type {
   cefrLevelSchema,
   continueListeningSchema,
   listeningAccentSchema,
@@ -110,10 +118,33 @@ export type ListeningNoteFileKind = z.infer<
   typeof listeningNoteFileKindSchema
 >;
 
-export type ListeningNoteExtractionStatus = z.infer<
-  typeof listeningNoteExtractionStatusSchema
->;
+export type ListeningNoteExtractionStatus =
+  z.infer<
+    typeof listeningNoteExtractionStatusSchema
+  >;
 
 export type ListeningNotesUploadResult = z.infer<
   typeof listeningNotesUploadResultSchema
+>;
+
+
+export type ListeningComparisonKind = z.infer<
+  typeof listeningComparisonKindSchema
+>;
+
+export type ListeningComparisonSegment =
+  z.infer<
+    typeof listeningComparisonSegmentSchema
+  >;
+
+export type ListeningScoreBreakdown = z.infer<
+  typeof listeningScoreBreakdownSchema
+>;
+
+export type ListeningTeacherFeedback = z.infer<
+  typeof listeningTeacherFeedbackSchema
+>;
+
+export type ListeningAttemptAnalysis = z.infer<
+  typeof listeningAttemptAnalysisSchema
 >;

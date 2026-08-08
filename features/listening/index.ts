@@ -7,9 +7,21 @@ export {
 } from "./api/get-listening-overview";
 
 export {
+  getListeningAttempt,
+} from "./api/get-listening-attempt";
+
+export {
   uploadListeningNotes,
   ListeningNotesUploadError,
 } from "./api/upload-listening-notes";
+
+export {
+  ListeningAnalysisView,
+} from "./components/analysis/listening-analysis-view";
+
+export {
+  ListeningScoreOverview,
+} from "./components/analysis/listening-score-overview";
 
 export {
   ExtractedNoteEditor,
@@ -45,25 +57,46 @@ export {
 
 export type {
   CefrLevel,
+
   ContinueListening,
+
   ListeningAccent,
+
   ListeningAnswerSource,
+
+  ListeningAttemptAnalysis,
   ListeningAttemptDraft,
   ListeningAttemptStatus,
+
+  ListeningComparisonKind,
+  ListeningComparisonSegment,
+
   ListeningContentDetail,
   ListeningContentStatus,
   ListeningContentSummary,
   ListeningContentType,
+
   ListeningDraftSaveStatus,
+
   ListeningInsight,
   ListeningInsightType,
+
   ListeningNoteExtractionStatus,
   ListeningNoteFileKind,
   ListeningNotesUploadResult,
+
   ListeningOverview as ListeningOverviewData,
   ListeningOverviewInput,
+
   ListeningPracticeMode,
+
+  ListeningScoreBreakdown,
+
   ListeningSourceType,
+
   ListeningStats,
+
+  ListeningTeacherFeedback,
+
   RecentListeningActivity,
 } from "./types/listening.types";
