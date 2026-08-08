@@ -159,3 +159,7 @@ export const READING_PROCESSING_PIPELINE = [
   "generating_audio",
   "ready",
 ] as const satisfies readonly ReadingProcessingStatus[];
+
+
+export type ReadingProcessingPipelineStep =
+  (typeof READING_PROCESSING_PIPELINE)[number];

@@ -35,6 +35,10 @@ import {
 } from "../../constants/reading.constants";
 
 import type {
+  ReadingProcessingPipelineStep,
+} from "../../constants/reading.constants";
+
+import type {
   ReadingProcessingStatus,
   ReadingResourceDetail as ReadingResourceDetailData,
 } from "../../types/reading.types";
@@ -59,21 +63,19 @@ function formatFileSize(
   )} مگابایت`;
 }
 
-function getPipelineStepState(
-  currentStatus:
-    ReadingProcessingStatus,
 
-  step:
-    ReadingProcessingStatus,
-):
+type ReadingPipelineStepState =
   | "completed"
   | "active"
-  | "upcoming"
-  | "failed" {
+  | "upcoming";
+
+function getPipelineStepState(
+  currentStatus: ReadingProcessingStatus,
+  step: ReadingProcessingPipelineStep,
+): ReadingPipelineStepState {
+  
   if (currentStatus === "failed") {
-    return step === "failed"
-      ? "failed"
-      : "upcoming";
+    return "upcoming";
   }
 
   const currentIndex =
@@ -96,6 +98,8 @@ function getPipelineStepState(
 
   return "upcoming";
 }
+
+
 
 export function ReadingResourceDetail({
   resource,
