@@ -93,12 +93,13 @@ async function forwardSubmitToBackend(
   request: Request,
   attemptId: string,
 ) {
-  const backendUrl = new URL(
-    `${BACKEND_ATTEMPTS_ENDPOINT}/${encodeURIComponent(
-      attemptId,
-    )}/submit`,
-    getApiBaseUrl(),
-  );
+  const backendUrl =
+    new URL(
+      `${BACKEND_ATTEMPTS_ENDPOINT}/${encodeURIComponent(
+        attemptId,
+      )}/submit`,
+      getApiBaseUrl(),
+    );
 
   const requestBody =
     await request.text();
