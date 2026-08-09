@@ -100,6 +100,7 @@ export type {
 
   ReadingSourceFileKind,
   ReadingSourceType,
+
   ReadingSourceUploadMetadata,
   ReadingSourceUploadResult,
 
@@ -120,3 +121,12 @@ export type {
   ReadingAiVocabularyProfile,
   ReadingResourceAiAnalysis,
 } from "./types/reading-ai-analysis.types";
+
+export type {
+  ReadingUploadAnalysisMode,
+  ReadingUploadMetadata,
+  ReadingUploadOptions,
+  ReadingUploadRequestOptions,
+  ReadingUploadResult,
+  ReadingUploadSectionLength,
+} from "./types/reading-upload.types";
