@@ -1,14 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import {
-  ArrowLeft,
   FileText,
   Image as ImageIcon,
   LoaderCircle,
   RotateCcw,
+  ShieldCheck,
+  Trash2,
   UploadCloud,
 } from "lucide-react";
+
 import {
   useRef,
   useState,
@@ -23,27 +24,66 @@ import {
 } from "../../../../lib/utils/cn";
 
 import {
-  READING_SOURCE_ACCEPT,
-  READING_SOURCE_FILE_KIND_LABELS,
-} from "../../constants/reading.constants";
-
-import {
   uploadReadingSource,
 } from "../../api/upload-reading-source";
 
+import {
+  READING_SOURCE_ACCEPT,
+  READING_SOURCE_FILE_KIND_LABELS,
+  READING_SUPPORTED_UPLOAD_LABELS,
+} from "../../constants/reading.constants";
+
 import type {
-  ReadingCefrLevel,
-  ReadingSourceUploadResult,
-} from "../../types/reading.types";
+  ReadingUploadMetadata,
+  ReadingUploadResult,
+} from "../../types/reading-upload.types";
 
 import {
   validateReadingSourceFile,
 } from "../../utils/validate-reading-source-file";
 
+import {
+  ReadingUploadProgress,
+  type ReadingUploadUiPhase,
+} from "./reading-upload-progress";
+
+import {
+  ReadingUploadSettings,
+} from "./reading-upload-settings";
+
+const DEFAULT_METADATA:
+  ReadingUploadMetadata = {
+  title: null,
+
+  languageCode: "en",
+
+  cefrLevel: null,
+
+  options: {
+    analysisMode: "deep",
+
+    sectionLength:
+      "balanced",
+
+    generateAudio: true,
+
+    extractVocabulary: true,
+
+    extractGrammar: true,
+
+    generateQuestions: true,
+
+    questionsPerSection: 3,
+  },
+};
+
 const numberFormatter =
-  new Intl.NumberFormat("fa-IR", {
-    maximumFractionDigits: 1,
-  });
+  new Intl.NumberFormat(
+    "fa-IR",
+    {
+      maximumFractionDigits: 1,
+    },
+  );
 
 function formatFileSize(
   bytes: number,
@@ -62,6 +102,15 @@ function formatFileSize(
   )} کیلوبایت`;
 }
 
+function getFileTitle(
+  filename: string,
+): string {
+  return filename.replace(
+    /\.[^.]+$/u,
+    "",
+  );
+}
+
 export function ReadingSourceUploader() {
   const inputRef =
     useRef<HTMLInputElement | null>(
@@ -73,33 +122,65 @@ export function ReadingSourceUploader() {
       null,
     );
 
-  const [file, setFile] =
-    useState<File | null>(null);
-
-  const [title, setTitle] =
-    useState("");
-
-  const [languageCode, setLanguageCode] =
-    useState("en");
-
-  const [cefrLevel, setCefrLevel] =
-    useState<
-      ReadingCefrLevel | ""
-    >("");
-
-  const [isDragging, setIsDragging] =
-    useState(false);
-
-  const [isUploading, setIsUploading] =
-    useState(false);
-
-  const [errorMessage, setErrorMessage] =
-    useState<string | null>(null);
-
-  const [result, setResult] =
-    useState<ReadingSourceUploadResult | null>(
+  const [
+    file,
+    setFile,
+  ] =
+    useState<File | null>(
       null,
     );
+
+  const [
+    metadata,
+    setMetadata,
+  ] =
+    useState<ReadingUploadMetadata>(
+      DEFAULT_METADATA,
+    );
+
+  const [
+    phase,
+    setPhase,
+  ] =
+    useState<ReadingUploadUiPhase>(
+      "idle",
+    );
+
+  const [
+    uploadProgress,
+    setUploadProgress,
+  ] = useState(0);
+
+  const [
+    isDragging,
+    setIsDragging,
+  ] = useState(false);
+
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] =
+    useState<string | null>(
+      null,
+    );
+
+  const [
+    result,
+    setResult,
+  ] =
+    useState<ReadingUploadResult | null>(
+      null,
+    );
+
+  const isUploading =
+    phase === "uploading";
+
+  const fileValidation =
+    file
+      ? validateReadingSourceFile(
+          file,
+        )
+      : null;
 
   function selectFile(
     selectedFile: File,
@@ -111,45 +192,111 @@ export function ReadingSourceUploader() {
 
     if (!validation.success) {
       setFile(null);
+
       setResult(null);
 
       setErrorMessage(
         validation.message,
       );
 
+      setPhase(
+        "error",
+      );
+
       return;
     }
 
-    setFile(selectedFile);
+    abortControllerRef.current?.abort();
+
+    setFile(
+      selectedFile,
+    );
+
+    setUploadProgress(0);
+
     setResult(null);
+
     setErrorMessage(null);
 
-    if (!title.trim()) {
-      setTitle(
-        selectedFile.name.replace(
-          /\.[^.]+$/u,
-          "",
-        ),
-      );
+    setPhase("idle");
+
+    setMetadata(
+      (currentMetadata) => ({
+        ...currentMetadata,
+
+        title:
+          currentMetadata.title ??
+          getFileTitle(
+            selectedFile.name,
+          ),
+      }),
+    );
+  }
+
+  function removeFile(): void {
+    if (isUploading) {
+      return;
+    }
+
+    setFile(null);
+
+    setResult(null);
+
+    setUploadProgress(0);
+
+    setErrorMessage(null);
+
+    setPhase("idle");
+
+    setMetadata(
+      DEFAULT_METADATA,
+    );
+
+    if (inputRef.current) {
+      inputRef.current.value =
+        "";
     }
   }
 
   function resetForm(): void {
     abortControllerRef.current?.abort();
-    abortControllerRef.current = null;
+
+    abortControllerRef.current =
+      null;
 
     setFile(null);
-    setTitle("");
-    setLanguageCode("en");
-    setCefrLevel("");
 
-    setIsUploading(false);
+    setMetadata(
+      DEFAULT_METADATA,
+    );
+
+    setPhase("idle");
+
+    setUploadProgress(0);
+
+    setIsDragging(false);
+
     setErrorMessage(null);
+
     setResult(null);
 
     if (inputRef.current) {
-      inputRef.current.value = "";
+      inputRef.current.value =
+        "";
     }
+  }
+
+  function cancelUpload(): void {
+    abortControllerRef.current?.abort();
+
+    abortControllerRef.current =
+      null;
+
+    setPhase("idle");
+
+    setUploadProgress(0);
+
+    setErrorMessage(null);
   }
 
   async function handleSubmit(): Promise<void> {
@@ -157,6 +304,23 @@ export function ReadingSourceUploader() {
       setErrorMessage(
         "ابتدا فایل موردنظر را انتخاب کن.",
       );
+
+      setPhase("error");
+
+      return;
+    }
+
+    const validation =
+      validateReadingSourceFile(
+        file,
+      );
+
+    if (!validation.success) {
+      setErrorMessage(
+        validation.message,
+      );
+
+      setPhase("error");
 
       return;
     }
@@ -169,37 +333,54 @@ export function ReadingSourceUploader() {
     abortControllerRef.current =
       controller;
 
-    setIsUploading(true);
+    setUploadProgress(0);
+
     setErrorMessage(null);
+
     setResult(null);
+
+    setPhase("uploading");
 
     try {
       const uploadResult =
         await uploadReadingSource(
           file,
+          metadata,
           {
-            title:
-              title.trim() || null,
+            signal:
+              controller.signal,
 
-            languageCode,
-
-            cefrLevel:
-              cefrLevel || null,
+            onProgress:
+              (progress) => {
+                setUploadProgress(
+                  progress,
+                );
+              },
           },
-
-          controller.signal,
         );
 
-      if (controller.signal.aborted) {
+      if (
+        controller.signal.aborted
+      ) {
         return;
       }
 
-      setResult(uploadResult);
+      setUploadProgress(100);
+
+      setResult(
+        uploadResult,
+      );
+
+      setPhase(
+        "processing",
+      );
     } catch (error) {
       if (
         error instanceof DOMException &&
         error.name === "AbortError"
       ) {
+        setPhase("idle");
+
         return;
       }
 
@@ -213,6 +394,8 @@ export function ReadingSourceUploader() {
           ? error.message
           : "آپلود فایل ناموفق بود.",
       );
+
+      setPhase("error");
     } finally {
       if (
         abortControllerRef.current ===
@@ -221,498 +404,603 @@ export function ReadingSourceUploader() {
         abortControllerRef.current =
           null;
       }
-
-      setIsUploading(false);
     }
   }
 
   return (
     <main
-      className="mx-auto w-full max-w-5xl space-y-6"
       aria-labelledby="reading-upload-title"
+      className="
+        mx-auto w-full
+        max-w-6xl space-y-6
+      "
     >
       <section
         className="
+          relative overflow-hidden
           rounded-3xl border
           border-cyan-400/15
           bg-white/[0.035]
           p-6 sm:p-8
         "
       >
-        <div className="flex items-center gap-2 text-cyan-300">
-          <UploadCloud
-            aria-hidden="true"
-            className="h-5 w-5"
-          />
-
-          منبع شخصی
-        </div>
-
-        <h1
-          id="reading-upload-title"
-          className="mt-3 text-3xl font-bold text-white"
-        >
-          کتاب، متن یا تصویر خودت را وارد کن
-        </h1>
-
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-500">
-          فایل پس از آپلود به متن تبدیل می‌شود، با AI
-          تحلیل می‌شود، به بخش‌های کوتاه تقسیم می‌شود و
-          برای هر بخش صوت، واژگان و نکات گرامری ساخته
-          خواهد شد.
-        </p>
-      </section>
-
-      <Card className="p-5 sm:p-6">
-        <input
-          ref={inputRef}
-          type="file"
-          accept={
-            READING_SOURCE_ACCEPT
-          }
-          disabled={isUploading}
-          className="sr-only"
-          aria-label="انتخاب فایل Reading"
-          onChange={(event) => {
-            const selectedFile =
-              event.target.files?.[0];
-
-            if (selectedFile) {
-              selectFile(
-                selectedFile,
-              );
-            }
-
-            event.target.value = "";
-          }}
+        <div
+          aria-hidden="true"
+          className="
+            pointer-events-none
+            absolute -left-24 -top-24
+            h-64 w-64
+            rounded-full
+            bg-cyan-500/15
+            blur-3xl
+          "
         />
 
-        <div
-          role="button"
-          tabIndex={0}
-          onClick={() =>
-            inputRef.current?.click()
-          }
-          onKeyDown={(event) => {
-            if (
-              event.key === "Enter" ||
-              event.key === " "
-            ) {
-              event.preventDefault();
-
-              inputRef.current?.click();
-            }
-          }}
-          onDragOver={(event) => {
-            event.preventDefault();
-
-            event.dataTransfer.dropEffect =
-              "copy";
-
-            setIsDragging(true);
-          }}
-          onDragLeave={() =>
-            setIsDragging(false)
-          }
-          onDrop={(event) => {
-            event.preventDefault();
-
-            setIsDragging(false);
-
-            const droppedFile =
-              event.dataTransfer.files[0];
-
-            if (droppedFile) {
-              selectFile(
-                droppedFile,
-              );
-            }
-          }}
-          className={cn(
-            "cursor-pointer rounded-2xl",
-            "border-2 border-dashed",
-            "px-5 py-10 text-center",
-            "transition",
-
-            isDragging
-              ? [
-                  "border-cyan-300/50",
-                  "bg-cyan-400/10",
-                ]
-              : [
-                  "border-white/[0.09]",
-                  "bg-white/[0.02]",
-                  "hover:border-cyan-300/25",
-                  "hover:bg-cyan-400/[0.04]",
-                ],
-
-            isUploading &&
-              "pointer-events-none opacity-60",
-          )}
-        >
+        <div className="relative">
           <div
             className="
-              mx-auto flex h-16 w-16
-              items-center justify-center
-              rounded-2xl bg-cyan-400/10
-              text-cyan-300
+              flex items-center
+              gap-2 text-cyan-300
             "
           >
             <UploadCloud
               aria-hidden="true"
-              className="h-8 w-8"
+              className="h-5 w-5"
             />
+
+            <span
+              className="
+                text-sm font-medium
+              "
+            >
+              Reading Upload
+            </span>
           </div>
 
-          <p className="mt-4 text-sm font-bold text-slate-200">
-            فایل را اینجا رها کن
+          <h1
+            id="reading-upload-title"
+            className="
+              mt-3 text-3xl
+              font-bold text-white
+              sm:text-4xl
+            "
+          >
+            منبع خودت را به درس تعاملی تبدیل کن
+          </h1>
+
+          <p
+            className="
+              mt-4 max-w-3xl
+              text-sm leading-8
+              text-slate-400
+            "
+          >
+            فایل را Upload کن؛ AI متن را
+            استخراج می‌کند، سطح را تشخیص
+            می‌دهد، سختی محتوا را تحلیل
+            می‌کند، Section می‌سازد و
+            واژگان، Grammar، صوت و سؤال‌های
+            درک مطلب تولید می‌کند.
           </p>
 
-          <p className="mt-2 text-xs text-slate-500">
-            یا برای انتخاب فایل کلیک کن
-          </p>
-
-          <p className="mt-4 text-[11px] text-slate-700">
-            PDF، DOCX، TXT، JPG، PNG و WEBP
-          </p>
-        </div>
-
-        {file ? (
           <div
             className="
-              mt-5 flex items-center gap-3
-              rounded-xl border
-              border-white/[0.07]
-              bg-white/[0.025] p-4
+              mt-5 flex
+              flex-wrap gap-2
             "
+          >
+            {READING_SUPPORTED_UPLOAD_LABELS.map(
+              (label) => (
+                <span
+                  key={label}
+                  className="
+                    rounded-full
+                    border
+                    border-white/[0.06]
+                    bg-white/[0.03]
+                    px-2.5 py-1
+                    text-[10px]
+                    text-slate-500
+                  "
+                >
+                  {label}
+                </span>
+              ),
+            )}
+          </div>
+        </div>
+      </section>
+
+      <div
+        className="
+          grid gap-6
+          lg:grid-cols-12
+        "
+      >
+        <Card
+          className="
+            p-5 sm:p-6
+            lg:col-span-7
+          "
+        >
+          <input
+            ref={inputRef}
+            type="file"
+            accept={
+              READING_SOURCE_ACCEPT
+            }
+            disabled={isUploading}
+            className="sr-only"
+            aria-label="انتخاب فایل Reading"
+            onChange={(event) => {
+              const selectedFile =
+                event.target.files?.[0];
+
+              if (selectedFile) {
+                selectFile(
+                  selectedFile,
+                );
+              }
+
+              event.target.value =
+                "";
+            }}
+          />
+
+          <div
+            role="button"
+            tabIndex={
+              isUploading
+                ? -1
+                : 0
+            }
+            aria-disabled={
+              isUploading
+            }
+            onClick={() => {
+              if (!isUploading) {
+                inputRef.current?.click();
+              }
+            }}
+            onKeyDown={(event) => {
+              if (isUploading) {
+                return;
+              }
+
+              if (
+                event.key ===
+                  "Enter" ||
+                event.key === " "
+              ) {
+                event.preventDefault();
+
+                inputRef.current?.click();
+              }
+            }}
+            onDragOver={(event) => {
+              event.preventDefault();
+
+              if (isUploading) {
+                return;
+              }
+
+              event.dataTransfer.dropEffect =
+                "copy";
+
+              setIsDragging(true);
+            }}
+            onDragLeave={() => {
+              setIsDragging(false);
+            }}
+            onDrop={(event) => {
+              event.preventDefault();
+
+              setIsDragging(false);
+
+              if (isUploading) {
+                return;
+              }
+
+              const droppedFile =
+                event.dataTransfer
+                  .files[0];
+
+              if (droppedFile) {
+                selectFile(
+                  droppedFile,
+                );
+              }
+            }}
+            className={cn(
+              "rounded-2xl border-2",
+              "border-dashed px-5",
+              "py-10 text-center",
+              "transition",
+
+              isDragging
+                ? [
+                    "border-cyan-300/50",
+                    "bg-cyan-400/10",
+                  ]
+                : [
+                    "border-white/[0.09]",
+                    "bg-white/[0.02]",
+                    "hover:border-cyan-300/25",
+                    "hover:bg-cyan-400/[0.04]",
+                  ],
+
+              isUploading &&
+                "pointer-events-none opacity-60",
+            )}
           >
             <div
               className="
-                flex h-11 w-11 shrink-0
-                items-center justify-center
-                rounded-xl bg-cyan-400/10
+                mx-auto flex h-16 w-16
+                items-center
+                justify-center
+                rounded-2xl
+                bg-cyan-400/10
                 text-cyan-300
               "
             >
-              {file.type.startsWith(
-                "image/",
-              ) ? (
-                <ImageIcon
-                  aria-hidden="true"
-                  className="h-5 w-5"
-                />
-              ) : (
-                <FileText
-                  aria-hidden="true"
-                  className="h-5 w-5"
-                />
-              )}
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-slate-300">
-                {file.name}
-              </p>
-
-              <p className="mt-1 text-xs text-slate-600">
-                {formatFileSize(
-                  file.size,
-                )}
-              </p>
-            </div>
-          </div>
-        ) : null}
-
-        {file ? (
-          <div
-            className="
-              mt-6 grid gap-4
-              md:grid-cols-2
-            "
-          >
-            <label className="md:col-span-2">
-              <span className="text-xs font-medium text-slate-400">
-                عنوان منبع
-              </span>
-
-              <input
-                value={title}
-                maxLength={160}
-                onChange={(event) =>
-                  setTitle(
-                    event.target.value,
-                  )
-                }
-                placeholder="عنوان کتاب یا متن"
-                className="
-                  mt-2 h-11 w-full
-                  rounded-xl border
-                  border-white/[0.08]
-                  bg-black/15 px-4
-                  text-sm text-slate-200
-                  outline-none
-                  placeholder:text-slate-700
-                  focus:border-cyan-400/25
-                "
+              <UploadCloud
+                aria-hidden="true"
+                className="h-8 w-8"
               />
-            </label>
+            </div>
 
-            <label>
-              <span className="text-xs font-medium text-slate-400">
-                زبان متن
-              </span>
+            <p
+              className="
+                mt-4 text-sm
+                font-bold
+                text-slate-200
+              "
+            >
+              فایل را اینجا رها کن
+            </p>
 
-              <select
-                value={languageCode}
-                onChange={(event) =>
-                  setLanguageCode(
-                    event.target.value,
-                  )
-                }
-                className="
-                  mt-2 h-11 w-full
-                  rounded-xl border
-                  border-white/[0.08]
-                  bg-[#0B1221] px-3
-                  text-sm text-slate-200
-                  outline-none
-                "
-              >
-                <option value="en">
-                  انگلیسی
-                </option>
+            <p
+              className="
+                mt-2 text-xs
+                text-slate-500
+              "
+            >
+              یا برای انتخاب فایل کلیک کن
+            </p>
 
-                <option value="de">
-                  آلمانی
-                </option>
-
-                <option value="fr">
-                  فرانسوی
-                </option>
-
-                <option value="es">
-                  اسپانیایی
-                </option>
-              </select>
-            </label>
-
-            <label>
-              <span className="text-xs font-medium text-slate-400">
-                سطح تقریبی
-              </span>
-
-              <select
-                value={cefrLevel}
-                onChange={(event) =>
-                  setCefrLevel(
-                    event.target
-                      .value as
-                      | ReadingCefrLevel
-                      | "",
-                  )
-                }
-                className="
-                  mt-2 h-11 w-full
-                  rounded-xl border
-                  border-white/[0.08]
-                  bg-[#0B1221] px-3
-                  text-sm text-slate-200
-                  outline-none
-                "
-              >
-                <option value="">
-                  تشخیص خودکار
-                </option>
-
-                <option value="A1">
-                  A1
-                </option>
-
-                <option value="A2">
-                  A2
-                </option>
-
-                <option value="B1">
-                  B1
-                </option>
-
-                <option value="B2">
-                  B2
-                </option>
-
-                <option value="C1">
-                  C1
-                </option>
-
-                <option value="C2">
-                  C2
-                </option>
-              </select>
-            </label>
+            <p
+              className="
+                mt-4 text-[11px]
+                text-slate-700
+              "
+            >
+              PDF، DOCX، TXT، JPG،
+              PNG و WEBP
+            </p>
           </div>
-        ) : null}
 
-        {errorMessage ? (
+          {file &&
+          fileValidation?.success ? (
+            <div
+              className="
+                mt-5 flex
+                items-center gap-4
+                rounded-2xl border
+                border-white/[0.07]
+                bg-white/[0.025]
+                p-4
+              "
+            >
+              <div
+                className="
+                  flex h-12 w-12
+                  shrink-0 items-center
+                  justify-center
+                  rounded-xl
+                  bg-cyan-400/10
+                  text-cyan-300
+                "
+              >
+                {fileValidation.fileKind ===
+                "image" ? (
+                  <ImageIcon
+                    aria-hidden="true"
+                    className="h-5 w-5"
+                  />
+                ) : (
+                  <FileText
+                    aria-hidden="true"
+                    className="h-5 w-5"
+                  />
+                )}
+              </div>
+
+              <div
+                className="
+                  min-w-0 flex-1
+                "
+              >
+                <p
+                  className="
+                    truncate text-sm
+                    font-medium
+                    text-slate-200
+                  "
+                >
+                  {file.name}
+                </p>
+
+                <div
+                  className="
+                    mt-1 flex
+                    flex-wrap gap-3
+                    text-xs
+                    text-slate-600
+                  "
+                >
+                  <span>
+                    {formatFileSize(
+                      file.size,
+                    )}
+                  </span>
+
+                  <span>
+                    {
+                      READING_SOURCE_FILE_KIND_LABELS[
+                        fileValidation
+                          .fileKind
+                      ]
+                    }
+                  </span>
+                </div>
+              </div>
+
+              {!isUploading ? (
+                <button
+                  type="button"
+                  onClick={removeFile}
+                  aria-label="حذف فایل انتخاب‌شده"
+                  className="
+                    inline-flex h-10 w-10
+                    shrink-0 items-center
+                    justify-center
+                    rounded-xl border
+                    border-white/[0.07]
+                    bg-white/[0.025]
+                    text-slate-500
+                    transition
+                    hover:bg-red-400/10
+                    hover:text-red-300
+                  "
+                >
+                  <Trash2
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                  />
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+        </Card>
+
+        <Card
+          className="
+            p-5 sm:p-6
+            lg:col-span-5
+          "
+        >
           <div
-            role="alert"
             className="
-              mt-5 rounded-xl
-              border border-red-400/15
-              bg-red-400/[0.05]
-              px-4 py-3 text-xs
-              leading-6 text-red-200
+              flex items-center
+              gap-2 text-emerald-300
             "
           >
-            {errorMessage}
-          </div>
-        ) : null}
+            <ShieldCheck
+              aria-hidden="true"
+              className="h-5 w-5"
+            />
 
-        {file ? (
-          <div className="mt-6 flex flex-wrap gap-3">
+            <h2
+              className="
+                font-bold text-white
+              "
+            >
+              چه اتفاقی برای فایل می‌افتد؟
+            </h2>
+          </div>
+
+          <div
+            className="
+              mt-5 space-y-4
+            "
+          >
+            {[
+              [
+                "۱",
+                "اعتبارسنجی فایل",
+                "فرمت، حجم و Signature فایل بررسی می‌شود.",
+              ],
+              [
+                "۲",
+                "استخراج متن",
+                "متن PDF، Word، TXT یا تصویر استخراج می‌شود.",
+              ],
+              [
+                "۳",
+                "تحلیل AI",
+                "سطح، سختی، Vocabulary، Grammar و ساختار تحلیل می‌شوند.",
+              ],
+              [
+                "۴",
+                "ساخت Lesson",
+                "Section، سؤال، Audio و محتوای آموزشی ساخته می‌شود.",
+              ],
+            ].map(
+              ([
+                number,
+                title,
+                description,
+              ]) => (
+                <div
+                  key={number}
+                  className="
+                    flex items-start
+                    gap-3
+                  "
+                >
+                  <span
+                    className="
+                      flex h-8 w-8
+                      shrink-0 items-center
+                      justify-center
+                      rounded-lg
+                      bg-white/[0.05]
+                      text-xs font-bold
+                      text-cyan-300
+                    "
+                  >
+                    {number}
+                  </span>
+
+                  <div>
+                    <p
+                      className="
+                        text-sm font-medium
+                        text-slate-300
+                      "
+                    >
+                      {title}
+                    </p>
+
+                    <p
+                      className="
+                        mt-1 text-xs
+                        leading-6
+                        text-slate-600
+                      "
+                    >
+                      {description}
+                    </p>
+                  </div>
+                </div>
+              ),
+            )}
+          </div>
+        </Card>
+      </div>
+
+      {file ? (
+        <ReadingUploadSettings
+          metadata={metadata}
+          disabled={isUploading}
+          onChange={
+            setMetadata
+          }
+        />
+      ) : null}
+
+      <ReadingUploadProgress
+        phase={phase}
+        uploadProgress={
+          uploadProgress
+        }
+        result={result}
+        errorMessage={
+          errorMessage
+        }
+      />
+
+      {file ? (
+        <div
+          className="
+            flex flex-wrap gap-3
+          "
+        >
+          {isUploading ? (
             <button
               type="button"
-              disabled={isUploading}
+              onClick={
+                cancelUpload
+              }
+              className="
+                inline-flex min-h-11
+                items-center
+                justify-center gap-2
+                rounded-xl border
+                border-red-400/15
+                bg-red-400/[0.05]
+                px-5 py-2.5
+                text-sm font-medium
+                text-red-200
+                transition
+                hover:bg-red-400/10
+              "
+            >
+              توقف Upload
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={
+                phase ===
+                "processing"
+              }
               onClick={() => {
                 void handleSubmit();
               }}
               className="
                 inline-flex min-h-11
-                items-center justify-center
-                gap-2 rounded-xl
-                bg-cyan-400 px-5 py-2.5
+                items-center
+                justify-center gap-2
+                rounded-xl
+                bg-cyan-400
+                px-5 py-2.5
                 text-sm font-bold
-                text-slate-950 transition
+                text-slate-950
+                transition
                 hover:bg-cyan-300
                 disabled:cursor-not-allowed
                 disabled:opacity-50
               "
             >
-              {isUploading ? (
-                <LoaderCircle
-                  aria-hidden="true"
-                  className="h-4 w-4 animate-spin"
-                />
-              ) : (
-                <UploadCloud
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                />
-              )}
-
-              {isUploading
-                ? "در حال آپلود..."
-                : "شروع پردازش"}
-            </button>
-
-            <button
-              type="button"
-              onClick={resetForm}
-              disabled={isUploading}
-              className="
-                inline-flex min-h-11
-                items-center justify-center
-                gap-2 rounded-xl
-                border border-white/[0.08]
-                bg-white/[0.04]
-                px-4 py-2.5
-                text-sm text-slate-400
-                transition
-                hover:bg-white/[0.08]
-              "
-            >
-              <RotateCcw
+              <UploadCloud
                 aria-hidden="true"
                 className="h-4 w-4"
               />
 
-              انتخاب فایل دیگر
+              شروع Upload و تحلیل AI
             </button>
-          </div>
-        ) : null}
+          )}
 
-        {result ? (
-          <div
+          <button
+            type="button"
+            disabled={isUploading}
+            onClick={resetForm}
             className="
-              mt-6 rounded-2xl
-              border border-emerald-400/15
-              bg-emerald-400/[0.05]
-              p-5
+              inline-flex min-h-11
+              items-center
+              justify-center gap-2
+              rounded-xl border
+              border-white/[0.08]
+              bg-white/[0.035]
+              px-5 py-2.5
+              text-sm
+              text-slate-400
+              transition
+              hover:bg-white/[0.07]
+              hover:text-white
+              disabled:opacity-40
             "
           >
-            <h2 className="text-lg font-bold text-emerald-100">
-              فایل با موفقیت ثبت شد
-            </h2>
+            <RotateCcw
+              aria-hidden="true"
+              className="h-4 w-4"
+            />
 
-            <p className="mt-2 text-sm text-emerald-200/70">
-              وضعیت فعلی:{" "}
-              {result.processingProgress}٪
-            </p>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              <span
-                className="
-                  rounded-lg
-                  bg-white/[0.05]
-                  px-3 py-1.5 text-xs
-                  text-slate-400
-                "
-              >
-                {
-                  READING_SOURCE_FILE_KIND_LABELS[
-                    result.sourceFileKind
-                  ]
-                }
-              </span>
-
-              <span
-                className="
-                  rounded-lg
-                  bg-white/[0.05]
-                  px-3 py-1.5 text-xs
-                  text-slate-400
-                "
-              >
-                {result.originalFilename}
-              </span>
-            </div>
-
-            {result.warnings.length > 0 ? (
-              <ul className="mt-4 space-y-1.5">
-                {result.warnings.map(
-                  (warning) => (
-                    <li
-                      key={warning}
-                      className="text-xs leading-6 text-amber-200/70"
-                    >
-                      • {warning}
-                    </li>
-                  ),
-                )}
-              </ul>
-            ) : null}
-
-            <Link
-              href={`/reading/resources/${result.resourceId}`}
-              className="
-                mt-5 inline-flex min-h-10
-                items-center justify-center
-                gap-2 rounded-xl
-                bg-emerald-400
-                px-4 py-2 text-xs
-                font-bold text-slate-950
-                transition hover:bg-emerald-300
-              "
-            >
-              مشاهده وضعیت پردازش
-
-              <ArrowLeft
-                aria-hidden="true"
-                className="h-4 w-4"
-              />
-            </Link>
-          </div>
-        ) : null}
-      </Card>
+            پاک‌کردن فرم
+          </button>
+        </div>
+      ) : null}
     </main>
   );
 }

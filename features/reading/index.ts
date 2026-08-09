@@ -1,5 +1,4 @@
-  
- export {
+export {
   getReadingLibrary,
 } from "./api/get-reading-library";
 
@@ -16,9 +15,17 @@ export {
 } from "./api/get-reading-section";
 
 export {
+  getReadingAiAnalysis,
+} from "./api/get-reading-ai-analysis";
+
+export {
   uploadReadingSource,
   ReadingSourceUploadError,
 } from "./api/upload-reading-source";
+
+export {
+  ReadingAiAnalysisPanel,
+} from "./components/analysis/reading-ai-analysis-panel";
 
 export {
   ReadingLibrary,
@@ -102,3 +109,14 @@ export type {
 
   RecentReadingActivity,
 } from "./types/reading.types";
+
+export type {
+  ReadingAiAnalysisStatus,
+  ReadingAiContentQuality,
+  ReadingAiDifficultyScores,
+  ReadingAiInsight,
+  ReadingAiInsightPriority,
+  ReadingAiInsightType,
+  ReadingAiVocabularyProfile,
+  ReadingResourceAiAnalysis,
+} from "./types/reading-ai-analysis.types";

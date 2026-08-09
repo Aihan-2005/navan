@@ -3,7 +3,12 @@ import {
 } from "next/server";
 
 import {
-  readingSourceUploadMetadataSchema,
+  readingUploadMetadataSchema,
+  readingUploadOptionsSchema,
+  readingUploadResultSchema,
+} from "../../../../../features/reading/schemas/reading-upload.schema";
+
+import {
   readingSourceUploadResultSchema,
 } from "../../../../../features/reading/schemas/reading.schema";
 
@@ -15,18 +20,25 @@ import type {
   ReadingSourceFileExtension,
 } from "../../../../../features/reading/constants/reading.constants";
 
+import type {
+  ReadingUploadMetadata,
+} from "../../../../../features/reading/types/reading-upload.types";
+
 export const runtime = "nodejs";
 
 const BACKEND_READING_UPLOAD_ENDPOINT =
   "/api/v1/reading/resources";
 
 function shouldUseMockData(): boolean {
-  return process.env.USE_MOCKS !== "false";
+  return (
+    process.env.USE_MOCKS !==
+    "false"
+  );
 }
 
 function getApiBaseUrl(): string {
   const apiBaseUrl =
-    process.env.API_BASE_URL;
+    process.env.API_BASE_URL?.trim();
 
   if (!apiBaseUrl) {
     throw new Error(
@@ -34,12 +46,21 @@ function getApiBaseUrl(): string {
     );
   }
 
-  return apiBaseUrl;
+  try {
+    return new URL(
+      apiBaseUrl,
+    ).toString();
+  } catch {
+    throw new Error(
+      "API_BASE_URL is not a valid URL.",
+    );
+  }
 }
 
 function startsWithBytes(
   source: Uint8Array,
-  signature: readonly number[],
+  signature:
+    readonly number[],
 ): boolean {
   if (
     source.length <
@@ -69,25 +90,38 @@ function readAscii(
 
 async function validateFileSignature(
   file: File,
-  extension: ReadingSourceFileExtension,
+  extension:
+    ReadingSourceFileExtension,
 ): Promise<boolean> {
-  const header = new Uint8Array(
-    await file
-      .slice(0, 512)
-      .arrayBuffer(),
-  );
+  const header =
+    new Uint8Array(
+      await file
+        .slice(0, 512)
+        .arrayBuffer(),
+    );
 
   switch (extension) {
     case ".pdf":
       return startsWithBytes(
         header,
-        [0x25, 0x50, 0x44, 0x46, 0x2d],
+        [
+          0x25,
+          0x50,
+          0x44,
+          0x46,
+          0x2d,
+        ],
       );
 
     case ".docx":
       return startsWithBytes(
         header,
-        [0x50, 0x4b, 0x03, 0x04],
+        [
+          0x50,
+          0x4b,
+          0x03,
+          0x04,
+        ],
       );
 
     case ".png":
@@ -109,7 +143,11 @@ async function validateFileSignature(
     case ".jpeg":
       return startsWithBytes(
         header,
-        [0xff, 0xd8, 0xff],
+        [
+          0xff,
+          0xd8,
+          0xff,
+        ],
       );
 
     case ".webp":
@@ -143,13 +181,128 @@ function getDefaultTitle(
   );
 }
 
+function readFormString(
+  formData: FormData,
+  key: string,
+): string | null {
+  const value =
+    formData.get(key);
+
+  if (
+    typeof value !== "string"
+  ) {
+    return null;
+  }
+
+  const normalizedValue =
+    value.trim();
+
+  return normalizedValue ||
+    null;
+}
+
+function parseUploadOptions(
+  value: FormDataEntryValue | null,
+): unknown {
+  if (
+    typeof value !== "string" ||
+    !value.trim()
+  ) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+function parseMetadata(
+  formData: FormData,
+) {
+  const optionsPayload =
+    parseUploadOptions(
+      formData.get("options"),
+    );
+
+  if (
+    optionsPayload === null
+  ) {
+    return {
+      success: false as const,
+
+      error:
+        "تنظیمات AI ساختار JSON معتبر ندارد.",
+    };
+  }
+
+  const optionsResult =
+    readingUploadOptionsSchema.safeParse(
+      optionsPayload,
+    );
+
+  if (!optionsResult.success) {
+    return {
+      success: false as const,
+
+      error:
+        optionsResult.error
+          .issues[0]?.message ??
+        "تنظیمات AI معتبر نیست.",
+    };
+  }
+
+  const metadataResult =
+    readingUploadMetadataSchema.safeParse(
+      {
+        title:
+          readFormString(
+            formData,
+            "title",
+          ),
+
+        languageCode:
+          readFormString(
+            formData,
+            "languageCode",
+          ) ?? "en",
+
+        cefrLevel:
+          readFormString(
+            formData,
+            "cefrLevel",
+          ),
+
+        options:
+          optionsResult.data,
+      },
+    );
+
+  if (!metadataResult.success) {
+    return {
+      success: false as const,
+
+      error:
+        metadataResult.error
+          .issues[0]?.message ??
+        "اطلاعات منبع معتبر نیست.",
+    };
+  }
+
+  return {
+    success: true as const,
+
+    data:
+      metadataResult.data,
+  };
+}
+
 async function forwardToBackend(
   file: File,
-  metadata: {
-    title: string | null;
-    languageCode: string;
-    cefrLevel: string | null;
-  },
+  normalizedMimeType: string,
+  metadata:
+    ReadingUploadMetadata,
 ) {
   const formData =
     new FormData();
@@ -179,24 +332,44 @@ async function forwardToBackend(
     );
   }
 
-  const requestUrl = new URL(
-    BACKEND_READING_UPLOAD_ENDPOINT,
-    getApiBaseUrl(),
+  formData.append(
+    "options",
+    JSON.stringify(
+      metadata.options,
+    ),
   );
 
-  const response = await fetch(
-    requestUrl,
-    {
-      method: "POST",
-      body: formData,
-      cache: "no-store",
-    },
-  );
+  const requestUrl =
+    new URL(
+      BACKEND_READING_UPLOAD_ENDPOINT,
+      getApiBaseUrl(),
+    );
 
-  let payload: unknown = null;
+  const response =
+    await fetch(
+      requestUrl,
+      {
+        method: "POST",
+
+        headers: {
+          Accept:
+            "application/json",
+        },
+
+        body:
+          formData,
+
+        cache:
+          "no-store",
+      },
+    );
+
+  let payload: unknown =
+    null;
 
   try {
-    payload = await response.json();
+    payload =
+      await response.json();
   } catch {
     payload = null;
   }
@@ -208,20 +381,51 @@ async function forwardToBackend(
           "Backend نتوانست منبع Reading را پردازش کند.",
       },
       {
-        status: response.status,
+        status:
+          response.status,
       },
     );
   }
 
-  const result =
+  /**
+   * ابتدا قرارداد جدید را امتحان می‌کنیم.
+   */
+  const newResult =
+    readingUploadResultSchema.safeParse(
+      payload,
+    );
+
+  if (newResult.success) {
+    return NextResponse.json(
+      newResult.data,
+      {
+        status: 201,
+      },
+    );
+  }
+
+  /**
+   * سازگاری موقت با Backend قدیمی.
+   *
+   * اگر Backend هنوز response قدیمی
+   * را برگرداند، آن را به Contract
+   * جدید Normalize می‌کنیم.
+   */
+  const legacyResult =
     readingSourceUploadResultSchema.safeParse(
       payload,
     );
 
-  if (!result.success) {
+  if (!legacyResult.success) {
     console.error(
-      "Invalid reading backend response:",
-      result.error.flatten(),
+      "Invalid Reading backend upload response:",
+      {
+        newContract:
+          newResult.error.flatten(),
+
+        legacyContract:
+          legacyResult.error.flatten(),
+      },
     );
 
     return NextResponse.json(
@@ -235,8 +439,26 @@ async function forwardToBackend(
     );
   }
 
+  const normalizedResult =
+    readingUploadResultSchema.parse(
+      {
+        ...legacyResult.data,
+
+        upload: {
+          receivedBytes:
+            file.size,
+
+          mimeType:
+            normalizedMimeType,
+        },
+
+        options:
+          metadata.options,
+      },
+    );
+
   return NextResponse.json(
-    result.data,
+    normalizedResult,
     {
       status: 201,
     },
@@ -272,7 +494,9 @@ export async function POST(
         fileEntry,
       );
 
-    if (!fileValidation.success) {
+    if (
+      !fileValidation.success
+    ) {
       return NextResponse.json(
         {
           error:
@@ -285,31 +509,17 @@ export async function POST(
     }
 
     const metadataResult =
-      readingSourceUploadMetadataSchema.safeParse(
-        {
-          title:
-            formData.get("title") ||
-            null,
-
-          languageCode:
-            formData.get(
-              "languageCode",
-            ) || "en",
-
-          cefrLevel:
-            formData.get(
-              "cefrLevel",
-            ) || null,
-        },
+      parseMetadata(
+        formData,
       );
 
-    if (!metadataResult.success) {
+    if (
+      !metadataResult.success
+    ) {
       return NextResponse.json(
         {
           error:
-            metadataResult.error
-              .issues[0]?.message ??
-            "اطلاعات منبع معتبر نیست.",
+            metadataResult.error,
         },
         {
           status: 400,
@@ -335,10 +545,36 @@ export async function POST(
       );
     }
 
-    if (!shouldUseMockData()) {
+    if (
+      !shouldUseMockData()
+    ) {
       return forwardToBackend(
         fileEntry,
+        fileValidation
+          .normalizedMimeType,
         metadataResult.data,
+      );
+    }
+
+    const warnings: string[] = [
+      "پروژه در حالت Mock اجرا می‌شود.",
+    ];
+
+    if (
+      fileValidation.fileKind ===
+      "image"
+    ) {
+      warnings.push(
+        "کیفیت استخراج متن تصویر در Backend واقعی به وضوح تصویر وابسته خواهد بود.",
+      );
+    }
+
+    if (
+      metadataResult.data.options
+        .analysisMode === "deep"
+    ) {
+      warnings.push(
+        "تحلیل عمیق AI فعال است و در محیط Production می‌تواند زمان پردازش بیشتری نیاز داشته باشد.",
       );
     }
 
@@ -358,8 +594,7 @@ export async function POST(
       processingStatus:
         "extracting",
 
-      processingProgress:
-        18,
+      processingProgress: 18,
 
       originalFilename:
         fileEntry.name,
@@ -367,17 +602,26 @@ export async function POST(
       sourceFileKind:
         fileValidation.fileKind,
 
-      warnings: [
-        "پروژه در حالت Mock اجرا می‌شود.",
-        "در Backend واقعی متن استخراج، تحلیل و بخش‌بندی خواهد شد.",
-      ],
+      warnings,
+
+      upload: {
+        receivedBytes:
+          fileEntry.size,
+
+        mimeType:
+          fileValidation
+            .normalizedMimeType,
+      },
+
+      options:
+        metadataResult.data.options,
 
       createdAt:
         new Date().toISOString(),
     };
 
     return NextResponse.json(
-      readingSourceUploadResultSchema.parse(
+      readingUploadResultSchema.parse(
         payload,
       ),
       {

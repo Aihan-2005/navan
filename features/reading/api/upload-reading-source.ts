@@ -1,12 +1,13 @@
 import {
-  readingSourceUploadMetadataSchema,
-  readingSourceUploadResultSchema,
-} from "../schemas/reading.schema";
+  readingUploadMetadataSchema,
+  readingUploadResultSchema,
+} from "../schemas/reading-upload.schema";
 
 import type {
-  ReadingSourceUploadMetadata,
-  ReadingSourceUploadResult,
-} from "../types/reading.types";
+  ReadingUploadMetadata,
+  ReadingUploadRequestOptions,
+  ReadingUploadResult,
+} from "../types/reading-upload.types";
 
 export class ReadingSourceUploadError extends Error {
   readonly statusCode: number;
@@ -52,11 +53,15 @@ function getErrorMessage(
   return null;
 }
 
-async function readJsonSafely(
-  response: Response,
-): Promise<unknown> {
+function parseJsonSafely(
+  value: string,
+): unknown {
+  if (!value.trim()) {
+    return null;
+  }
+
   try {
-    return await response.json();
+    return JSON.parse(value);
   } catch {
     return null;
   }
@@ -87,28 +92,17 @@ function validateUploadFile(
   }
 }
 
-export async function uploadReadingSource(
+function createAbortError(): DOMException {
+  return new DOMException(
+    "Reading upload was aborted.",
+    "AbortError",
+  );
+}
+
+function buildUploadFormData(
   file: File,
-  metadata: ReadingSourceUploadMetadata,
-  signal?: AbortSignal,
-): Promise<ReadingSourceUploadResult> {
-  validateUploadFile(file);
-
-  const metadataResult =
-    readingSourceUploadMetadataSchema.safeParse(
-      metadata,
-    );
-
-  if (!metadataResult.success) {
-    throw new ReadingSourceUploadError(
-      metadataResult.error.issues[0]
-        ?.message ??
-        "اطلاعات منبع معتبر نیست.",
-
-      400,
-    );
-  }
-
+  metadata: ReadingUploadMetadata,
+): FormData {
   const formData =
     new FormData();
 
@@ -118,90 +112,264 @@ export async function uploadReadingSource(
     file.name,
   );
 
-  if (metadataResult.data.title) {
+  if (metadata.title) {
     formData.append(
       "title",
-      metadataResult.data.title,
+      metadata.title,
     );
   }
 
   formData.append(
     "languageCode",
-    metadataResult.data.languageCode,
+    metadata.languageCode,
   );
 
-  if (
-    metadataResult.data.cefrLevel
-  ) {
+  if (metadata.cefrLevel) {
     formData.append(
       "cefrLevel",
-      metadataResult.data.cefrLevel,
+      metadata.cefrLevel,
     );
   }
 
-  let response: Response;
+  /**
+   * تنظیمات AI را به‌صورت JSON
+   * ارسال می‌کنیم تا FormData
+   * تبدیل به مجموعه‌ای از فیلدهای
+   * شکننده نشود.
+   */
+  formData.append(
+    "options",
+    JSON.stringify(
+      metadata.options,
+    ),
+  );
 
-  try {
-    response = await fetch(
-      "/api/reading/sources/upload",
-      {
-        method: "POST",
-
-        headers: {
-          Accept: "application/json",
-        },
-
-        body: formData,
-        signal,
-      },
-    );
-  } catch (error) {
-    if (
-      error instanceof DOMException &&
-      error.name === "AbortError"
-    ) {
-      throw error;
-    }
-
-    console.error(
-      "Reading source upload network error:",
-      error,
-    );
-
-    throw new ReadingSourceUploadError(
-      "ارتباط با سرویس آپلود برقرار نشد.",
-      0,
-    );
-  }
-
-  const payload =
-    await readJsonSafely(response);
-
-  if (!response.ok) {
-    throw new ReadingSourceUploadError(
-      getErrorMessage(payload) ??
-        "آپلود منبع Reading ناموفق بود.",
-
-      response.status,
-    );
-  }
-
-  const result =
-    readingSourceUploadResultSchema.safeParse(
-      payload,
-    );
-
-  if (!result.success) {
-    console.error(
-      "Invalid reading upload response:",
-      result.error.flatten(),
-    );
-
-    throw new ReadingSourceUploadError(
-      "پاسخ سرویس آپلود معتبر نیست.",
-      500,
-    );
-  }
-
-  return result.data;
+  return formData;
 }
+
+export async function uploadReadingSource(
+  file: File,
+  metadata: ReadingUploadMetadata,
+  options: ReadingUploadRequestOptions = {},
+): Promise<ReadingUploadResult> {
+  validateUploadFile(file);
+
+  const metadataResult =
+    readingUploadMetadataSchema.safeParse(
+      metadata,
+    );
+
+  if (!metadataResult.success) {
+    throw new ReadingSourceUploadError(
+      metadataResult.error.issues[0]
+        ?.message ??
+        "اطلاعات منبع معتبر نیست.",
+      400,
+    );
+  }
+
+  if (options.signal?.aborted) {
+    throw createAbortError();
+  }
+
+  const formData =
+    buildUploadFormData(
+      file,
+      metadataResult.data,
+    );
+
+  return new Promise<
+    ReadingUploadResult
+  >(
+    (
+      resolve,
+      reject,
+    ) => {
+      const request =
+        new XMLHttpRequest();
+
+      let settled = false;
+
+      const cleanup = () => {
+        options.signal?.removeEventListener(
+          "abort",
+          handleExternalAbort,
+        );
+      };
+
+      const finishResolve = (
+        result: ReadingUploadResult,
+      ) => {
+        if (settled) {
+          return;
+        }
+
+        settled = true;
+        cleanup();
+        resolve(result);
+      };
+
+      const finishReject = (
+        error: unknown,
+      ) => {
+        if (settled) {
+          return;
+        }
+
+        settled = true;
+        cleanup();
+        reject(error);
+      };
+
+      const handleExternalAbort =
+        () => {
+          request.abort();
+        };
+
+      options.signal?.addEventListener(
+        "abort",
+        handleExternalAbort,
+        {
+          once: true,
+        },
+      );
+
+      request.open(
+        "POST",
+        "/api/reading/sources/upload",
+        true,
+      );
+
+      request.setRequestHeader(
+        "Accept",
+        "application/json",
+      );
+
+      request.upload.onprogress =
+        (event) => {
+          if (
+            !event.lengthComputable ||
+            event.total <= 0
+          ) {
+            return;
+          }
+
+          const progress =
+            Math.min(
+              100,
+              Math.max(
+                0,
+                Math.round(
+                  (event.loaded /
+                    event.total) *
+                    100,
+                ),
+              ),
+            );
+
+          options.onProgress?.(
+            progress,
+          );
+        };
+
+      request.onload = () => {
+        const payload =
+          parseJsonSafely(
+            request.responseText,
+          );
+
+        if (
+          request.status < 200 ||
+          request.status >= 300
+        ) {
+          finishReject(
+            new ReadingSourceUploadError(
+              getErrorMessage(
+                payload,
+              ) ??
+                "آپلود منبع Reading ناموفق بود.",
+              request.status,
+            ),
+          );
+
+          return;
+        }
+
+        const result =
+          readingUploadResultSchema.safeParse(
+            payload,
+          );
+
+        if (!result.success) {
+          console.error(
+            "Invalid Reading upload response:",
+            result.error.flatten(),
+          );
+
+          finishReject(
+            new ReadingSourceUploadError(
+              "پاسخ سرویس آپلود معتبر نیست.",
+              500,
+            ),
+          );
+
+          return;
+        }
+
+        options.onProgress?.(
+          100,
+        );
+
+        finishResolve(
+          result.data,
+        );
+      };
+
+      request.onerror = () => {
+        finishReject(
+          new ReadingSourceUploadError(
+            "ارتباط با سرویس آپلود برقرار نشد.",
+            0,
+          ),
+        );
+      };
+
+      request.onabort = () => {
+        finishReject(
+          createAbortError(),
+        );
+      };
+
+      try {
+        request.send(
+          formData,
+        );
+      } catch (error) {
+        finishReject(
+          error instanceof Error
+            ? error
+            : new ReadingSourceUploadError(
+                "ارسال فایل آغاز نشد.",
+                0,
+              ),
+        );
+      }
+    },
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,16 +1,15 @@
 import Link from "next/link";
+
 import {
   BookOpenText,
   Check,
-  CheckCircle2,
   Clock3,
   FileText,
   Languages,
   LoaderCircle,
-  Lock,
-  Play,
   Sparkles,
   TriangleAlert,
+  XCircle,
 } from "lucide-react";
 
 import {
@@ -26,11 +25,10 @@ import {
 } from "../../../../lib/utils/cn";
 
 import {
-  READING_AUDIO_STATUS_LABELS,
   READING_PROCESSING_PIPELINE,
   READING_PROCESSING_STATUS_LABELS,
+  READING_RESOURCE_STATUS_LABELS,
   READING_RESOURCE_TYPE_LABELS,
-  READING_SECTION_STATUS_LABELS,
   READING_SOURCE_FILE_KIND_LABELS,
 } from "../../constants/reading.constants";
 
@@ -43,11 +41,20 @@ import type {
   ReadingResourceDetail as ReadingResourceDetailData,
 } from "../../types/reading.types";
 
+import {
+  ReadingResourceSections,
+} from "./reading-resource-sections";
+
 type ReadingResourceDetailProps =
   Readonly<{
     resource:
       ReadingResourceDetailData;
   }>;
+
+type ReadingPipelineStepState =
+  | "completed"
+  | "active"
+  | "upcoming";
 
 const numberFormatter =
   new Intl.NumberFormat("fa-IR");
@@ -59,22 +66,21 @@ function formatFileSize(
     bytes / (1024 * 1024);
 
   return `${numberFormatter.format(
-    megabytes,
+    Number(
+      megabytes.toFixed(1),
+    ),
   )} مگابایت`;
 }
 
-
-type ReadingPipelineStepState =
-  | "completed"
-  | "active"
-  | "upcoming";
-
 function getPipelineStepState(
-  currentStatus: ReadingProcessingStatus,
-  step: ReadingProcessingPipelineStep,
+  currentStatus:
+    ReadingProcessingStatus,
+  step:
+    ReadingProcessingPipelineStep,
 ): ReadingPipelineStepState {
-  
-  if (currentStatus === "failed") {
+  if (
+    currentStatus === "failed"
+  ) {
     return "upcoming";
   }
 
@@ -88,31 +94,50 @@ function getPipelineStepState(
       step,
     );
 
-  if (stepIndex < currentIndex) {
+  if (
+    stepIndex < currentIndex
+  ) {
     return "completed";
   }
 
-  if (stepIndex === currentIndex) {
+  if (
+    stepIndex === currentIndex
+  ) {
     return "active";
   }
 
   return "upcoming";
 }
 
-
-
 export function ReadingResourceDetail({
   resource,
 }: ReadingResourceDetailProps) {
+  const isFailed =
+    resource.status === "failed" ||
+    resource.processingStatus ===
+      "failed";
+
   const isProcessing =
-    resource.status === "processing";
+    resource.status ===
+      "processing" &&
+    !isFailed;
 
   const isReady =
+    resource.status === "ready" &&
     resource.processingStatus ===
-    "ready";
+      "ready";
+
+  const isComingSoon =
+    resource.status ===
+    "coming_soon";
 
   return (
-    <main className="mx-auto w-full max-w-7xl space-y-6">
+    <main
+      className="
+        mx-auto w-full
+        max-w-7xl space-y-6
+      "
+    >
       <section
         className="
           relative overflow-hidden
@@ -125,20 +150,40 @@ export function ReadingResourceDetail({
         <div
           aria-hidden="true"
           className="
-            pointer-events-none absolute
-            -left-24 -top-24
-            h-72 w-72 rounded-full
-            bg-cyan-500/15 blur-3xl
+            pointer-events-none
+            absolute -left-24 -top-24
+            h-72 w-72
+            rounded-full
+            bg-cyan-500/15
+            blur-3xl
+          "
+        />
+
+        <div
+          aria-hidden="true"
+          className="
+            pointer-events-none
+            absolute -bottom-28 right-10
+            h-64 w-64
+            rounded-full
+            bg-violet-500/10
+            blur-3xl
           "
         />
 
         <div className="relative">
-          <div className="flex flex-wrap items-center gap-2">
+          <div
+            className="
+              flex flex-wrap
+              items-center gap-2
+            "
+          >
             <span
               className="
                 rounded-full
                 bg-cyan-400/10
-                px-3 py-1 text-xs
+                px-3 py-1
+                text-xs
                 text-cyan-200
               "
             >
@@ -153,7 +198,8 @@ export function ReadingResourceDetail({
               className="
                 rounded-full
                 bg-white/[0.05]
-                px-3 py-1 text-xs
+                px-3 py-1
+                text-xs
                 text-slate-400
               "
             >
@@ -161,49 +207,90 @@ export function ReadingResourceDetail({
             </span>
 
             <span
-              className="
-                rounded-full
-                bg-white/[0.05]
-                px-3 py-1 text-xs
-                text-slate-400
-              "
+              className={cn(
+                "rounded-full",
+                "px-3 py-1",
+                "text-xs",
+
+                isReady && [
+                  "bg-emerald-400/10",
+                  "text-emerald-300",
+                ],
+
+                isProcessing && [
+                  "bg-amber-400/10",
+                  "text-amber-300",
+                ],
+
+                isFailed && [
+                  "bg-red-400/10",
+                  "text-red-300",
+                ],
+
+                isComingSoon && [
+                  "bg-violet-400/10",
+                  "text-violet-300",
+                ],
+              )}
             >
               {
-                READING_PROCESSING_STATUS_LABELS[
-                  resource.processingStatus
+                READING_RESOURCE_STATUS_LABELS[
+                  resource.status
                 ]
               }
             </span>
           </div>
 
           <h1
+            dir="ltr"
             className="
-              mt-5 text-3xl font-bold
+              mt-5 text-left
+              text-3xl font-bold
               leading-tight text-white
               sm:text-4xl
             "
-            dir="ltr"
           >
             {resource.title}
           </h1>
 
           {resource.author ? (
             <p
-              className="mt-2 text-sm text-slate-600"
               dir="ltr"
+              className="
+                mt-2 text-left
+                text-sm text-slate-600
+              "
             >
               {resource.author}
             </p>
           ) : null}
 
           {resource.description ? (
-            <p className="mt-4 max-w-3xl text-sm leading-8 text-slate-400">
+            <p
+              className="
+                mt-4 max-w-3xl
+                text-sm leading-8
+                text-slate-400
+              "
+            >
               {resource.description}
             </p>
           ) : null}
 
-          <div className="mt-6 flex flex-wrap gap-4 text-xs text-slate-500">
-            <span className="flex items-center gap-1.5">
+          <div
+            className="
+              mt-6 flex
+              flex-wrap gap-4
+              text-xs
+              text-slate-500
+            "
+          >
+            <span
+              className="
+                flex items-center
+                gap-1.5
+              "
+            >
               <Clock3
                 aria-hidden="true"
                 className="h-4 w-4"
@@ -215,7 +302,12 @@ export function ReadingResourceDetail({
               دقیقه
             </span>
 
-            <span className="flex items-center gap-1.5">
+            <span
+              className="
+                flex items-center
+                gap-1.5
+              "
+            >
               <BookOpenText
                 aria-hidden="true"
                 className="h-4 w-4"
@@ -227,7 +319,12 @@ export function ReadingResourceDetail({
               بخش
             </span>
 
-            <span className="flex items-center gap-1.5">
+            <span
+              className="
+                flex items-center
+                gap-1.5
+              "
+            >
               <Languages
                 aria-hidden="true"
                 className="h-4 w-4"
@@ -239,37 +336,154 @@ export function ReadingResourceDetail({
               کلمه
             </span>
           </div>
+
+          {resource.topics.length >
+          0 ? (
+            <div
+              className="
+                mt-6 flex
+                flex-wrap gap-2
+              "
+            >
+              {resource.topics.map(
+                (topic) => (
+                  <span
+                    key={topic}
+                    className="
+                      rounded-full
+                      border
+                      border-white/[0.06]
+                      bg-white/[0.025]
+                      px-3 py-1.5
+                      text-xs
+                      text-slate-500
+                    "
+                  >
+                    {topic}
+                  </span>
+                ),
+              )}
+            </div>
+          ) : null}
         </div>
       </section>
 
+      {resource.learningFocuses
+        .length > 0 ? (
+        <Card className="p-5 sm:p-6">
+          <div
+            className="
+              flex items-center
+              gap-2 text-violet-300
+            "
+          >
+            <Sparkles
+              aria-hidden="true"
+              className="h-5 w-5"
+            />
+
+            <h2
+              className="
+                text-sm font-medium
+              "
+            >
+              تمرکزهای آموزشی
+            </h2>
+          </div>
+
+          <div
+            className="
+              mt-4 flex
+              flex-wrap gap-2
+            "
+          >
+            {resource.learningFocuses.map(
+              (focus) => (
+                <span
+                  key={focus}
+                  dir="ltr"
+                  className="
+                    rounded-xl
+                    border
+                    border-violet-400/10
+                    bg-violet-400/[0.05]
+                    px-3 py-2
+                    text-xs
+                    text-violet-200
+                  "
+                >
+                  {focus}
+                </span>
+              ),
+            )}
+          </div>
+        </Card>
+      ) : null}
+
       {isProcessing ? (
         <Card className="p-5 sm:p-6">
-          <div className="flex items-center gap-2 text-amber-300">
+          <div
+            className="
+              flex items-center
+              gap-2 text-amber-300
+            "
+          >
             <LoaderCircle
               aria-hidden="true"
-              className="h-5 w-5 animate-spin"
+              className="
+                h-5 w-5
+                animate-spin
+              "
             />
 
             آماده‌سازی منبع
           </div>
 
-          <h2 className="mt-3 text-xl font-bold text-white">
-            هوش مصنوعی در حال پردازش فایل است
+          <h2
+            className="
+              mt-3 text-xl
+              font-bold text-white
+            "
+          >
+            هوش مصنوعی در حال پردازش
+            فایل است
           </h2>
 
-          <p className="mt-2 text-sm leading-7 text-slate-500">
-            استخراج متن، تشخیص سطح، بخش‌بندی محتوایی،
-            تحلیل جمله‌ها و ساخت صوت در چند مرحله انجام
-            می‌شوند.
+          <p
+            className="
+              mt-2 text-sm
+              leading-7 text-slate-500
+            "
+          >
+            استخراج متن، تشخیص سطح،
+            بخش‌بندی محتوایی، تحلیل
+            جمله‌ها و آماده‌سازی صوت
+            در چند مرحله انجام می‌شوند.
           </p>
 
           <div className="mt-6">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs text-slate-500">
+            <div
+              className="
+                mb-2 flex
+                items-center
+                justify-between
+              "
+            >
+              <span
+                className="
+                  text-xs
+                  text-slate-500
+                "
+              >
                 پیشرفت کلی
               </span>
 
-              <span className="text-sm font-bold text-white">
+              <span
+                className="
+                  text-sm font-bold
+                  text-white
+                "
+              >
                 {numberFormatter.format(
                   resource.processingProgress,
                 )}
@@ -304,7 +518,8 @@ export function ReadingResourceDetail({
                   <div
                     key={step}
                     className={cn(
-                      "rounded-xl border p-4",
+                      "rounded-xl",
+                      "border p-4",
 
                       state ===
                         "completed" && [
@@ -325,20 +540,35 @@ export function ReadingResourceDetail({
                       ],
                     )}
                   >
-                    <div className="flex items-center gap-3">
+                    <div
+                      className="
+                        flex items-center
+                        gap-3
+                      "
+                    >
                       <span
                         className={cn(
                           "flex h-9 w-9",
-                          "items-center justify-center",
+                          "items-center",
+                          "justify-center",
                           "rounded-xl",
 
                           state ===
                             "completed"
-                            ? "bg-emerald-400/10 text-emerald-300"
+                            ? [
+                                "bg-emerald-400/10",
+                                "text-emerald-300",
+                              ]
                             : state ===
                                 "active"
-                              ? "bg-cyan-400/10 text-cyan-300"
-                              : "bg-white/[0.04] text-slate-600",
+                              ? [
+                                  "bg-cyan-400/10",
+                                  "text-cyan-300",
+                                ]
+                              : [
+                                  "bg-white/[0.04]",
+                                  "text-slate-600",
+                                ],
                         )}
                       >
                         {state ===
@@ -351,10 +581,17 @@ export function ReadingResourceDetail({
                           "active" ? (
                           <LoaderCircle
                             aria-hidden="true"
-                            className="h-4 w-4 animate-spin"
+                            className="
+                              h-4 w-4
+                              animate-spin
+                            "
                           />
                         ) : (
-                          <span className="text-xs">
+                          <span
+                            className="
+                              text-xs
+                            "
+                          >
                             {numberFormatter.format(
                               index + 1,
                             )}
@@ -362,7 +599,12 @@ export function ReadingResourceDetail({
                         )}
                       </span>
 
-                      <span className="text-sm text-slate-300">
+                      <span
+                        className="
+                          text-sm
+                          text-slate-300
+                        "
+                      >
                         {
                           READING_PROCESSING_STATUS_LABELS[
                             step
@@ -376,17 +618,25 @@ export function ReadingResourceDetail({
             )}
           </div>
 
-          {resource.processingWarnings.length >
-          0 ? (
+          {resource.processingWarnings
+            .length > 0 ? (
             <div
               className="
                 mt-6 rounded-xl
-                border border-amber-400/15
+                border
+                border-amber-400/15
                 bg-amber-400/[0.04]
                 px-4 py-3
               "
             >
-              <div className="flex items-center gap-2 text-xs font-medium text-amber-200">
+              <div
+                className="
+                  flex items-center
+                  gap-2 text-xs
+                  font-medium
+                  text-amber-200
+                "
+              >
                 <TriangleAlert
                   aria-hidden="true"
                   className="h-4 w-4"
@@ -395,12 +645,20 @@ export function ReadingResourceDetail({
                 نکات پردازش
               </div>
 
-              <ul className="mt-2 space-y-1.5">
+              <ul
+                className="
+                  mt-2 space-y-1.5
+                "
+              >
                 {resource.processingWarnings.map(
                   (warning) => (
                     <li
                       key={warning}
-                      className="text-xs leading-6 text-amber-100/60"
+                      className="
+                        text-xs
+                        leading-6
+                        text-amber-100/60
+                      "
                     >
                       • {warning}
                     </li>
@@ -412,9 +670,127 @@ export function ReadingResourceDetail({
         </Card>
       ) : null}
 
+      {isFailed ? (
+        <Card
+          className="
+            border-red-400/15
+            bg-red-400/[0.035]
+            p-5 sm:p-6
+          "
+        >
+          <div
+            className="
+              flex items-start gap-4
+            "
+          >
+            <span
+              className="
+                flex h-11 w-11
+                shrink-0 items-center
+                justify-center
+                rounded-xl
+                bg-red-400/10
+                text-red-300
+              "
+            >
+              <XCircle
+                aria-hidden="true"
+                className="h-5 w-5"
+              />
+            </span>
+
+            <div>
+              <h2
+                className="
+                  font-bold text-white
+                "
+              >
+                پردازش منبع کامل نشد
+              </h2>
+
+              <p
+                className="
+                  mt-2 text-sm
+                  leading-7
+                  text-slate-500
+                "
+              >
+                هنگام آماده‌سازی این منبع
+                مشکلی رخ داده است. اطلاعات
+                فایل حفظ شده و بعداً می‌توان
+                امکان پردازش مجدد را به
+                Backend متصل کرد.
+              </p>
+
+              {resource.processingWarnings
+                .length > 0 ? (
+                <ul
+                  className="
+                    mt-4 space-y-2
+                  "
+                >
+                  {resource.processingWarnings.map(
+                    (warning) => (
+                      <li
+                        key={warning}
+                        className="
+                          text-xs
+                          leading-6
+                          text-red-200/60
+                        "
+                      >
+                        • {warning}
+                      </li>
+                    ),
+                  )}
+                </ul>
+              ) : null}
+            </div>
+          </div>
+        </Card>
+      ) : null}
+
+      {isComingSoon ? (
+        <Card className="p-6 text-center">
+          <BookOpenText
+            aria-hidden="true"
+            className="
+              mx-auto h-8 w-8
+              text-violet-300
+            "
+          />
+
+          <h2
+            className="
+              mt-4 text-lg
+              font-bold text-white
+            "
+          >
+            این منبع به‌زودی آماده می‌شود
+          </h2>
+
+          <p
+            className="
+              mx-auto mt-2
+              max-w-xl text-sm
+              leading-7
+              text-slate-500
+            "
+          >
+            محتوای این منبع هنوز برای
+            مطالعه منتشر نشده است.
+          </p>
+        </Card>
+      ) : null}
+
       {resource.originalFilename ? (
         <Card className="p-5">
-          <div className="flex items-center gap-2 text-violet-300">
+          <div
+            className="
+              flex items-center
+              gap-2 text-violet-300
+            "
+          >
             <FileText
               aria-hidden="true"
               className="h-5 w-5"
@@ -471,177 +847,41 @@ export function ReadingResourceDetail({
       ) : null}
 
       {isReady ? (
-        <>
-          <section>
-            <div className="flex items-center gap-2 text-cyan-300">
-              <Sparkles
-                aria-hidden="true"
-                className="h-5 w-5"
-              />
-
-              <span className="text-sm font-medium">
-                مسیر مطالعه
-              </span>
-            </div>
-
-            <h2 className="mt-2 text-2xl font-bold text-white">
-              بخش‌های آماده یادگیری
-            </h2>
-
-            <div className="mt-5 space-y-4">
-              {resource.sections.map(
-                (section) => {
-                  const isLocked =
-                    section.status ===
-                    "locked";
-
-                  return (
-                    <Card
-                      key={section.id}
-                      className={cn(
-                        "p-5",
-
-                        isLocked &&
-                          "opacity-60",
-                      )}
-                    >
-                      <div
-                        className="
-                          flex flex-col gap-4
-                          lg:flex-row
-                          lg:items-center
-                          lg:justify-between
-                        "
-                      >
-                        <div className="flex items-start gap-4">
-                          <div
-                            className={cn(
-                              "flex h-11 w-11 shrink-0",
-                              "items-center justify-center",
-                              "rounded-xl",
-
-                              section.status ===
-                                "completed"
-                                ? "bg-emerald-400/10 text-emerald-300"
-                                : isLocked
-                                  ? "bg-white/[0.04] text-slate-600"
-                                  : "bg-cyan-400/10 text-cyan-300",
-                            )}
-                          >
-                            {section.status ===
-                            "completed" ? (
-                              <CheckCircle2
-                                aria-hidden="true"
-                                className="h-5 w-5"
-                              />
-                            ) : isLocked ? (
-                              <Lock
-                                aria-hidden="true"
-                                className="h-5 w-5"
-                              />
-                            ) : (
-                              <Play
-                                aria-hidden="true"
-                                className="h-5 w-5"
-                              />
-                            )}
-                          </div>
-
-                          <div>
-                            <p className="text-xs text-slate-600">
-                              بخش{" "}
-                              {numberFormatter.format(
-                                section.order,
-                              )}
-                            </p>
-
-                            <h3 className="mt-1 text-lg font-bold text-white">
-                              {section.title}
-                            </h3>
-
-                            <p className="mt-2 text-sm leading-7 text-slate-500">
-                              {section.summary}
-                            </p>
-
-                            <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
-                              <span>
-                                {numberFormatter.format(
-                                  section.wordCount,
-                                )}{" "}
-                                کلمه
-                              </span>
-
-                              <span>
-                                {numberFormatter.format(
-                                  section.estimatedMinutes,
-                                )}{" "}
-                                دقیقه
-                              </span>
-
-                              <span>
-                                {numberFormatter.format(
-                                  section.vocabularyCount,
-                                )}{" "}
-                                لغت کلیدی
-                              </span>
-
-                              <span>
-                                {numberFormatter.format(
-                                  section.grammarPointCount,
-                                )}{" "}
-                                نکته گرامری
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="shrink-0">
-                          <p className="text-xs text-slate-500">
-                            {
-                              READING_SECTION_STATUS_LABELS[
-                                section.status
-                              ]
-                            }
-                          </p>
-
-                          <p className="mt-1 text-[11px] text-slate-700">
-                            صوت:{" "}
-                            {
-                              READING_AUDIO_STATUS_LABELS[
-                                section.audioStatus
-                              ]
-                            }
-                          </p>
-                        </div>
-                      </div>
-                    </Card>
-                  );
-                },
-              )}
-            </div>
-          </section>
-
-          <Card className="p-5 text-center">
-            <p className="text-sm text-slate-500">
-              Workspace مطالعه مرحله‌ای، صوت و تحلیل
-              جمله‌ها در مرحله بعد پیاده‌سازی می‌شود.
-            </p>
-          </Card>
-        </>
+        <ReadingResourceSections
+          resourceId={resource.id}
+          sections={resource.sections}
+          completedSections={
+            resource.completedSections
+          }
+          totalSections={
+            resource.totalSections
+          }
+          progressPercent={
+            resource.progressPercent
+          }
+        />
       ) : null}
 
-      <div className="flex flex-wrap gap-3">
+      <div
+        className="
+          flex flex-wrap gap-3
+        "
+      >
         <Link
           href="/reading/library"
           className="
             inline-flex min-h-11
-            items-center justify-center
+            items-center
+            justify-center
             rounded-xl border
             border-white/[0.08]
             bg-white/[0.04]
-            px-5 py-2.5 text-sm
-            text-slate-300 transition
+            px-5 py-2.5
+            text-sm
+            text-slate-300
+            transition
             hover:bg-white/[0.08]
+            hover:text-white
           "
         >
           بازگشت به کتابخانه
@@ -651,11 +891,15 @@ export function ReadingResourceDetail({
           href="/reading/upload"
           className="
             inline-flex min-h-11
-            items-center justify-center
-            rounded-xl bg-cyan-400
-            px-5 py-2.5 text-sm
-            font-bold text-slate-950
-            transition hover:bg-cyan-300
+            items-center
+            justify-center
+            rounded-xl
+            bg-cyan-400
+            px-5 py-2.5
+            text-sm font-bold
+            text-slate-950
+            transition
+            hover:bg-cyan-300
           "
         >
           آپلود منبع دیگر
@@ -668,10 +912,10 @@ export function ReadingResourceDetail({
 function FileMetadata({
   label,
   value,
-}: {
+}: Readonly<{
   label: string;
   value: string;
-}) {
+}>) {
   return (
     <div
       className="
@@ -681,17 +925,21 @@ function FileMetadata({
         px-4 py-3
       "
     >
-      <dt className="text-xs text-slate-600">
+      <dt
+        className="
+          text-xs text-slate-600
+        "
+      >
         {label}
       </dt>
 
       <dd
+        dir="auto"
         className="
           mt-2 truncate
           text-sm font-medium
           text-slate-300
         "
-        dir="auto"
       >
         {value}
       </dd>
