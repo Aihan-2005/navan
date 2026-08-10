@@ -68,7 +68,7 @@ const primaryNavigationItems = [
   },
   {
     label: "ارزیابی‌ها",
-    href: "/assessments",
+    href: "/assessment",
     icon: ClipboardCheck,
   },
   {
