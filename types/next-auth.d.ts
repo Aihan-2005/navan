@@ -6,41 +6,72 @@ type AppUserRole =
   | "user"
   | "admin";
 
-/**
- * Auth.js core User / Session augmentation.
- *
- * NextAuth v5 re-exports these types from @auth/core,
- * so keeping the source augmentation here makes
- * callbacks, auth(), useSession() and server sessions
- * share the same contract.
- */
+type AuthSessionError =
+  | "RefreshAccessTokenError";
+
 declare module "@auth/core/types" {
   interface User {
-    username?: string | null;
+    username?:
+      string | null;
 
-    role?: AppUserRole;
+    identifier?:
+      string | null;
+
+    role?:
+      AppUserRole;
+
+    backendAccessToken?:
+      string;
+
+    backendRefreshToken?:
+      string;
+
+    backendAccessTokenExpiresAt?:
+      number;
   }
 
   interface Session {
     user: {
       id: string;
 
-      username: string | null;
+      username:
+        string | null;
 
-      role: AppUserRole;
+      identifier:
+        string | null;
+
+      role:
+        AppUserRole;
     } & DefaultSession["user"];
+
+    authError?:
+      AuthSessionError;
   }
 }
 
-/**
- * Custom values persisted inside JWT sessions.
- */
 declare module "@auth/core/jwt" {
   interface JWT {
     id?: string;
 
-    username?: string | null;
+    username?:
+      string | null;
 
-    role?: AppUserRole;
+    identifier?:
+      string | null;
+
+    role?:
+      AppUserRole;
+
+    backendAccessToken?:
+      string;
+
+    backendRefreshToken?:
+      string;
+
+    backendAccessTokenExpiresAt?:
+      number;
+
+    authError?:
+      AuthSessionError;
   }
 }

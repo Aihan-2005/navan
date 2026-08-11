@@ -1,117 +1,336 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
-import { Eye, EyeOff, Lock, Mail, RotateCcw, User } from "lucide-react";
 
-const fieldLabelClass =
-  "block h-4 text-right text-sm font-bold leading-4 tracking-[0.14px] text-[#3D4947]";
+import {
+  Eye,
+  EyeOff,
+  LoaderCircle,
+  Lock,
+  Mail,
+  User,
+} from "lucide-react";
 
-const fieldInputClass =
-  "w-full rounded-lg border border-[#BCC9C6] bg-white text-base text-[#191C1E] outline-none transition-[border-color,box-shadow] duration-300 ease-out placeholder:text-[#6B7280] focus:border-[#00685F] focus:ring-2 focus:ring-[#00685F]/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-70";
+import {
+  signIn,
+} from "next-auth/react";
 
-function GoogleIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className="h-5 w-5"
-      focusable="false"
-    >
-      <path
-        fill="#4285F4"
-        d="M21.6 12.227c0-.709-.064-1.391-.182-2.045H12v3.868h5.382a4.6 4.6 0 0 1-1.995 3.018v2.51h3.232c1.891-1.741 2.981-4.305 2.981-7.35Z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 22c2.7 0 4.968-.895 6.619-2.423l-3.232-2.509c-.895.6-2.041.955-3.387.955-2.605 0-4.81-1.759-5.6-4.123H3.06v2.591A9.998 9.998 0 0 0 12 22Z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M6.4 13.9A6.01 6.01 0 0 1 6.087 12c0-.659.114-1.3.313-1.9V7.509H3.06A9.998 9.998 0 0 0 2 12c0 1.614.386 3.141 1.06 4.491L6.4 13.9Z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 5.977c1.468 0 2.786.505 3.823 1.495l2.868-2.868C16.964 2.995 14.696 2 12 2a9.998 9.998 0 0 0-8.94 5.509L6.4 10.1c.79-2.364 2.995-4.123 5.6-4.123Z"
-      />
-    </svg>
-  );
-}
+import {
+  useRouter,
+} from "next/navigation";
 
-function AppleIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className="h-5 w-5 fill-current"
-      focusable="false"
-    >
-      <path d="M17.05 12.536c-.028-2.245 1.835-3.338 1.92-3.39-1.056-1.545-2.697-1.756-3.278-1.773-1.379-.145-2.716.826-3.418.826-.716 0-1.797-.812-2.963-.788-1.5.023-2.904.892-3.673 2.24-1.588 2.75-.404 6.79 1.118 9.013.762 1.09 1.652 2.308 2.817 2.265 1.14-.047 1.566-.728 2.941-.728 1.362 0 1.762.728 2.95.7 1.223-.02 1.993-1.096 2.728-2.196.882-1.25 1.237-2.48 1.251-2.543-.029-.01-2.37-.905-2.393-3.606ZM14.79 5.91c.613-.767 1.032-1.81.916-2.865-.887.04-1.996.613-2.635 1.363-.565.66-1.07 1.744-.94 2.76.997.075 2.002-.504 2.66-1.258Z" />
-    </svg>
-  );
+import {
+  useState,
+  type FormEvent,
+} from "react";
+
+type RegisterFormState =
+  Readonly<{
+    name: string;
+
+    identifier:
+      string;
+
+    password:
+      string;
+
+    confirmPassword:
+      string;
+  }>;
+
+const INITIAL_FORM:
+  RegisterFormState = {
+  name: "",
+
+  identifier: "",
+
+  password: "",
+
+  confirmPassword: "",
+};
+
+const fieldInputClass = `
+  h-12
+  w-full
+  rounded-xl
+  border
+  border-[#BCC9C6]
+  bg-white
+  px-4
+  text-sm
+  text-[#191C1E]
+  outline-none
+  transition
+  placeholder:text-[#87908E]
+  focus:border-[#00685F]
+  focus:ring-2
+  focus:ring-[#00685F]/10
+  disabled:cursor-not-allowed
+  disabled:bg-slate-50
+  disabled:opacity-70
+`;
+
+function getErrorMessage(
+  payload: unknown,
+): string | null {
+  if (
+    typeof payload !== "object" ||
+    payload === null
+  ) {
+    return null;
+  }
+
+  if (
+    "error" in payload &&
+    typeof payload.error ===
+      "string"
+  ) {
+    return payload.error;
+  }
+
+  if (
+    "message" in payload &&
+    typeof payload.message ===
+      "string"
+  ) {
+    return payload.message;
+  }
+
+  return null;
 }
 
 export default function RegisterForm() {
-  const router = useRouter();
+  const router =
+    useRouter();
 
-  const [form, setForm] = useState({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [
+    form,
+    setForm,
+  ] =
+    useState<RegisterFormState>(
+      INITIAL_FORM,
+    );
 
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [
+    error,
+    setError,
+  ] =
+    useState("");
 
-  function updateField(name: keyof typeof form, value: string) {
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const [
+    isLoading,
+    setIsLoading,
+  ] =
+    useState(false);
+
+  const [
+    showPassword,
+    setShowPassword,
+  ] =
+    useState(false);
+
+  const [
+    acceptedTerms,
+    setAcceptedTerms,
+  ] =
+    useState(false);
+
+  function updateField(
+    field:
+      keyof RegisterFormState,
+    value: string,
+  ) {
+    setForm(
+      (current) => ({
+        ...current,
+
+        [field]:
+          value,
+      }),
+    );
 
     if (error) {
       setError("");
     }
   }
 
-  async function handleRegister(event: FormEvent<HTMLFormElement>) {
+  async function handleRegister(
+    event:
+      FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
-    if (form.username.trim().length < 3) {
-      setError("نام و نام خانوادگی باید حداقل ۳ کاراکتر باشد.");
+    if (isLoading) {
       return;
     }
 
-    if (!form.email.includes("@")) {
-      setError("ایمیل معتبر وارد کنید.");
+    const name =
+      form.name.trim();
+
+    const identifier =
+      form.identifier.trim();
+
+    if (
+      name.length < 2
+    ) {
+      setError(
+        "نام باید حداقل ۲ کاراکتر باشد.",
+      );
+
       return;
     }
 
-    if (form.password.length < 6) {
-      setError("رمز عبور باید حداقل ۶ کاراکتر باشد.");
+    if (
+      identifier.length < 3
+    ) {
+      setError(
+        "ایمیل یا شماره تلفن معتبر وارد کنید.",
+      );
+
       return;
     }
 
-    if (form.password !== form.confirmPassword) {
-      setError("رمز عبور و تکرار آن یکسان نیستند.");
+    if (
+      form.password.length <
+      8
+    ) {
+      setError(
+        "رمز عبور باید حداقل ۸ کاراکتر باشد.",
+      );
+
+      return;
+    }
+
+    if (
+      form.password !==
+      form.confirmPassword
+    ) {
+      setError(
+        "رمز عبور و تکرار آن یکسان نیستند.",
+      );
+
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setError(
+        "برای ادامه باید قوانین استفاده را بپذیرید.",
+      );
+
       return;
     }
 
     try {
-      setIsLoading(true);
+      setIsLoading(
+        true,
+      );
 
-      /**
-       * API ثبت نام پروژه بعداً می‌تواند اینجا فراخوانی شود.
-       */
-      router.push("/login");
-    } catch (registerError) {
-      console.error("Register error:", registerError);
-      setError("ثبت‌نام با خطا مواجه شد.");
+      setError("");
+
+      const registerResponse =
+        await fetch(
+          "/api/backend-auth/register",
+          {
+            method:
+              "POST",
+
+            headers: {
+              Accept:
+                "application/json",
+
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify(
+                {
+                  name,
+
+                  identifier,
+
+                  password:
+                    form.password,
+
+                  passwordConfirm:
+                    form.confirmPassword,
+                },
+              ),
+          },
+        );
+
+      let registerPayload:
+        unknown =
+          null;
+
+      try {
+        registerPayload =
+          await registerResponse.json();
+      } catch {
+        registerPayload =
+          null;
+      }
+
+      if (
+        !registerResponse.ok
+      ) {
+        setError(
+          getErrorMessage(
+            registerPayload,
+          ) ??
+            "ثبت‌نام انجام نشد.",
+        );
+
+        return;
+      }
+
+    
+
+      const loginResult =
+        await signIn(
+          "credentials",
+          {
+            identifier,
+
+            password:
+              form.password,
+
+            redirect:
+              false,
+          },
+        );
+
+      if (
+        !loginResult ||
+        loginResult.error
+      ) {
+        setError(
+          "حساب ساخته شد، اما ورود خودکار انجام نشد. از صفحه ورود وارد حساب شوید.",
+        );
+
+        return;
+      }
+
+      router.replace(
+        "/dashboard",
+      );
+
+      router.refresh();
+    } catch (
+      registerError
+    ) {
+      console.error(
+        "Register error:",
+        registerError,
+      );
+
+      setError(
+        "ارتباط با سرور برقرار نشد. دوباره تلاش کنید.",
+      );
     } finally {
-      setIsLoading(false);
+      setIsLoading(
+        false,
+      );
     }
   }
 
@@ -126,14 +345,15 @@ export default function RegisterForm() {
         justify-center
         overflow-hidden
         bg-[#F7F9FB]
-        py-8
+        px-4
+        py-10
         text-[#191C1E]
       "
       style={{
-        fontFamily: "var(--font-vazirmatn)",
+        fontFamily:
+          "var(--font-vazirmatn)",
       }}
     >
-      {/* Top right green glow */}
       <div
         aria-hidden="true"
         className="
@@ -146,12 +366,9 @@ export default function RegisterForm() {
           rounded-full
           bg-[#00837833]
           blur-[100px]
-          md:-right-14
-          md:-top-24
         "
       />
 
-      {/* Bottom left purple glow */}
       <div
         aria-hidden="true"
         className="
@@ -164,562 +381,516 @@ export default function RegisterForm() {
           rounded-full
           bg-[#8A4CFC33]
           blur-[100px]
-          md:-bottom-20
-          md:-left-16
         "
       />
 
-      <div className="relative z-10 w-full max-w-[448px] px-4">
-        {/* Brand */}
+      <div
+        className="
+          relative
+          z-10
+          w-full
+          max-w-[448px]
+        "
+      >
         <header
           className="
-            mx-auto
-            flex
-            h-[84px]
-            w-full
-            max-w-[416px]
-            flex-col
-            items-center
-            gap-2
-            pb-2
+            mb-7
             text-center
             text-[#00685F]
           "
         >
-          <div
+          <h1
             className="
-              h-11
-              text-[36px]
+              text-[34px]
               font-bold
-              leading-[44px]
               tracking-[-0.9px]
             "
             style={{
-              fontFamily: "var(--font-plus-jakarta-sans)",
+              fontFamily:
+                "var(--font-plus-jakarta-sans)",
             }}
           >
             Navan AI
-          </div>
+          </h1>
 
-          <p className="h-6 text-base font-normal leading-6">
+          <p
+            className="
+              mt-1
+              text-base
+            "
+          >
             همراه زبان تو
           </p>
         </header>
 
-        {/* Registration card */}
         <section
           className="
-            mx-auto
-            box-border
-            flex
-            min-h-[669px]
-            w-full
-            max-w-[416px]
-            flex-col
-            gap-[23.5px]
-            rounded-xl
+            rounded-3xl
             border
-            border-[#E2E8F0CC]
-            bg-[#FFFFFFE5]
-            px-8
-            pb-8
-            pt-[23px]
-            shadow-[0_4px_20px_0_#0000000A]
-            backdrop-blur-[12px]
+            border-[#DCE5E3]
+            bg-white/95
+            p-6
+            shadow-[0_24px_70px_rgba(0,59,54,0.08)]
+            backdrop-blur
+            sm:p-8
           "
         >
-          <h1
-            className="
-              h-[30px]
-              text-center
-              text-[22px]
-              font-bold
-              leading-[30px]
-              text-[#191C1E]
-            "
-          >
-            ایجاد حساب کاربری
-          </h1>
+          <div className="text-center">
+            <h2
+              className="
+                text-2xl
+                font-bold
+                text-[#263330]
+              "
+            >
+              ساخت حساب کاربری
+            </h2>
+
+            <p
+              className="
+                mt-2
+                text-sm
+                leading-6
+                text-[#6D7A77]
+              "
+            >
+              برای شروع مسیر یادگیری،
+              اطلاعات حساب خود را وارد کنید.
+            </p>
+          </div>
 
           <form
-            onSubmit={handleRegister}
+            onSubmit={
+              handleRegister
+            }
             noValidate
             className="
-              flex
-              min-h-[412px]
-              w-full
-              flex-col
-              gap-4
+              mt-7
+              space-y-5
             "
           >
-            {/* Name */}
-            <div className="flex h-[79px] flex-col gap-2">
+            <div>
               <label
-                htmlFor="username"
-                className={fieldLabelClass}
+                htmlFor="name"
+                className="
+                  text-sm
+                  font-bold
+                  text-[#3D4947]
+                "
               >
                 نام و نام خانوادگی
               </label>
 
-              <div className="relative h-[55px]">
+              <div className="relative mt-2">
                 <User
                   aria-hidden="true"
                   className="
-                    pointer-events-none
                     absolute
-                    right-3
+                    right-4
                     top-1/2
                     h-4
                     w-4
                     -translate-y-1/2
                     text-[#6D7A77]
                   "
-                  strokeWidth={1.7}
                 />
 
                 <input
-                  id="username"
-                  name="username"
+                  id="name"
+                  name="name"
                   type="text"
-                  value={form.username}
-                  onChange={(event) =>
-                    updateField("username", event.target.value)
+                  value={
+                    form.name
                   }
+                  onChange={(
+                    event,
+                  ) => {
+                    updateField(
+                      "name",
+                      event.target.value,
+                    );
+                  }}
                   autoComplete="name"
-                  disabled={isLoading}
-                  placeholder="نام خود را وارد کنید"
+                  disabled={
+                    isLoading
+                  }
+                  placeholder="مثلاً مجتبی شعبانی"
                   className={`
                     ${fieldInputClass}
-                    h-[55px]
-                    py-3.5
-                    pl-3
-                    pr-10
-                    text-right
-                    leading-none
+                    pr-11
                   `}
                 />
               </div>
             </div>
 
-            {/* Email */}
-            <div className="flex h-[73px] flex-col gap-2">
+            <div>
               <label
-                htmlFor="email"
-                className={fieldLabelClass}
+                htmlFor="identifier"
+                className="
+                  text-sm
+                  font-bold
+                  text-[#3D4947]
+                "
               >
-                ایمیل
+                ایمیل یا شماره تلفن
               </label>
 
-              <div className="relative h-[49px]">
+              <div className="relative mt-2">
                 <Mail
                   aria-hidden="true"
                   className="
-                    pointer-events-none
                     absolute
-                    right-3
+                    right-4
                     top-1/2
-                    h-[17px]
-                    w-[17px]
+                    h-4
+                    w-4
                     -translate-y-1/2
                     text-[#6D7A77]
                   "
-                  strokeWidth={1.7}
                 />
 
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
+                  id="identifier"
+                  name="identifier"
+                  type="text"
                   dir="ltr"
-                  value={form.email}
-                  onChange={(event) =>
-                    updateField("email", event.target.value)
+                  value={
+                    form.identifier
                   }
-                  autoComplete="email"
+                  onChange={(
+                    event,
+                  ) => {
+                    updateField(
+                      "identifier",
+                      event.target.value,
+                    );
+                  }}
+                  autoComplete="username"
                   autoCapitalize="none"
                   spellCheck={false}
-                  disabled={isLoading}
-                  placeholder="name@example.com"
+                  disabled={
+                    isLoading
+                  }
+                  placeholder="you@example.com"
                   className={`
                     ${fieldInputClass}
-                    h-[49px]
-                    py-3.5
-                    pl-3
-                    pr-10
+                    pr-11
                     text-left
-                    leading-[19px]
                   `}
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                  }}
                 />
               </div>
             </div>
 
-            {/* Password */}
-            <div className="flex h-[73px] flex-col gap-2">
+            <div>
               <label
                 htmlFor="password"
-                className={fieldLabelClass}
+                className="
+                  text-sm
+                  font-bold
+                  text-[#3D4947]
+                "
               >
                 رمز عبور
               </label>
 
-              <div className="relative h-[49px]">
+              <div className="relative mt-2">
                 <Lock
                   aria-hidden="true"
                   className="
-                    pointer-events-none
                     absolute
-                    right-3
+                    right-4
                     top-1/2
-                    h-[17px]
-                    w-[17px]
+                    h-4
+                    w-4
                     -translate-y-1/2
                     text-[#6D7A77]
                   "
-                  strokeWidth={1.7}
                 />
 
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? "text" : "password"}
-                  dir="ltr"
-                  value={form.password}
-                  onChange={(event) =>
-                    updateField("password", event.target.value)
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
                   }
+                  dir="ltr"
+                  value={
+                    form.password
+                  }
+                  onChange={(
+                    event,
+                  ) => {
+                    updateField(
+                      "password",
+                      event.target.value,
+                    );
+                  }}
                   autoComplete="new-password"
-                  disabled={isLoading}
+                  disabled={
+                    isLoading
+                  }
                   placeholder="••••••••"
                   className={`
                     ${fieldInputClass}
-                    h-[49px]
-                    py-3.5
-                    pl-10
-                    pr-10
+                    px-11
                     text-left
-                    leading-[19px]
                   `}
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                  }}
                 />
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPassword((visible) => !visible)
+                  onClick={() => {
+                    setShowPassword(
+                      (current) =>
+                        !current,
+                    );
+                  }}
+                  disabled={
+                    isLoading
                   }
-                  disabled={isLoading}
                   aria-label={
                     showPassword
                       ? "پنهان کردن رمز عبور"
                       : "نمایش رمز عبور"
                   }
-                  aria-pressed={showPassword}
                   className="
                     absolute
                     left-3
                     top-1/2
                     flex
-                    h-[19px]
-                    w-[19px]
+                    h-8
+                    w-8
                     -translate-y-1/2
                     items-center
                     justify-center
+                    rounded-lg
                     text-[#6D7A77]
-                    transition-colors
-                    duration-300
-                    ease-out
+                    transition
+                    hover:bg-[#EFF5F3]
                     hover:text-[#00685F]
-                    focus-visible:outline-none
-                    focus-visible:ring-2
-                    focus-visible:ring-[#00685F]/25
-                    disabled:cursor-not-allowed
                   "
                 >
                   {showPassword ? (
-                    <Eye
-                      aria-hidden="true"
-                      className="h-[19px] w-[19px]"
-                      strokeWidth={1.7}
-                    />
-                  ) : (
                     <EyeOff
                       aria-hidden="true"
-                      className="h-[19px] w-[19px]"
-                      strokeWidth={1.7}
+                      className="h-4 w-4"
+                    />
+                  ) : (
+                    <Eye
+                      aria-hidden="true"
+                      className="h-4 w-4"
                     />
                   )}
                 </button>
               </div>
+
+              <p
+                className="
+                  mt-2
+                  text-xs
+                  leading-5
+                  text-[#7A8683]
+                "
+              >
+                حداقل ۸ کاراکتر؛ قوانین
+                نهایی رمز عبور توسط Backend
+                نیز بررسی می‌شوند.
+              </p>
             </div>
 
-            {/* Confirm password */}
-            <div className="flex h-[81px] flex-col gap-2 pb-2">
+            <div>
               <label
                 htmlFor="confirmPassword"
-                className={fieldLabelClass}
+                className="
+                  text-sm
+                  font-bold
+                  text-[#3D4947]
+                "
               >
                 تکرار رمز عبور
               </label>
 
-              <div className="relative h-[49px]">
-                <RotateCcw
+              <div className="relative mt-2">
+                <Lock
                   aria-hidden="true"
                   className="
-                    pointer-events-none
                     absolute
-                    right-3
+                    right-4
                     top-1/2
-                    h-[17px]
-                    w-[17px]
+                    h-4
+                    w-4
                     -translate-y-1/2
                     text-[#6D7A77]
                   "
-                  strokeWidth={1.7}
                 />
 
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="password"
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
+                  }
                   dir="ltr"
-                  value={form.confirmPassword}
-                  onChange={(event) =>
+                  value={
+                    form.confirmPassword
+                  }
+                  onChange={(
+                    event,
+                  ) => {
                     updateField(
                       "confirmPassword",
                       event.target.value,
-                    )
-                  }
+                    );
+                  }}
                   autoComplete="new-password"
-                  disabled={isLoading}
+                  disabled={
+                    isLoading
+                  }
                   placeholder="••••••••"
                   className={`
                     ${fieldInputClass}
-                    h-[49px]
-                    py-3.5
-                    pl-10
-                    pr-10
+                    pr-11
                     text-left
-                    leading-[19px]
                   `}
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                  }}
                 />
               </div>
             </div>
 
-            {error ? (
-              <p
-                role="alert"
-                aria-live="polite"
+            <label
+              className="
+                flex
+                cursor-pointer
+                items-start
+                gap-3
+                text-sm
+                leading-6
+                text-[#596562]
+              "
+            >
+              <input
+                type="checkbox"
+                checked={
+                  acceptedTerms
+                }
+                onChange={(
+                  event,
+                ) => {
+                  setAcceptedTerms(
+                    event.target.checked,
+                  );
+
+                  if (error) {
+                    setError("");
+                  }
+                }}
+                disabled={
+                  isLoading
+                }
                 className="
-                  rounded-lg
+                  mt-1
+                  h-4
+                  w-4
+                  accent-[#00685F]
+                "
+              />
+
+              <span>
+                قوانین استفاده و سیاست
+                حریم خصوصی Navan را
+                می‌پذیرم.
+              </span>
+            </label>
+
+            {error ? (
+              <div
+                role="alert"
+                className="
+                  rounded-xl
                   border
                   border-red-200
                   bg-red-50
-                  px-3
-                  py-2
-                  text-center
-                  text-xs
-                  leading-5
+                  px-4
+                  py-3
+                  text-sm
+                  leading-6
                   text-red-700
                 "
               >
                 {error}
-              </p>
+              </div>
             ) : null}
 
-            {/* Submit */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={
+                isLoading
+              }
               className="
-                h-[42px]
+                inline-flex
+                h-12
                 w-full
-                rounded-lg
-                border
-                border-black
+                items-center
+                justify-center
+                gap-2
+                rounded-xl
                 bg-[#00685F]
-                px-4
-                py-3
-                text-center
+                px-5
                 text-sm
                 font-bold
-                leading-4
-                tracking-[0.14px]
                 text-white
-                shadow-[0_1px_2px_0_#0000000D]
-                transition-[background-color,transform,opacity]
-                duration-300
-                ease-out
-                hover:bg-[#005F57]
-                active:scale-[0.995]
+                transition
+                hover:bg-[#00574F]
+                focus-visible:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-[#00685F]/30
                 disabled:cursor-not-allowed
                 disabled:opacity-60
               "
             >
-              {isLoading ? "در حال ثبت نام..." : "ثبت نام"}
+              {isLoading ? (
+                <>
+                  <LoaderCircle
+                    aria-hidden="true"
+                    className="
+                      h-4
+                      w-4
+                      animate-spin
+                    "
+                  />
+
+                  در حال ساخت حساب...
+                </>
+              ) : (
+                "ساخت حساب کاربری"
+              )}
             </button>
           </form>
 
-          {/* Divider */}
-          <div
+          <p
             className="
-              flex
-              h-[14px]
-              w-full
-              items-center
-            "
-            aria-hidden="true"
-          >
-            <span
-              className="
-                h-px
-                flex-1
-                border-t
-                border-[#BCC9C6]
-              "
-            />
-
-            <span
-              className="
-                h-[14px]
-                w-24
-                shrink-0
-                px-4
-                text-center
-                text-xs
-                font-normal
-                leading-[14px]
-                tracking-[0.6px]
-                text-[#6D7A77]
-              "
-            >
-              یا ثبت نام با
-            </span>
-
-            <span
-              className="
-                h-px
-                flex-1
-                border-t
-                border-[#BCC9C6]
-              "
-            />
-          </div>
-
-          {/* Social login */}
-          <div
-            className="
-              flex
-              h-[42px]
-              w-full
-              gap-4
-            "
-            dir="rtl"
-          >
-            <button
-              type="button"
-              aria-label="ثبت نام با گوگل"
-              className="
-                flex
-                h-[42px]
-                flex-1
-                items-center
-                justify-center
-                rounded-lg
-                border
-                border-[#BCC9C6]
-                bg-white
-                px-4
-                py-2.5
-                text-[#191C1E]
-                transition-[border-color,box-shadow,transform]
-                duration-300
-                ease-out
-                hover:border-[#93A6A1]
-                hover:shadow-sm
-                active:scale-[0.99]
-                focus-visible:outline-none
-                focus-visible:ring-2
-                focus-visible:ring-[#00685F]/20
-              "
-            >
-              <GoogleIcon />
-            </button>
-
-            <button
-              type="button"
-              aria-label="ثبت نام با اپل"
-              className="
-                flex
-                h-[42px]
-                flex-1
-                items-center
-                justify-center
-                rounded-lg
-                border
-                border-[#BCC9C6]
-                bg-white
-                px-4
-                py-2.5
-                text-[#111827]
-                transition-[border-color,box-shadow,transform]
-                duration-300
-                ease-out
-                hover:border-[#93A6A1]
-                hover:shadow-sm
-                active:scale-[0.99]
-                focus-visible:outline-none
-                focus-visible:ring-2
-                focus-visible:ring-[#00685F]/20
-              "
-            >
-              <AppleIcon />
-            </button>
-          </div>
-
-          {/* Login link */}
-          <div
-            className="
-              flex
-              h-5
-              w-full
-              items-center
-              justify-center
+              mt-6
               text-center
               text-sm
-              font-normal
-              leading-5
-              text-[#3D4947]
+              text-[#66726F]
             "
           >
-            <span>قبلاً حساب کاربری دارید؟&nbsp;</span>
-
+            قبلاً حساب ساخته‌اید؟{" "}
             <Link
               href="/login"
               className="
-                leading-4
-                tracking-[0.14px]
-                text-[#0D9488]
-                transition-colors
-                duration-300
-                ease-out
-                hover:text-[#00685F]
-                focus-visible:rounded-sm
-                focus-visible:outline-none
-                focus-visible:ring-2
-                focus-visible:ring-[#0D9488]/25
+                font-bold
+                text-[#00796F]
+                transition
+                hover:text-[#005F57]
               "
             >
               وارد شوید
             </Link>
-          </div>
+          </p>
         </section>
       </div>
     </main>
