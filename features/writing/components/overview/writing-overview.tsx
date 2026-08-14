@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, BookOpenText, PenTool } from "lucide-react";
+import { ArrowLeft, BookOpenText, History, PenTool } from "lucide-react";
 
 import { Card } from "../../../../components/ui/card";
 
@@ -106,6 +106,31 @@ export function WritingOverview({ overview }: WritingOverviewProps) {
                 </p>
               </div>
             ))}
+          </div>
+        </Card>
+      </section>
+
+      <section>
+        <Card className="p-6" dir="rtl">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
+                <History aria-hidden="true" className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">تاریخچه نوشته‌ها</h3>
+                <p className="mt-2 text-sm leading-7 text-slate-400">
+                  مشاهده نوشته‌های قبلی، تحلیل‌های AI، اشتباهات و اصلاحات گذشته
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/writing/history"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-950 transition hover:bg-cyan-300"
+              aria-label="مشاهده تاریخچه نوشته‌ها"
+            >
+              <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+            </Link>
           </div>
         </Card>
       </section>
