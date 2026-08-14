@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  usePathname,
-} from "next/navigation";
-
+import { usePathname } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -13,12 +10,11 @@ import {
 
 import Header from "../../layout/header";
 import Sidebar from "../../layout/sidebar";
+import { cn } from "../../lib/utils/cn";
 
-type DashboardShellProps =
-  Readonly<{
-    children:
-      ReactNode;
-  }>;
+type DashboardShellProps = Readonly<{
+  children: ReactNode;
+}>;
 
 export type DashboardAppearance =
   | "dark"
@@ -27,38 +23,20 @@ export type DashboardAppearance =
 export default function DashboardShell({
   children,
 }: DashboardShellProps) {
-  const pathname =
-    usePathname();
+  const pathname = usePathname();
 
-  const [
-    isSidebarOpen,
-    setIsSidebarOpen,
-  ] =
+  const [isSidebarOpen, setIsSidebarOpen] =
     useState(false);
 
-  /**
-   * فعلاً فقط صفحه Overview بخش Reading
-   * بر اساس UI جدید Figma روشن می‌شود.
-   *
-   * Resource / Upload / Library تا زمانی
-   * که UI خودشان بازطراحی نشده، Dark
-   * باقی می‌مانند.
-   */
-  const appearance:
-    DashboardAppearance =
-      pathname === "/reading"
-        ? "light"
-        : "dark";
+  const appearance: DashboardAppearance =
+    pathname === "/reading/library"
+      ? "light"
+      : "dark";
 
   const closeSidebar =
-    useCallback(
-      (): void => {
-        setIsSidebarOpen(
-          false,
-        );
-      },
-      [],
-    );
+    useCallback((): void => {
+      setIsSidebarOpen(false);
+    }, []);
 
   useEffect(() => {
     if (!isSidebarOpen) {
@@ -66,13 +44,9 @@ export default function DashboardShell({
     }
 
     function handleEscapeKey(
-      event:
-        KeyboardEvent,
+      event: KeyboardEvent,
     ): void {
-      if (
-        event.key ===
-        "Escape"
-      ) {
+      if (event.key === "Escape") {
         closeSidebar();
       }
     }
@@ -110,47 +84,28 @@ export default function DashboardShell({
         "overflow",
       );
     };
-  }, [
-    isSidebarOpen,
-  ]);
+  }, [isSidebarOpen]);
 
   return (
     <div
       dir="rtl"
-      data-dashboard-appearance={
-        appearance
-      }
-      className={
-        appearance ===
-        "light"
-          ? `
-            min-h-dvh
-            bg-[#F7F9FB]
-            text-[#191C1E]
-          `
-          : `
-            min-h-dvh
-            bg-[#041121]
-            text-white
-          `
-      }
+      className={cn(
+        "min-h-dvh",
+        appearance === "light"
+          ? "bg-[#F7F9FB] text-[#191C1E]"
+          : "bg-[#041121] text-white",
+      )}
     >
       <Header
-        appearance={
-          appearance
-        }
+        appearance={appearance}
         setIsSidebarOpen={
           setIsSidebarOpen
         }
       />
 
       <Sidebar
-        appearance={
-          appearance
-        }
-        isSidebarOpen={
-          isSidebarOpen
-        }
+        appearance={appearance}
+        isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={
           setIsSidebarOpen
         }
@@ -158,33 +113,24 @@ export default function DashboardShell({
 
       <main
         id="main-content"
-        className={
-          appearance ===
-          "light"
-            ? `
-              min-h-dvh
-              px-4
-              pb-20
-              pt-20
-              sm:px-6
-              lg:mr-72
-              lg:px-8
-              lg:pt-20
-            `
-            : `
-              min-h-dvh
-              px-4
-              pb-10
-              pt-24
-              sm:px-6
-              lg:mr-72
-              lg:px-8
-            `
-        }
+        className={cn(
+          "min-h-dvh",
+          "px-4 pb-16",
+          "sm:px-6",
+          "lg:mr-72 lg:px-8",
+          appearance === "light"
+            ? [
+                "bg-[#F7F9FB]",
+                "pt-[104px]",
+              ]
+            : [
+                "bg-[#041121]",
+                "pt-24",
+              ],
+        )}
       >
         {children}
       </main>
     </div>
-  
   );
 }

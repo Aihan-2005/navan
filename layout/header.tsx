@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-
 import {
   Bell,
+  Languages,
   Menu,
   Search,
   Settings,
@@ -11,78 +11,144 @@ import {
 
 import UserProfile from "../components/auth/userProfile/page";
 
-import type {
-  DashboardAppearance,
-} from "../components/ui/dashboard-shell";
+type HeaderAppearance =
+  | "dark"
+  | "light";
 
-type HeaderProps =
-  Readonly<{
-    appearance?:
-      DashboardAppearance;
+type HeaderProps = Readonly<{
+  setIsSidebarOpen: (
+    open: boolean,
+  ) => void;
+  appearance?: HeaderAppearance;
+}>;
 
-    setIsSidebarOpen:
-      (
-        open: boolean,
-      ) =>void;
-  }>;
-
-export default function Header({
-  appearance = "dark",
+function LightHeader({
   setIsSidebarOpen,
-}: HeaderProps) {
-  if (
-    appearance ===
-    "light"
-  ) {
-    return (
-      <header
-        dir="rtl"
+}: Pick<
+  HeaderProps,
+  "setIsSidebarOpen"
+>) {
+  return (
+    <header
+      className="
+        fixed left-0 right-0
+        top-0 z-[80] h-20
+        border-b border-[#D9E1E0]
+        bg-[#F7F9FB]/95
+        px-4 backdrop-blur-lg
+        sm:px-6
+        lg:right-72 lg:px-8
+        [font-family:var(--font-vazirmatn)]
+      "
+      dir="rtl"
+    >
+      <div
         className="
-          fixed
-          left-0
-          right-0
-          top-0
-          z-[80]
-          h-16
-          border-b
-          border-[#DCE5E3]
-          bg-white/95
-          px-4
-          backdrop-blur-xl
-          sm:px-6
-          lg:right-72
-          lg:px-8"
+          mx-auto grid h-full
+          w-full max-w-[936px]grid-cols-[auto_minmax(0,1fr)_auto]
+          items-center gap-4
+          lg:grid-cols-[minmax(170px,1fr)_minmax(260px,470px)_minmax(170px,1fr)]
+        "
+        dir="ltr"
       >
         <div
           className="
-            mx-auto
-            flex
-            h-full
-            w-full
-            max-w-[1000px]
-            items-center
-            gap-4
+            flex items-center
+            justify-start gap-2
           "
+          dir="rtl"
+        >
+          <UserProfile appearance="light" />
+
+          <button
+            type="button"
+            aria-label="اعلان‌ها"
+            className="
+              relative flex h-10 w-10
+              items-center justify-center
+              rounded-xl text-[#3D4947]
+              transition
+              hover:bg-[#E9EEEF]
+            "
+          >
+            <Bell
+              aria-hidden="true"
+              className="h-5 w-5"
+              strokeWidth={1.8}
+            />
+ <span
+              aria-hidden="true"
+              className="
+                absolute right-[9px]
+                top-[8px]
+                h-1.5 w-1.5
+                rounded-full
+                bg-[#E64B4B]
+              "
+            />
+          </button>
+        </div>
+
+        <label
+          className="
+            relative hidden
+            h-10 w-full
+            sm:block
+          "
+          dir="rtl"
+        >
+          <span className="sr-only">
+            جستجو
+          </span>
+
+          <Search
+            aria-hidden="true"
+            className="
+              absolute right-4
+              top-1/2 h-[18px]
+              w-[18px]
+              -translate-y-1/2
+              text-[#65726F]
+            "
+            strokeWidth={1.8}
+          />
+
+          <input
+            type="search"
+            placeholder="جستجوی درس، کلمات یا تمرین‌ها..."
+            className="
+              h-full w-full
+              rounded-full border-0
+              bg-[#F0F3F4]
+              pr-11 pl-4
+              text-right text-xs
+              text-[#26312F]
+              outline-none
+              placeholder:text-[#77827F]
+              focus:ring-2
+              focus:ring-[#00897F]/15
+            " />
+        </label>
+
+        <div
+          className="
+            flex justify-end
+          "
+          dir="rtl"
         >
           <button
             type="button"
             onClick={() => {
-              setIsSidebarOpen(
-                true,
-              );
+              setIsSidebarOpen(true);
             }}
             aria-label="باز کردن منو"
             className="
-              flex
-              h-10
-              w-10
-              shrink-0
-              items-center
-              justify-center
+              flex h-10 w-10
+              items-center justify-center
               rounded-xl
-              text-[#596562]
-              transitionhover:bg-[#EFF5F3]
-              hover:text-[#00685F]
+              text-[#3D4947]
+              transition
+              hover:bg-[#E9EEEF]
               lg:hidden
             "
           >
@@ -91,268 +157,128 @@ export default function Header({
               className="h-5 w-5"
             />
           </button>
-
-          <div
-            className="
-              hidden
-              min-w-0
-              flex-1
-              justify-center
-              md:flex
-            "
-          >
-            <label
-              className="
-                flex
-                h-9
-                w-full
-                max-w-[430px]
-                items-center
-                gap-2
-                rounded-full
-                borderborder-[#E2E8F0]
-                bg-[#F8FAFC]
-                px-4
-                text-[#64748B]
-                transition
-                focus-within:border-[#9BCBC6]
-                focus-within:bg-white
-              "
-            >
-              <Search
-                aria-hidden="true"
-                className="
-                  h-4
-                  w-4
-                  shrink-0
-                "
-              />
-
-              <input
-                type="search"
-                aria-label="جستجو"
-                placeholder="جستجوی درس، کلمات یا تمرین‌ها..."
-                className="
-                  min-w-0
-                  flex-1
-                  bg-transparent
-                  text-xs
-                  text-[#334155]
-                  outline-none
-                  placeholder:text-[#94A3B8]
-                "/>
-            </label>
-          </div>
-
-          <div
-            className="
-              mr-auto
-              flex
-              shrink-0
-              items-center
-              gap-1
-              sm:gap-2
-            "
-          >
-            <button
-              type="button"
-              aria-label="اعلان‌ها"
-              className="
-                relative
-                flex
-                h-10
-                w-10
-                items-center
-                justify-center
-                rounded-xl
-                text-[#596562]
-                transition
-                hover:bg-[#EFF5F3]
-                hover:text-[#00685F]
-              ">
-              <Bell
-                aria-hidden="true"
-                className="h-[18px] w-[18px]"
-              />
-
-              <span
-                aria-hidden="true"
-                className="
-                  absolute
-                  right-[9px]
-                  top-[8px]
-                  h-2
-                  w-2
-                  rounded-full
-                  border-2
-                  border-white
-                  bg-red-500
-                "
-              />
-            </button>
-
-            <Link
-              href="/settings"
-              aria-label="تنظیمات"
-              className="
-                hidden
-                h-10
-                w-10
-                items-center
-                justify-center
-                rounded-xl
-                text-[#596562]
-                transition
-                hover:bg-[#EFF5F3]
-                hover:text-[#00685F]
-                sm:flex
-              "
-            >
-              <Settings
-                aria-hidden="true"
-                className="h-[18px] w-[18px]"
-              />
-            </Link>
-
-            <UserProfile
-              appearance="light"
-            />
-          </div>
         </div>
-      </header>);
-  }
+      </div>
+    </header>
+  );
+}
 
+function DarkHeader({
+  setIsSidebarOpen,
+}: Pick<
+  HeaderProps,
+  "setIsSidebarOpen"
+>) {
   return (
     <header
       className="
-        fixed
-        inset-x-0
-        top-0
+        fixed inset-x-0 top-0
         z-[80]
-        border-b
-        border-white/10
+        border-b border-white/10
         bg-[#0B1221]/85
-        px-4
-        py-4
-        backdrop-blur-lg
-        lg:px-8
+        px-4 py-4
+        backdrop-blur-lg lg:px-8
       "
       dir="rtl"
     >
       <div
         className="
-          flex
-          items-center
-          justify-between
-          gap-4
+          flex items-center
+          justify-between gap-4
         "
       >
         <div
           className="
-            flex
-            items-center
-            gap-x-4
+            flex items-center gap-4
           "
         >
           <button
             type="button"
+            onClick={() => {
+              setIsSidebarOpen(true);
+            }}
+            aria-label="باز کردن منو"
             className="
-              -m-2.5
-              rounded-lg
-              p-2.5
-              text-gray-300
+              -m-2.5 rounded-lg
+              p-2.5 text-gray-300
               transition
               hover:bg-white/10
               hover:text-white
               lg:hidden
             "
-            onClick={() => {
-              setIsSidebarOpen(
-                true,
-              );
-            }}
-            aria-label="باز کردن منو"
           >
             <Menu
               aria-hidden="true"
               className="h-6 w-6"
             />
           </button>
- <Link
+
+          <Link
             href="/"
             className="
-              hidden
-              items-center
-              gap-3
-              lg:flex
+              hidden items-center
+              gap-3 lg:flex
             "
           >
-            <div
+            <span
               className="
-                flex
-                h-9
-                w-9
-                items-center
-                justify-center
+                flex h-9 w-9
+                items-center justify-center
                 rounded-xl
-                bg-[linear-gradient(135deg,#22d3ee,#2563eb)]
+                bg-gradient-to-brfrom-cyan-400
+                to-blue-600
+                text-white
                 shadow-lg
                 shadow-cyan-500/20
               "
             >
-              <Search
+              <Languages
                 aria-hidden="true"
-                className="
-                  h-5
-                  w-5
-                  text-white
-                "  />
-            </div>
+                className="h-5 w-5"
+              />
+            </span>
 
-            <div>
-              <div
+            <span>
+              <span
                 className="
-                  bg-[linear-gradient(to_right,#67e8f9,#60a5fa)]
+                  block bg-gradient-to-r
+                  from-cyan-300
+                  to-blue-400
                   bg-clip-text
-                  text-lg
-                  font-bold
+                  text-lg font-bold
                   text-transparent
                 "
               >
                 MeowLingo AI
-              </div>
+              </span>
 
-              <div
+              <span
                 className="
-                  text-xs
+                  block text-xs
                   text-slate-400
                 "
               >
                 Your AI Language Mentor
-              </div>
-            </div>
+              </span>
+            </span>
           </Link>
         </div>
 
         <div
           className="
-    flex
-            items-center
-            gap-x-2
-            sm:gap-x-4
+            flex items-center gap-2
+            sm:gap-4
           "
         >
           <button
             type="button"
+            aria-label="اعلان‌ها"
             className="
-              rounded-xl
-              p-2.5
-              text-gray-300
-              transition
+              rounded-xl p-2.5
+              text-gray-300transition
               hover:bg-white/10
               hover:text-white
             "
-            aria-label="اعلان‌ها"
           >
             <Bell
               aria-hidden="true"
@@ -362,15 +288,14 @@ export default function Header({
 
           <Link
             href="/settings"
+            aria-label="تنظیمات"
             className="
-              rounded-xl
-              p-2.5
+              rounded-xl p-2.5
               text-gray-300
               transition
               hover:bg-white/10
               hover:text-white
             "
-            aria-label="تنظیمات"
           >
             <Settings
               aria-hidden="true"
@@ -378,9 +303,32 @@ export default function Header({
             />
           </Link>
 
-          <UserProfile />
+          <UserProfile appearance="dark" />
         </div>
       </div>
     </header>
+  );
+}
+
+export default function Header({
+  setIsSidebarOpen,
+  appearance = "dark",
+}: HeaderProps) {
+  if (appearance === "light") {
+    return (
+      <LightHeader
+        setIsSidebarOpen={
+          setIsSidebarOpen
+        }
+      />
+    );
+  }
+
+   return (
+    <DarkHeader
+      setIsSidebarOpen={
+        setIsSidebarOpen
+      }
+    />
   );
 }
