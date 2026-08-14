@@ -1,127 +1,230 @@
-import { z } from "zod";
+import {
+  z,
+} from "zod";
 
-export const readingCefrLevelSchema = z.enum([
-  "A1",
-  "A2",
-  "B1",
-  "B2",
-  "C1",
-  "C2",
-]);
+export const readingCefrLevelSchema =
+  z.enum([
+    "A1",
+    "A2",
+    "B1",
+    "B2",
+    "C1",
+    "C2",
+  ]);
 
-export const readingResourceTypeSchema = z.enum([
-  "book",
-  "graded_reader",
-  "short_story",
-  "article",
-  "lesson",
-  "image_text",
-  "document",
-]);
+export const readingResourceTypeSchema =
+  z.enum([
+    "book",
+    "graded_reader",
+    "short_story",
+    "article",
+    "lesson",
+    "image_text",
+    "document",
+  ]);
 
-export const readingSourceTypeSchema = z.enum([
-  "platform",
-  "user_upload",
-]);
+export const readingSourceTypeSchema =
+  z.enum([
+    "platform",
+    "user_upload",
+  ]);export const readingResourceStatusSchema =
+  z.enum([
+    "ready",
+    "processing",
+    "coming_soon",
+    "failed",
+  ]);
 
-export const readingResourceStatusSchema = z.enum([
-  "ready",
-  "processing",
-  "coming_soon",
-  "failed",
-]);
+export const readingInsightTypeSchema =
+  z.enum([
+    "strength",
+    "weakness",
+    "recommendation",
+    "achievement",
+  ]);
 
-export const readingInsightTypeSchema = z.enum([
-  "strength",
-  "weakness",
-  "recommendation",
-  "achievement",
-]);
+export const readingProcessingStatusSchema =
+  z.enum([
+    "queued",
+    "extracting",
+    "analyzing",
+    "segmenting",
+    "generating_audio",
+    "ready",
+    "failed",
+  ]);
 
-export const readingProcessingStatusSchema = z.enum([
-  "queued",
-  "extracting",
-  "analyzing",
-  "segmenting",
-  "generating_audio",
-  "ready",
-  "failed",
-]);
+export const readingSectionStatusSchema =
+  z.enum([
+    "locked",
+    "available",
+    "in_progress",
+    "completed",
+  ]);
 
-export const readingSectionStatusSchema = z.enum([
-  "locked",
-  "available",
-  "in_progress",
-  "completed",
-]);
+export const readingAudioStatusSchema =
+  z.enum([
+    "not_started",
+    "generating",
+    "ready",
+    "failed",
+  ]);
 
-export const readingAudioStatusSchema = z.enum([
-  "not_started",
-  "generating",
-  "ready",
-  "failed",
-]);
+export const readingSourceFileKindSchema =
+  z.enum([
+    "pdf",
+    "docx",
+    "txt",
+    "image",
+  ]);
 
-export const readingSourceFileKindSchema = z.enum([
-  "pdf",
-  "docx",
-  "txt",
-  "image",
-]);
+export const readingResourceSummarySchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-export const readingResourceSummarySchema = z.object({
-  id: z.string().trim().min(1),
+    title: z
+  .string()
+      .trim()
+      .min(1),
 
-  title: z.string().trim().min(1),
-  author: z.string().trim().min(1).nullable(),
-  description: z.string().trim().min(1).nullable(),
+    author: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable(),
 
-  resourceType: readingResourceTypeSchema,
-  sourceType: readingSourceTypeSchema,
-  status: readingResourceStatusSchema,
+    description: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable(),
 
-  languageCode: z.string().trim().min(2).max(10),
-  cefrLevel: readingCefrLevelSchema,
+    resourceType:
+      readingResourceTypeSchema,
 
-  coverImageUrl: z.string().trim().min(1).nullable(),
+    sourceType:
+      readingSourceTypeSchema,
 
-  estimatedMinutes: z.number().int().positive(),
-  totalSections: z.number().int().positive(),
-  completedSections: z.number().int().nonnegative(),
-  progressPercent: z.number().min(0).max(100),
+    status:readingResourceStatusSchema,
 
-  topics: z
-    .array(z.string().trim().min(1))
-    .default([]),
+    languageCode: z
+      .string()
+      .trim()
+      .min(2)
+      .max(10),
 
-  learningFocuses: z
-    .array(z.string().trim().min(1))
-    .default([]),
+    cefrLevel:
+      readingCefrLevelSchema,
 
-  isFeatured: z.boolean(),
-});
+    coverImageUrl: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable(),
 
-export const readingSectionSummarySchema = z.object({
-  id: z.string().trim().min(1),
-  order: z.number().int().positive(),
+    estimatedMinutes: z
+      .number()
+      .int()
+      .positive(),
 
-  title: z.string().trim().min(1),
-  summary: z.string().trim().min(1),
+    totalSections: z
+      .number()
+      .int()
+      .positive(),
 
-  wordCount: z.number().int().nonnegative(),
-  estimatedMinutes: z.number().int().positive(),
+    completedSections: z
+      .number()
+      .int()
+     .nonnegative(),
 
-  status: readingSectionStatusSchema,
-  audioStatus: readingAudioStatusSchema,
+    progressPercent: z
+      .number()
+      .min(0)
+      .max(100),
 
-  vocabularyCount: z.number().int().nonnegative(),
-  grammarPointCount: z.number().int().nonnegative(),
-});
+    topics: z
+      .array(
+        z
+          .string()
+          .trim()
+          .min(1),
+      )
+      .default([]),
+
+    learningFocuses: z
+      .array(
+        z
+          .string()
+          .trim()
+          .min(1),
+      )
+      .default([]),
+
+    isFeatured:
+      z.boolean(),
+  });
+
+export const readingSectionSummarySchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
+
+    order: z
+      .number()
+      .int()
+      .positive(),
+
+    title: z
+      .string()
+      .trim()
+      .min(1),
+
+    summary: z
+      .string()
+      .trim()
+      .min(1),
+
+    wordCount: z
+      .number()
+      .int()
+      .nonnegative(),
+
+    estimatedMinutes: z
+      .number()
+      .int()
+      .positive(),
+
+    status:
+      readingSectionStatusSchema,
+
+    audioStatus:
+      readingAudioStatusSchema,
+
+    vocabularyCount: z
+      .number()
+      .int()
+      .nonnegative(),
+
+    grammarPointCount: z
+      .number()
+      .int()
+      .nonnegative(),
+  });
 
 export const readingResourceDetailSchema =
   readingResourceSummarySchema.extend({
-    processingStatus: readingProcessingStatusSchema,
-    processingProgress: z.number().min(0).max(100),
+    processingStatus:
+      readingProcessingStatusSchema,
+
+    processingProgress: z
+      .number()
+      .min(0)
+      .max(100),
 
     originalFilename: z
       .string()
@@ -129,7 +232,9 @@ export const readingResourceDetailSchema =
       .min(1)
       .nullable(),
 
-    sourceFileKind: readingSourceFileKindSchema.nullable(),
+    sourceFileKind:
+      readingSourceFileKindSchema
+        .nullable(),
 
     mimeType: z
       .string()
@@ -142,166 +247,393 @@ export const readingResourceDetailSchema =
       .int()
       .positive()
       .nullable(),
-
-    totalWords: z.number().int().nonnegative(),
+ totalWords: z
+      .number()
+      .int()
+      .nonnegative(),
 
     sections: z
-      .array(readingSectionSummarySchema)
+      .array(
+        readingSectionSummarySchema,
+      )
       .default([]),
 
     processingWarnings: z
-      .array(z.string().trim().min(1))
+      .array(
+        z
+          .string()
+          .trim()
+          .min(1),
+      )
       .default([]),
 
-    createdAt: z.string().datetime(),
-    updatedAt: z.string().datetime(),
+    createdAt:
+      z.string().datetime(),
+
+    updatedAt:
+      z.string().datetime(),
   });
 
-export const readingStatsSchema = z.object({
-  totalSessions: z.number().int().nonnegative(),
-  weeklyMinutes: z.number().int().nonnegative(),
-  completedSections: z.number().int().nonnegative(),
-  masteredWords: z.number().int().nonnegative(),
-  currentStreakDays: z.number().int().nonnegative(),
-});
+export const readingStatsSchema =
+  z.object({totalSessions: z
+      .number()
+      .int()
+      .nonnegative(),
 
-export const continueReadingSchema = z.object({
-  resourceId: z.string().trim().min(1),
+    weeklyMinutes: z
+      .number()
+      .int()
+      .nonnegative(),
 
-  title: z.string().trim().min(1),
-  currentSectionTitle: z.string().trim().min(1),
+    completedSections: z
+      .number()
+      .int()
+      .nonnegative(),
 
-  completedSections: z.number().int().nonnegative(),
-  totalSections: z.number().int().positive(),
-  progressPercent: z.number().min(0).max(100),
+    masteredWords: z
+      .number()
+      .int()
+      .nonnegative(),
 
-  updatedAt: z.string().datetime(),
-});
+    currentStreakDays: z
+      .number()
+      .int()
+      .nonnegative(),
+  });
 
-export const readingJourneyStepSchema = z.object({
-  id: z.string().trim().min(1),
-  order: z.number().int().positive(),
+export const continueReadingSchema =
+  z.object({
+    resourceId: z
+      .string()
+.trim()
+      .min(1),
 
-  title: z.string().trim().min(1),
-  description: z.string().trim().min(1),
+    title: z
+      .string()
+      .trim()
+      .min(1),
 
-  status: z.enum([
-    "completed",
-    "active",
-    "upcoming",
-  ]),
-});
+    currentSectionId: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .default(null),
 
-export const readingLearningJourneySchema = z.object({
-  title: z.string().trim().min(1),
-  description: z.string().trim().min(1),
+    currentSectionTitle: z
+      .string()
+      .trim()
+      .min(1),
 
-  steps: z
-    .array(readingJourneyStepSchema)
-    .min(1),
-});
+    currentSectionOrder: z
+      .number()
+      .int()
+      .positive()
+      .default(1),
 
-export const readingInsightSchema = z.object({
-  id: z.string().trim().min(1),
-  type: readingInsightTypeSchema,
+    completedSections: z
+      .number()
+      .int()
+      .nonnegative(),
+totalSections: z
+      .number()
+      .int()
+      .positive(),
 
-  title: z.string().trim().min(1),
-  description: z.string().trim().min(1),
+    progressPercent: z
+      .number()
+      .min(0)
+      .max(100),
 
-  actionLabel: z.string().trim().min(1).nullable(),
-  actionHref: z.string().trim().min(1).nullable(),
+    remainingMinutes: z
+      .number()
+      .int()
+      .nonnegative()
+      .default(0),
 
-  createdAt: z.string().datetime(),
-});
+    comprehensionScore: z
+      .number()
+      .min(0)
+      .max(100)
+      .nullable()
+      .default(null),
 
-export const recentReadingActivitySchema = z.object({
-  id: z.string().trim().min(1),
-  resourceId: z.string().trim().min(1),
+    updatedAt:
+      z.string().datetime(),
+  });
 
-  title: z.string().trim().min(1),
-  sectionTitle: z.string().trim().min(1),
+export const readingWeeklyGoalSchema =
+  z.object({
+    targetSections: z
+      .number().int()
+      .positive(),
 
-  durationMinutes: z.number().int().nonnegative(),
-  learnedWords: z.number().int().nonnegative(),
+    completedSections: z
+      .number()
+      .int()
+      .nonnegative(),
 
-  comprehensionScore: z
-    .number()
-    .min(0)
-    .max(100),
+    targetNewWords: z
+      .number()
+      .int()
+      .nonnegative(),
 
-  completedAt: z.string().datetime(),
-});
+    reviewedWords: z
+      .number()
+      .int()
+      .nonnegative(),
+  });
 
-export const readingOverviewSchema = z.object({
-  stats: readingStatsSchema,
+export const readingJourneyStepSchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-  continueReading: continueReadingSchema
-    .nullable()
-    .default(null),
+    order: z
+      .number()
+      .int()
+      .positive(),
 
-  featuredResources: z
-    .array(readingResourceSummarySchema)
-    .default([]),
+    title: z
+      .string()
+      .trim()
+      .min(1),
 
-  recommendedResources: z
-    .array(readingResourceSummarySchema)
-    .default([]),
+    description: z
+      .string()
+      .trim()
+      .min(1),
 
-  learningJourney: readingLearningJourneySchema,
+    status: z.enum([
+      "completed",
+      "active",
+      "upcoming",
+    ]),
+  });
 
-  primaryInsight: readingInsightSchema
-    .nullable()
-    .default(null),
+export const readingLearningJourneySchema =
+  z.object({
+    title: z
+      .string()
+      .trim()
+      .min(1),
 
-  recentActivities: z
-    .array(recentReadingActivitySchema)
-    .default([]),
-});
+    description: z
+      .string()
+      .trim()
+      .min(1),
+steps: z
+      .array(
+        readingJourneyStepSchema,
+      )
+      .min(1),
+  });
 
-export const readingLibrarySchema = z.object({
-  resources: z
-    .array(readingResourceSummarySchema)
-    .default([]),
+export const readingInsightSchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-  total: z.number().int().nonnegative(),
-});
+    type:
+      readingInsightTypeSchema,
 
-export const readingSourceUploadMetadataSchema = z.object({
-  title: z
-    .string()
-    .trim()
+    title: z
+      .string()
+      .trim()
+      .min(1),
+
+    description: z
+      .string()
+      .trim()
+      .min(1),
+
+    actionLabel: z
+      .string()
+      .trim()
     .min(1)
-    .max(160)
-    .nullable()
-    .default(null),
+      .nullable(),
 
-  languageCode: z
-    .string()
-    .trim()
-    .min(2)
-    .max(10)
-    .default("en"),
+    actionHref: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable(),
 
-  cefrLevel: readingCefrLevelSchema
-    .nullable()
-    .default(null),
-});
+    createdAt:
+      z.string().datetime(),
+  });
 
-export const readingSourceUploadResultSchema = z.object({
-  resourceId: z.string().trim().min(1),
+export const recentReadingActivitySchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-  title: z.string().trim().min(1),
+    resourceId: z
+      .string()
+      .trim()
+      .min(1),
 
-  status: z.literal("processing"),
-  processingStatus: readingProcessingStatusSchema,
-  processingProgress: z.number().min(0).max(100),
+    title: z
+      .string()
+      .trim()
+      .min(1),
 
-  originalFilename: z.string().trim().min(1),
-  sourceFileKind: readingSourceFileKindSchema,
+    sectionTitle: z
+      .string()
+      .trim()
+      .min(1),
 
-  warnings: z
-    .array(z.string().trim().min(1))
-    .default([]),
+    durationMinutes: z
+      .number()
+      .int()
+      .nonnegative(),
 
-  createdAt: z.string().datetime(),
-});
+    learnedWords: z
+      .number()
+      .int()
+      .nonnegative(),
+
+    comprehensionScore: z
+      .number()
+      .min(0)
+      .max(100),
+
+    completedAt:
+      z.string().datetime(),
+  });
+
+export const readingOverviewSchema =
+  z.object({
+    stats: readingStatsSchema,
+
+    continueReading:
+      continueReadingSchema
+        .nullable()
+        .default(null),
+
+    weeklyGoal:
+      readingWeeklyGoalSchema
+        .default({
+          targetSections: 4,
+
+          completedSections: 0,
+
+          targetNewWords: 20,
+
+          reviewedWords: 0,
+        }),
+
+    featuredResources: z
+      .array(
+        readingResourceSummarySchema,
+      )
+      .default([]),
+
+    recommendedResources: z
+      .array(
+        readingResourceSummarySchema,
+      )
+      .default([]),
+learningJourney:
+      readingLearningJourneySchema,
+
+    primaryInsight:
+      readingInsightSchema
+        .nullable()
+        .default(null),
+
+    recentActivities: z
+      .array(
+        recentReadingActivitySchema,
+      )
+      .default([]),
+  });
+
+export const readingLibrarySchema =
+  z.object({
+    resources: z
+      .array(
+        readingResourceSummarySchema,
+      )
+      .default([]),
+
+    total: z
+      .number()
+      .int()
+      .nonnegative(),
+  });
+
+export const readingSourceUploadMetadataSchema =
+  z.object({
+    title: z
+      .string()
+      .trim()
+      .min(1)
+      .max(160)
+      .nullable()
+      .default(null),
+
+    languageCode: z
+      .string()
+      .trim()
+      .min(2)
+      .max(10)
+      .default("en"),
+
+    cefrLevel:
+      readingCefrLevelSchema
+        .nullable()
+        .default(null),
+  });
+
+export const readingSourceUploadResultSchema =
+  z.object({
+    resourceId: z
+      .string()
+      .trim()
+      .min(1),
+
+    title: z
+      .string()
+      .trim()
+      .min(1),
+
+    status:
+      z.literal(
+        "processing",
+      ),
+
+    processingStatus:
+      readingProcessingStatusSchema,
+
+    processingProgress: z
+      .number()
+      .min(0)
+      .max(100),
+
+    originalFilename: z
+      .string()
+      .trim()
+      .min(1),
+
+    sourceFileKind:
+      readingSourceFileKindSchema,
+
+    warnings: z
+      .array(
+        z
+          .string()
+          .trim()
+          .min(1),
+      )
+      .default([]),
+
+    createdAt:
+      z.string().datetime(),
+  });

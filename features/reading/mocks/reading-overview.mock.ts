@@ -9,11 +9,14 @@ import {
 } from "./reading-resources.mock";
 
 function findReadingResource(
-  resourceId: string,
+  resourceId:
+    string,
 ): ReadingResourceDetail {
   const resource =
     readingResourcesMock.find(
-      (item) => item.id === resourceId,
+      (item) =>
+        item.id ===
+        resourceId,
     );
 
   if (!resource) {
@@ -26,14 +29,21 @@ function findReadingResource(
 }
 
 function toReadingResourceSummary(
-  resource: ReadingResourceDetail,
+  resource:
+    ReadingResourceDetail,
 ): ReadingResourceSummary {
   return {
-    id: resource.id,
+    id:
+      resource.id,
 
-    title: resource.title,
-    author: resource.author,
-    description: resource.description,
+    title:
+      resource.title,
+
+    author:
+      resource.author,
+
+    description:
+      resource.description,
 
     resourceType:
       resource.resourceType,
@@ -47,7 +57,7 @@ function toReadingResourceSummary(
     languageCode:
       resource.languageCode,
 
-    cefrLevel:
+cefrLevel:
       resource.cefrLevel,
 
     coverImageUrl:
@@ -75,7 +85,6 @@ function toReadingResourceSummary(
       resource.isFeatured,
   };
 }
-
 const sherlockHolmesResource =
   toReadingResourceSummary(
     findReadingResource(
@@ -99,11 +108,15 @@ const habitsResource =
 
 export const readingOverviewMock = {
   stats: {
-    totalSessions: 18,
-    weeklyMinutes: 94,
+    totalSessions: 26,
+
+    weeklyMinutes: 68,
+
     completedSections: 27,
-    masteredWords: 146,
-    currentStreakDays: 5,
+
+ masteredWords: 146,
+
+    currentStreakDays: 6,
   },
 
   continueReading: {
@@ -113,20 +126,35 @@ export const readingOverviewMock = {
     title:
       sherlockHolmesResource.title,
 
+    currentSectionId:
+      "blue-carbuncle-section-2",
+
     currentSectionTitle:
       "بخش دوم: صاحب ناشناس",
 
-    completedSections:
-      sherlockHolmesResource.completedSections,
+    currentSectionOrder: 2,
 
-    totalSections:
-      sherlockHolmesResource.totalSections,
+    completedSections: 1,
 
-    progressPercent:
-      sherlockHolmesResource.progressPercent,
+    totalSections: 5,
 
-    updatedAt:
-      "2026-08-02T12:30:00.000Z",
+    progressPercent: 42,
+
+    remainingMinutes: 12,
+
+    comprehensionScore: 84,
+
+    updatedAt: "2026-08-13T18:30:00.000Z",
+  },
+
+  weeklyGoal: {
+    targetSections: 4,
+
+    completedSections: 2,
+
+    targetNewWords: 20,
+
+    reviewedWords: 8,
   },
 
   featuredResources: [
@@ -140,14 +168,13 @@ export const readingOverviewMock = {
 
   learningJourney: {
     title:
-      "مسیر یادگیری هر متن",
+      "مسیر یادگیری این متن",
 
     description:
-      "هر منبع به بخش‌های کوتاه تبدیل می‌شود و پس از یادگیری هر بخش، مرحله بعد در دسترس قرار می‌گیرد.",
+      "مراحل را به ترتیب برای تسلط کامل طی کنید.",
 
     steps: [
-      {
-        id:
+      {id:
           "reading-journey-read-listen",
 
         order: 1,
@@ -156,10 +183,10 @@ export const readingOverviewMock = {
           "خواندن و شنیدن بخش",
 
         description:
-          "متن کوتاه را بخوان و هم‌زمان صوت طبیعی همان بخش را پخش کن.",
+          "متن کوتاه را بخوان و همزمان صوت طبیعی همان بخش را پخش کن.",
 
         status:
-          "active",
+          "completed",
       },
 
       {
@@ -175,10 +202,9 @@ export const readingOverviewMock = {
           "ساختارهای گرامری، عبارت‌های طبیعی و دلیل اهمیت جمله‌ها را بررسی کن.",
 
         status:
-          "upcoming",
+          "active",
       },
-
-      {
+{
         id:
           "reading-journey-vocabulary",
 
@@ -208,8 +234,7 @@ export const readingOverviewMock = {
 
         status:
           "upcoming",
-      },
-    ],
+      }, ],
   },
 
   primaryInsight: {
@@ -220,24 +245,27 @@ export const readingOverviewMock = {
       "recommendation",
 
     title:
-      "داستان‌های کوتاه B1 انتخاب مناسبی برای تو هستند",
+      "پیشنهاد مربی هوشمند",
 
     description:
-      "در فعالیت‌های اخیر، درک ایده اصلی خوب بوده است؛ اما واژگان توصیفی و عبارت‌های چندکلمه‌ای به تمرین بیشتری نیاز دارند.",
+      "با توجه به پیشرفت اخیر شما در درک مطلب، خواندن داستان‌های کوتاه سطح B1 با تمرکز بر اصطلاحات روزمره پیشنهاد می‌شود.",
 
     actionLabel:
-      "مشاهده کتابخانه",
+      "مشاهده پیشنهادها",
 
+    /**
+     * در این مرحله Library پیشنهادی
+     * را وارد جریان نمی‌کنیم.
+     */
     actionHref:
-      "/reading/library",
+      null,
 
     createdAt:
-      "2026-08-02T08:00:00.000Z",
+      "2026-08-13T08:00:00.000Z",
   },
 
   recentActivities: [
-    {
-      id:
+    {id:
         "reading-activity-001",
 
       resourceId:
@@ -247,35 +275,38 @@ export const readingOverviewMock = {
         sherlockHolmesResource.title,
 
       sectionTitle:
-        "بخش اول: یک کلاه قدیمی",
+        "بخش اول",
 
       durationMinutes: 16,
+
       learnedWords: 11,
+
       comprehensionScore: 84,
 
       completedAt:
-        "2026-08-01T18:20:00.000Z",
+        "2026-08-11T18:20:00.000Z",
     },
 
     {
       id:
         "reading-activity-002",
 
-      resourceId:
-        everydayCafeResource.id,
+      resourceId: everydayCafeResource.id,
 
       title:
         everydayCafeResource.title,
 
       sectionTitle:
-        "بخش اول: ورود و سفارش",
+        "بخش اول",
 
       durationMinutes: 12,
+
       learnedWords: 8,
+
       comprehensionScore: 91,
 
       completedAt:
-        "2026-07-30T14:10:00.000Z",
+        "2026-08-06T14:10:00.000Z",
     },
   ],
 } satisfies ReadingOverviewInput;

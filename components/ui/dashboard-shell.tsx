@@ -1,6 +1,10 @@
 "use client";
 
 import {
+  usePathname,
+} from "next/navigation";
+
+import {
   useCallback,
   useEffect,
   useState,
@@ -10,41 +14,73 @@ import {
 import Header from "../../layout/header";
 import Sidebar from "../../layout/sidebar";
 
-type DashboardShellProps = Readonly<{
-  children: ReactNode;
-}>;
+type DashboardShellProps =
+  Readonly<{
+    children:
+      ReactNode;
+  }>;
 
-/**
- * Interactive shell used by authenticated application routes.
- *
- * Responsibilities:
- * - Rendering the shared header and sidebar
- * - Managing the mobile sidebar state
- * - Locking body scroll while the mobile sidebar is open
- * - Closing the sidebar with the Escape key
- */
+export type DashboardAppearance =
+  | "dark"
+  | "light";
+
 export default function DashboardShell({
   children,
 }: DashboardShellProps) {
-  const [isSidebarOpen, setIsSidebarOpen] =
-    useState<boolean>(false);
+  const pathname =
+    usePathname();
 
-  const closeSidebar = useCallback((): void => {
-    setIsSidebarOpen(false);
-  }, []);
+  const [
+    isSidebarOpen,
+    setIsSidebarOpen,
+  ] =
+    useState(false);
+
+  /**
+   * فعلاً فقط صفحه Overview بخش Reading
+   * بر اساس UI جدید Figma روشن می‌شود.
+   *
+   * Resource / Upload / Library تا زمانی
+   * که UI خودشان بازطراحی نشده، Dark
+   * باقی می‌مانند.
+   */
+  const appearance:
+    DashboardAppearance =
+      pathname === "/reading"
+        ? "light"
+        : "dark";
+
+  const closeSidebar =
+    useCallback(
+      (): void => {
+        setIsSidebarOpen(
+          false,
+        );
+      },
+      [],
+    );
 
   useEffect(() => {
     if (!isSidebarOpen) {
       return;
     }
 
-    function handleEscapeKey(event: KeyboardEvent): void {
-      if (event.key === "Escape") {
+    function handleEscapeKey(
+      event:
+        KeyboardEvent,
+    ): void {
+      if (
+        event.key ===
+        "Escape"
+      ) {
         closeSidebar();
       }
     }
 
-    document.addEventListener("keydown", handleEscapeKey);
+    document.addEventListener(
+      "keydown",
+      handleEscapeKey,
+    );
 
     return () => {
       document.removeEventListener(
@@ -52,44 +88,103 @@ export default function DashboardShell({
         handleEscapeKey,
       );
     };
-  }, [closeSidebar, isSidebarOpen]);
+  }, [
+    closeSidebar,
+    isSidebarOpen,
+  ]);
 
   useEffect(() => {
     if (!isSidebarOpen) {
-      document.body.style.removeProperty("overflow");
+      document.body.style.removeProperty(
+        "overflow",
+      );
+
       return;
     }
 
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+      "hidden";
 
     return () => {
-      document.body.style.removeProperty("overflow");
+      document.body.style.removeProperty(
+        "overflow",
+      );
     };
-  }, [isSidebarOpen]);
+  }, [
+    isSidebarOpen,
+  ]);
 
   return (
     <div
       dir="rtl"
-      className="min-h-dvh bg-[#041121] text-white"
+      data-dashboard-appearance={
+        appearance
+      }
+      className={
+        appearance ===
+        "light"
+          ? `
+            min-h-dvh
+            bg-[#F7F9FB]
+            text-[#191C1E]
+          `
+          : `
+            min-h-dvh
+            bg-[#041121]
+            text-white
+          `
+      }
     >
-      <Header setIsSidebarOpen={setIsSidebarOpen} />
+      <Header
+        appearance={
+          appearance
+        }
+        setIsSidebarOpen={
+          setIsSidebarOpen
+        }
+      />
 
       <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
+        appearance={
+          appearance
+        }
+        isSidebarOpen={
+          isSidebarOpen
+        }
+        setIsSidebarOpen={
+          setIsSidebarOpen
+        }
       />
 
       <main
         id="main-content"
-        className="
-          min-h-dvh
-          px-4 pb-10 pt-24
-          sm:px-6
-          lg:mr-72 lg:px-8
-        "
+        className={
+          appearance ===
+          "light"
+            ? `
+              min-h-dvh
+              px-4
+              pb-20
+              pt-20
+              sm:px-6
+              lg:mr-72
+              lg:px-8
+              lg:pt-20
+            `
+            : `
+              min-h-dvh
+              px-4
+              pb-10
+              pt-24
+              sm:px-6
+              lg:mr-72
+              lg:px-8
+            `
+        }
       >
         {children}
       </main>
     </div>
+  
   );
 }

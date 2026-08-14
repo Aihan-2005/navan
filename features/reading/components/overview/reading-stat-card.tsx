@@ -3,58 +3,60 @@ import type {
 } from "lucide-react";
 
 import {
-  Card,
-} from "../../../../components/ui/card";
-
-import {
   cn,
 } from "../../../../lib/utils/cn";
 
-type ReadingStatCardProps = Readonly<{
-  title: string;
-  value: string;
-  description: string;
+type ReadingStatCardProps =
+  Readonly<{
+    title:
+      string;
 
-  icon: LucideIcon;
+    value:
+      string;
 
-  tone?:
-    | "cyan"
-    | "violet"
-    | "emerald"
-    | "amber";
-}>;
+    description:
+      string;
 
-const toneStyles = {
-  cyan: {
+    icon:
+      LucideIcon;
+
+    tone?:
+      | "teal"
+      | "violet"
+      | "slate"
+      | "orange";
+  }>;
+
+const toneStyles = {teal: {
+    border:
+      "border-x-[#00685F]",
+
     iconWrapper:
-      "bg-cyan-400/10 text-cyan-300",
-
-    glow:
-      "bg-cyan-500/10",
+      "bg-[#D6EDEB] text-[#00685F]",
   },
 
   violet: {
-    iconWrapper:
-      "bg-violet-400/10 text-violet-300",
+    border:
+      "border-x-[#712AE2]",
 
-    glow:
-      "bg-violet-500/10",
+    iconWrapper:
+      "bg-[#E7DDF8] text-[#712AE2]",
   },
 
-  emerald: {
-    iconWrapper:
-      "bg-emerald-400/10 text-emerald-300",
+  slate: {
+    border:
+      "border-x-[#6D7A77]",
 
-    glow:
-      "bg-emerald-500/10",
+    iconWrapper:
+      "bg-[#6C748B]/20 text-[#6C748B]",
   },
 
-  amber: {
-    iconWrapper:
-      "bg-amber-400/10 text-amber-300",
+  orange: {
+    border:
+      "border-x-[#F97316]",
 
-    glow:
-      "bg-amber-500/10",
+    iconWrapper:
+    "bg-[#FFF7ED] text-[#F97316]",
   },
 } as const;
 
@@ -63,50 +65,66 @@ export function ReadingStatCard({
   value,
   description,
   icon: Icon,
-  tone = "cyan",
+  tone = "teal",
 }: ReadingStatCardProps) {
   const selectedTone =
-    toneStyles[tone];
+    toneStyles[
+      tone
+    ];
 
   return (
-    <Card className="relative overflow-hidden p-5">
+    <article
+      className={cn(
+        "flex min-h-[106px] items-center gap-4",
+        "rounded-[24px] border border-[#E2E8F0]",
+        "border-x-[3px]",
+        "bg-white/80 px-5 py-5",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.05)]",
+        "backdrop-blur-xl",
+        selectedTone.border,
+      )}>
       <div
-        aria-hidden="true"
         className={cn(
-          "pointer-events-none absolute -left-14 -top-14",
-          "h-32 w-32 rounded-full blur-3xl",
-          selectedTone.glow,
+          "flex h-12 w-12 shrink-0 items-center justify-center",
+          "rounded-full",
+          selectedTone.iconWrapper,
         )}
-      />
-
-      <div className="relative flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-sm text-slate-400">
-            {title}
-          </p>
-
-          <p className="mt-3 text-2xl font-bold text-white">
-            {value}
-          </p>
-
-          <p className="mt-2 text-xs leading-6 text-slate-600">
-            {description}
-          </p>
-        </div>
-
-        <div
-          className={cn(
-            "flex h-11 w-11 shrink-0",
-            "items-center justify-center rounded-xl",
-            selectedTone.iconWrapper,
-          )}
-        >
-          <Icon
-            aria-hidden="true"
-            className="h-5 w-5"
-          />
-        </div>
+      >
+        <Icon
+          aria-hidden="true"
+          className="h-5 w-5"
+        />
       </div>
-    </Card>
+
+      <div className="min-w-0">
+        <p
+          className="
+            whitespace-nowrap
+            text-sm
+            font-normal
+            leading-5
+            text-[#64748B]
+          "
+        >
+          {title}
+        </p>
+
+        <p
+          className="
+            mt-1
+            text-2xl
+            font-bold
+            leading-8
+            text-[#0F172A]
+          "
+        >
+          {value}
+        </p>
+
+        <span className="sr-only">
+          {description}
+        </span>
+      </div>
+    </article>
   );
 }
