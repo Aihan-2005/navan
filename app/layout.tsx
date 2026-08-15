@@ -3,68 +3,10 @@ import type {
 } from "next";
 
 import {
-  Geist,
-  Geist_Mono,
-  Plus_Jakarta_Sans,
-  Vazirmatn,
-} from "next/font/google";
-
-import {
   Providers,
 } from "../components/auth/providers";
 
 import "../styles/globals.css";
-
-const geistSans =
-  Geist({
-    variable:
-      "--font-geist-sans",
-
-    subsets: [
-      "latin",
-    ],
-
-    display:
-      "swap",
-  });
-
-const geistMono =
-  Geist_Mono({
-    variable:
-      "--font-geist-mono",
-
-    subsets: [
-      "latin",
-    ],
-
-    display:
-      "swap",
-  });
-
-const vazirmatn =
-  Vazirmatn({
-    variable:
-      "--font-vazirmatn",
-
-    subsets: [
-      "arabic",
-    ],
-
-    display:
-      "swap",
-  });
-
-const plusJakartaSans =
-  Plus_Jakarta_Sans({
-    variable:
-      "--font-plus-jakarta-sans",
- subsets: [
-      "latin",
-    ],
-
-    display:
-      "swap",
-  });
 
 export const metadata: Metadata = {
   title: {
@@ -93,13 +35,7 @@ export default function RootLayout({
       lang="fa"
       dir="rtl"
       suppressHydrationWarning
-      className={[
-        geistSans.variable,
-        geistMono.variable,
-        vazirmatn.variable,
-        plusJakartaSans.variable,
-        "h-full",
-      ].join(" ")}
+      className="h-full"
     >
       <body
         className="
@@ -109,7 +45,7 @@ export default function RootLayout({
           text-white
           antialiased
         "
-           >
+      >
         <Providers>
           {children}
         </Providers>

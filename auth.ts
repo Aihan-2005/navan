@@ -6,7 +6,9 @@ import NextAuth from "next-auth";
 
 import Credentials from "next-auth/providers/credentials";
 
-import { z } from "zod";
+import {
+  z,
+} from "zod";
 
 import {
   BackendAuthError,
@@ -26,6 +28,34 @@ const ACCESS_TOKEN_FALLBACK_LIFETIME_MS =
 
 const ACCESS_TOKEN_REFRESH_SKEW_MS =
   30 * 1000;
+
+/**
+ * Temporary demo account.
+ *
+ * برای Preview و Vercel فعلاً فعال است.
+ * بعداً با اتصال کامل Backend فقط کافی است:
+ *
+ * ENABLE_DEMO_AUTH=false
+ *
+ * را در Environment قرار دهیم.
+ */
+const DEMO_AUTH_ENABLED =
+  process.env.ENABLE_DEMO_AUTH !==
+  "false";
+
+const DEMO_AUTH_IDENTIFIER =
+  (
+    process.env
+      .DEMO_AUTH_IDENTIFIER ??
+    "admin@test.com"
+  )
+    .trim()
+    .toLowerCase();
+
+const DEMO_AUTH_PASSWORD =
+  process.env
+    .DEMO_AUTH_PASSWORD ??
+  "123456";
 
 const credentialsSchema =
   z.object({
@@ -55,7 +85,8 @@ const jwtExpirationPayloadSchema =
   });
 
 function normalizeNullableString(
-  value: unknown,
+  value:
+    unknown,
 ): string | null {
   if (
     typeof value !==
@@ -73,15 +104,39 @@ function normalizeNullableString(
 }
 
 function normalizeRole(
-  value: unknown,
+  value:
+    unknown,
 ): AppUserRole {
-  return value === "admin"
+  return value ===
+    "admin"
     ? "admin"
     : "user";
 }
 
+function isDemoCredentials(
+  identifier:
+    string,
+  password:
+    string,
+): boolean {
+  if (
+    !DEMO_AUTH_ENABLED
+  ) {
+    return false;
+  }
+
+  return (
+    identifier
+      .trim() .toLowerCase() ===
+      DEMO_AUTH_IDENTIFIER &&
+    password ===
+      DEMO_AUTH_PASSWORD
+  );
+}
+
 function getAccessTokenExpirationMs(
-  accessToken: string,
+  accessToken:
+    string,
 ): number {
   try {
     const parts =
@@ -124,8 +179,6 @@ function getAccessTokenExpirationMs(
       1000
     );
   } catch {
- 
-
     return (
       Date.now() +
       ACCESS_TOKEN_FALLBACK_LIFETIME_MS
@@ -134,18 +187,18 @@ function getAccessTokenExpirationMs(
 }
 
 async function refreshAccessToken(
-  token: JWT,
+  token:
+    JWT,
 ): Promise<JWT> {
   const refreshToken =
     token.backendRefreshToken;
 
+  /**
+   * Demo Session هیچ Backend Token ندارد.
+   * بنابراین وارد Refresh Flow نمی‌شود.
+   */
   if (!refreshToken) {
-    return {
-      ...token,
-
-      authError:
-        "RefreshAccessTokenError",
-    };
+    return token;
   }
 
   try {
@@ -159,8 +212,7 @@ async function refreshAccessToken(
 
       backendAccessToken:
         refreshed.access,
-
-      backendRefreshToken:
+backendRefreshToken:
         refreshed.refresh ??
         refreshToken,
 
@@ -190,7 +242,7 @@ async function refreshAccessToken(
 const credentialsProvider =
   Credentials({
     name:
-      "Backend Credentials",
+      "Credentials",
 
     credentials: {
       identifier: {
@@ -206,8 +258,7 @@ const credentialsProvider =
           "Password",
 
         type:
-          "password",
-      },
+          "password", },
     },
 
     async authorize(
@@ -222,11 +273,60 @@ const credentialsProvider =
         return null;
       }
 
+      const {
+        identifier,
+        password,
+      } = parsed.data;
+
+      /**
+       * Temporary Vercel / Preview account
+       *
+       * admin@test.com
+       * 123456
+       */
+      if (
+        isDemoCredentials(
+          identifier,
+          password,
+        )
+      ) {
+        return {
+          id:"demo-admin",
+
+          name:
+            "Admin Demo",
+
+          email:
+            DEMO_AUTH_IDENTIFIER,
+
+          image:
+            null,
+
+          username:
+            "admin",
+
+          identifier:
+            DEMO_AUTH_IDENTIFIER,
+
+          role:
+            "admin",
+        };
+      }
+
+      /**
+       * سایر کاربران همچنان از Backend
+       * واقعی احراز هویت می‌شوند.
+       *
+       * بنابراین بعداً برای حذف Demo
+       * نیاز به بازطراحی Auth نداریم.
+       */
       try {
         const response =
-          await loginBackendUser(
-            parsed.data,
-          );
+          await loginBackendUser({
+            identifier,
+
+            password,
+          });
 
         const {
           user,
@@ -237,8 +337,7 @@ const credentialsProvider =
           id:
             user.id,
 
-          name:
-            user.name,
+          name:  user.name,
 
           email:
             user.identifier.includes(
@@ -279,7 +378,6 @@ const credentialsProvider =
           error.statusCode <
             500
         ) {
-       
           return null;
         }
 
@@ -295,7 +393,7 @@ const credentialsProvider =
 
 const authResult =
   NextAuth({
-    secret:
+ secret:
       process.env.AUTH_SECRET,
 
     trustHost:
@@ -314,7 +412,6 @@ const authResult =
         "/login",
     },
 
-  
     providers: [
       credentialsProvider,
     ],
@@ -324,7 +421,9 @@ const authResult =
         token,
         user,
       }) {
- 
+        /**
+         * Initial sign in.
+         */
         if (user) {
           token.id =
             user.id ??
@@ -361,16 +460,17 @@ const authResult =
           return token;
         }
 
- 
-        
+        /**
+         * Demo Session یا Session بدون
+         * Backend Token نیاز به Refresh ندارد.
+         */
         if (
           !token.backendAccessToken ||
           !token.backendRefreshToken
         ) {
           return token;
         }
-
-        const expiresAt =
+ const expiresAt =
           token.backendAccessTokenExpiresAt;
 
         if (
@@ -416,8 +516,7 @@ const authResult =
             token.role,
           );
 
-    
-        session.authError =
+          session.authError =
           token.authError;
 
         return session;
@@ -441,3 +540,4 @@ export const {
   GET,
   POST,
 } = handlers;
+      
