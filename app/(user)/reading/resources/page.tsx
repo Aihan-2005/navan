@@ -8,26 +8,19 @@ import {
 
 import {
   ReadingMyResources,
-} from "../../../../features/reading/components/resources/reading-my-resources";
+} from "../../../../features/reading/components/resource/reading-my-resources";
 
 export const metadata: Metadata = {
   title:
     "منابع من",
 
   description:
-    "مدیریت و مشاهده منابع شخصی Reading.",
+    "مدیریت و مشاهده متون و فایل‌های شخصی شما برای یادگیری.",
 };
 
-/**
- * My Resources یک صفحه user-specific است.
- *
- * حتی در Mock Mode نیز آن را Static
- * prerender نمی‌کنیم تا بعداً اتصال به
- * Backend/Auth بدون تغییر معماری Route
- * انجام شود.
- */
 export const dynamic =
   "force-dynamic";
+
 export default async function ReadingResourcesPage() {
   const data =
     await getReadingMyResources();
@@ -35,6 +28,5 @@ export default async function ReadingResourcesPage() {
   return (
     <ReadingMyResources
       data={data}
-    />
-  );
+    />  );
 }

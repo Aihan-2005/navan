@@ -23,12 +23,12 @@ import {
 type ReadingMyResourcesProps =
   Readonly<{
     data:
-      ReadingMyResourcesData;
-  }>;
+      ReadingMyResourcesData;}>;
 
 const numberFormatter =
   new Intl.NumberFormat(
-    "fa-IR", );
+    "fa-IR",
+  );
 
 export function ReadingMyResources({
   data,
@@ -52,8 +52,7 @@ export function ReadingMyResources({
       <header
         className="
           min-h-[72px]
-          pb-2
-        "
+          pb-2 "
       >
         <h1
           id="my-reading-resources-title"
@@ -67,7 +66,8 @@ export function ReadingMyResources({
         >
           منابع من
         </h1>
-<p
+
+        <p
           className="
             mt-3
             text-base
@@ -82,8 +82,7 @@ export function ReadingMyResources({
 
       <section
         aria-label="آمار منابع شخصی"
-        className="
-          grid
+        className=" grid
           gap-4
           md:grid-cols-3
           md:gap-6
@@ -97,7 +96,8 @@ export function ReadingMyResources({
             )
           }
           icon={
-            Files}
+            Files
+          }
           tone="teal"
         />
 
@@ -127,11 +127,10 @@ export function ReadingMyResources({
           tone="teal"
         />
       </section>
-<section
+
+      <section
         aria-label="لیست منابع شخصی"
-        className="
-          pt-4
-        "
+        className="pt-4"
       >
         <div
           className="
@@ -157,7 +156,8 @@ export function ReadingMyResources({
           <NewReadingResourceCard />
         </div>
       </section>
-    </main> );
+    </main>
+  );
 }
 
 function ResourceStatCard({
@@ -168,7 +168,8 @@ function ResourceStatCard({
 }: Readonly<{
   title: string;
 
-  value: string;
+  value:
+    string;
 
   icon:
     LucideIcon;
@@ -189,12 +190,12 @@ function ResourceStatCard({
         bg-white
         p-6
         shadow-[0_4px_20px_rgba(0,0,0,0.04)]
-      ">
+      "
+    >
       <span
         className={cn(
           "flex",
-          "h-12 w-12",
-          "shrink-0",
+          "h-12 w-12","shrink-0",
           "items-center",
           "justify-center",
           "rounded-xl",
@@ -209,18 +210,15 @@ function ResourceStatCard({
                 "bg-[#008378]/10",
                 "text-[#008378]",
               ],
-        )}>
+        )}
+      >
         <Icon
           aria-hidden="true"
           className="h-5 w-5"
         />
       </span>
 
-      <div
-        className="
-          min-w-0
-        "
-      >
+      <div className="min-w-0">
         <p
           className="
             whitespace-nowrap
@@ -232,7 +230,9 @@ function ResourceStatCard({
           "
         >
           {title}
-        </p> <p
+        </p>
+
+        <p
           className="
             mt-1
             whitespace-nowrap
@@ -252,22 +252,20 @@ function ResourceStatCard({
 
 function NewReadingResourceCard() {
   return (
-    <Link
-      href="/reading/upload"
+    <Link href="/reading/upload"
       className="
         flex
         min-h-[280px]
         flex-col
         items-center
         justify-center
-        self-start
         rounded-2xl
         border-2
         border-dashed
         border-[#BCC9C6]
         bg-[#F2F4F6]
         px-6
-        py-[59px]
+        py-[56px]
         text-center
         transition
         hover:border-[#008378]
@@ -276,7 +274,8 @@ function NewReadingResourceCard() {
         focus-visible:ring-2
         focus-visible:ring-[#008378]/20
       "
-    ><span
+    >
+      <span
         className="
           flex
           h-16
@@ -291,7 +290,10 @@ function NewReadingResourceCard() {
       >
         <Plus
           aria-hidden="true"
-          className="h-[18px] w-[18px]"
+          className="
+            h-[18px]
+            w-[18px]
+          "
         />
       </span>
 
@@ -306,8 +308,9 @@ function NewReadingResourceCard() {
       >
         منبع جدید
       </h2>
- <p
-        className="
+
+      <p
+   className="
           mt-2
           max-w-[200px]
           text-sm

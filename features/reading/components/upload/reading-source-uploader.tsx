@@ -1,11 +1,17 @@
 "use client";
 
+import Link from "next/link";
+
 import {
+  Check,
+  CheckCircle2,
+  ChevronLeft,
   FileText,
   Image as ImageIcon,
   LoaderCircle,
   RotateCcw,
   ShieldCheck,
+  Sparkles,
   Trash2,
   UploadCloud,
 } from "lucide-react";
@@ -14,10 +20,6 @@ import {
   useRef,
   useState,
 } from "react";
-
-import {
-  Card,
-} from "../../../../components/ui/card";
 
 import {
   cn,
@@ -34,6 +36,10 @@ import {
 } from "../../constants/reading.constants";
 
 import type {
+  ReadingCefrLevel,
+} from "../../types/reading.types";
+
+import type {
   ReadingUploadMetadata,
   ReadingUploadResult,
 } from "../../types/reading-upload.types";
@@ -42,59 +48,75 @@ import {
   validateReadingSourceFile,
 } from "../../utils/validate-reading-source-file";
 
-import {
-  ReadingUploadProgress,
-  type ReadingUploadUiPhase,
-} from "./reading-upload-progress";
-
-import {
-  ReadingUploadSettings,
-} from "./reading-upload-settings";
+type UploadPhase =
+  | "idle"
+  | "uploading"
+  | "processing"
+  | "error";
 
 const DEFAULT_METADATA:
   ReadingUploadMetadata = {
-  title: null,
+  title:null,
 
-  languageCode: "en",
+  languageCode:
+    "en",
 
-  cefrLevel: null,
+  cefrLevel:
+    null,
 
   options: {
-    analysisMode: "deep",
+    analysisMode:
+      "deep",
 
     sectionLength:
       "balanced",
 
-    generateAudio: true,
+    generateAudio:
+      true,
 
-    extractVocabulary: true,
+    extractVocabulary:
+      true,
 
-    extractGrammar: true,
+    extractGrammar:
+      true,
 
-    generateQuestions: true,
+    generateQuestions:
+      true,
 
-    questionsPerSection: 3,
+    questionsPerSection:
+      3,
   },
-};
+};const CEFR_LEVELS:
+  readonly ReadingCefrLevel[] =
+    [
+      "A1",
+      "A2",
+      "B1",
+      "B2",
+      "C1",
+      "C2",
+    ];
 
 const numberFormatter =
   new Intl.NumberFormat(
     "fa-IR",
     {
-      maximumFractionDigits: 1,
+      maximumFractionDigits:
+        1,
     },
   );
 
 function formatFileSize(
-  bytes: number,
+  bytes:
+    number,
 ): string {
   const megabytes =
-    bytes / (1024 * 1024);
+    bytes /
+    (1024 * 1024);
 
   if (megabytes >= 1) {
     return `${numberFormatter.format(
-      megabytes,
-    )} مگابایت`;
+      megabytes,    )} مگابایت`;
   }
 
   return `${numberFormatter.format(
@@ -103,7 +125,8 @@ function formatFileSize(
 }
 
 function getFileTitle(
-  filename: string,
+  filename:
+    string,
 ): string {
   return filename.replace(
     /\.[^.]+$/u,
@@ -120,9 +143,7 @@ export function ReadingSourceUploader() {
   const abortControllerRef =
     useRef<AbortController | null>(
       null,
-    );
-
-  const [
+    );const [
     file,
     setFile,
   ] =
@@ -142,19 +163,20 @@ export function ReadingSourceUploader() {
     phase,
     setPhase,
   ] =
-    useState<ReadingUploadUiPhase>(
+    useState<UploadPhase>(
       "idle",
     );
 
   const [
     uploadProgress,
     setUploadProgress,
-  ] = useState(0);
-
-  const [
+  ] =
+    useState(0);
+const [
     isDragging,
     setIsDragging,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     errorMessage,
@@ -173,17 +195,52 @@ export function ReadingSourceUploader() {
     );
 
   const isUploading =
-    phase === "uploading";
+    phase ===
+    "uploading";
 
   const fileValidation =
     file
       ? validateReadingSourceFile(
           file,
-        )
-      : null;
+        ): null;
+
+  function updateMetadata(
+    patch:
+      Partial<ReadingUploadMetadata>,
+  ): void {
+    setMetadata(
+      (current) => ({
+        ...current,
+        ...patch,
+      }),
+    );
+  }
+
+  function updateOption<
+    TKey extends keyof ReadingUploadMetadata["options"],
+  >(
+    key:
+      TKey,
+    value:
+      ReadingUploadMetadata["options"][TKey],
+  ): void {
+    setMetadata(
+      (current) => ({
+        ...current,
+
+        options: {
+          ...current.options,
+
+          [key]:
+            value,
+        },
+      }),
+    );
+  }
 
   function selectFile(
-    selectedFile: File,
+    selectedFile:
+      File,
   ): void {
     const validation =
       validateReadingSourceFile(
@@ -191,15 +248,18 @@ export function ReadingSourceUploader() {
       );
 
     if (!validation.success) {
-      setFile(null);
+      setFile(
+        null,
+      );
 
-      setResult(null);
+      setResult(
+        null,
+      );
 
       setErrorMessage(
         validation.message,
       );
-
-      setPhase(
+setPhase(
         "error",
       );
 
@@ -212,20 +272,27 @@ export function ReadingSourceUploader() {
       selectedFile,
     );
 
-    setUploadProgress(0);
+    setUploadProgress(
+      0,
+    );
 
-    setResult(null);
+    setResult(
+      null,
+    );
 
-    setErrorMessage(null);
+    setErrorMessage(
+      null,
+    );
 
-    setPhase("idle");
-
-    setMetadata(
-      (currentMetadata) => ({
-        ...currentMetadata,
+    setPhase(
+      "idle",
+    );
+setMetadata(
+      (current) => ({
+        ...current,
 
         title:
-          currentMetadata.title ??
+          current.title ??
           getFileTitle(
             selectedFile.name,
           ),
@@ -234,25 +301,37 @@ export function ReadingSourceUploader() {
   }
 
   function removeFile(): void {
-    if (isUploading) {
+    if (
+      isUploading
+    ) {
       return;
     }
 
-    setFile(null);
+    setFile(
+      null,
+    );
 
-    setResult(null);
+    setResult(
+      null,
+    );
 
-    setUploadProgress(0);
+    setUploadProgress(
+      0,
+    );setErrorMessage(
+      null,
+    );
 
-    setErrorMessage(null);
-
-    setPhase("idle");
+    setPhase(
+      "idle",
+    );
 
     setMetadata(
       DEFAULT_METADATA,
     );
 
-    if (inputRef.current) {
+    if (
+      inputRef.current
+    ) {
       inputRef.current.value =
         "";
     }
@@ -264,23 +343,34 @@ export function ReadingSourceUploader() {
     abortControllerRef.current =
       null;
 
-    setFile(null);
-
-    setMetadata(
-      DEFAULT_METADATA,
+    setFile(
+      null,
     );
 
-    setPhase("idle");
+    setMetadata( DEFAULT_METADATA,
+    );
 
-    setUploadProgress(0);
+    setPhase(
+      "idle",
+    );
 
-    setIsDragging(false);
+    setUploadProgress(
+      0,
+    );
 
-    setErrorMessage(null);
+    setIsDragging(
+      false,
+    );
 
-    setResult(null);
+    setErrorMessage(
+      null,
+    );
 
-    if (inputRef.current) {
+    setResult(
+      null,
+    ); if (
+      inputRef.current
+    ) {
       inputRef.current.value =
         "";
     }
@@ -292,20 +382,28 @@ export function ReadingSourceUploader() {
     abortControllerRef.current =
       null;
 
-    setPhase("idle");
+    setPhase(
+      "idle",
+    );
 
-    setUploadProgress(0);
+    setUploadProgress(
+      0,
+    );
 
-    setErrorMessage(null);
+    setErrorMessage(
+      null,
+    );
   }
 
   async function handleSubmit(): Promise<void> {
     if (!file) {
       setErrorMessage(
-        "ابتدا فایل موردنظر را انتخاب کن.",
+        "ابتدا فایل موردنظر را انتخاب کابتدا فایل موردنظر را انتخاب کن.",
       );
 
-      setPhase("error");
+      setPhase(
+        "error",
+      );
 
       return;
     }
@@ -320,7 +418,9 @@ export function ReadingSourceUploader() {
         validation.message,
       );
 
-      setPhase("error");
+      setPhase(
+        "error",
+      );
 
       return;
     }
@@ -333,13 +433,21 @@ export function ReadingSourceUploader() {
     abortControllerRef.current =
       controller;
 
-    setUploadProgress(0);
+    setUploadProgress(
+      0,
+    );
 
-    setErrorMessage(null);
+    setErrorMessage(
+      null,
+    );
 
-    setResult(null);
+    setResult(
+      null,
+    );
 
-    setPhase("uploading");
+    setPhase(
+      "uploading",
+    );
 
     try {
       const uploadResult =
@@ -365,7 +473,9 @@ export function ReadingSourceUploader() {
         return;
       }
 
-      setUploadProgress(100);
+      setUploadProgress(
+        100,
+      );
 
       setResult(
         uploadResult,
@@ -376,10 +486,14 @@ export function ReadingSourceUploader() {
       );
     } catch (error) {
       if (
-        error instanceof DOMException &&
-        error.name === "AbortError"
+        error instanceof
+          DOMException &&
+        error.name ===
+          "AbortError"
       ) {
-        setPhase("idle");
+        setPhase(
+          "idle",
+        );
 
         return;
       }
@@ -395,7 +509,9 @@ export function ReadingSourceUploader() {
           : "آپلود فایل ناموفق بود.",
       );
 
-      setPhase("error");
+      setPhase(
+        "error",
+      );
     } finally {
       if (
         abortControllerRef.current ===
@@ -410,97 +526,301 @@ export function ReadingSourceUploader() {
   return (
     <main
       aria-labelledby="reading-upload-title"
+      style={{
+        fontFamily:
+          "var(--font-vazirmatn)",
+      }}
       className="
-        mx-auto w-full
-        max-w-6xl space-y-6
+        mx-auto
+        w-full
+        max-w-[936px]
+        pb-8
+        text-[#191C1E]
       "
     >
+      <header
+        className="
+          min-h-[72px]
+          pb-2
+        "
+      >
+        <h1
+          id="reading-upload-title"
+          className="
+            text-[28px]
+            font-bold
+            leading-9
+            tracking-[-0.01em]
+            text-[#191C1E]
+          "
+        >
+          افزودن منبع
+        </h1>
+
+        <p
+          className="
+            mt-3
+            text-base
+            font-normal
+            leading-6
+            text-[#3D4947]
+          "
+        >
+          فایل شخصی خود را اضافه کن تا متن استخراج، سطح‌بندی و برای مطالعه آماده شود.
+        </p>
+      </header>
+
+      <input
+        ref={
+          inputRef
+        }
+        type="file"
+        accept={
+          READING_SOURCE_ACCEPT
+        }
+        disabled={
+          isUploading
+        }
+        className="sr-only"
+        aria-label="انتخاب فایل Reading"
+        onChange={(
+          event,
+        ) => {
+          const selectedFile =
+            event.target.files?.[0];
+
+          if (
+            selectedFile
+          ) {
+            selectFile(
+              selectedFile,
+            );
+          }
+
+          event.target.value =
+            "";
+        }}
+      />
+
       <section
         className="
-          relative overflow-hidden
-          rounded-3xl border
-          border-cyan-400/15
-          bg-white/[0.035]
-          p-6 sm:p-8
+          mt-6
+          rounded-2xl
+          border
+          border-[#BCC9C6]/40
+          bg-white
+          p-6
+          shadow-[0_4px_20px_rgba(0,0,0,0.04)]
+          sm:p-8
         "
       >
         <div
-          aria-hidden="true"
-          className="
-            pointer-events-none
-            absolute -left-24 -top-24
-            h-64 w-64
-            rounded-full
-            bg-cyan-500/15
-            blur-3xl
-          "
-        />
+          role="button"
+          tabIndex={
+            isUploading
+              ? -1
+              : 0
+          }
+          aria-disabled={
+            isUploading
+          }
+          onClick={() => {
+            if (
+              !isUploading
+            ) {
+              inputRef.current?.click();
+            }
+          }}
+          onKeyDown={(
+            event,
+          ) => {
+            if (
+              isUploading
+            ) {
+              return;
+            }
 
-        <div className="relative">
-          <div
+            if (
+              event.key ===
+                "Enter" ||
+              event.key ===
+                " "
+            ) {
+              event.preventDefault();
+
+              inputRef.current?.click();
+            }
+          }}
+          onDragOver={(
+            event,
+          ) => {
+            event.preventDefault();
+
+            if (
+              isUploading
+            ) {
+              return;
+            }
+
+            event.dataTransfer.dropEffect =
+              "copy";
+
+            setIsDragging(
+              true,
+            );
+          }}
+          onDragLeave={() => {
+            setIsDragging(
+              false,
+            );
+          }}
+          onDrop={(
+            event,
+          ) => {
+            event.preventDefault();
+
+            setIsDragging(
+              false,
+            );
+
+            if (
+              isUploading
+            ) {
+              return;
+            }
+
+            const droppedFile =
+              event.dataTransfer.files[0];
+
+            if (
+              droppedFile
+            ) {
+              selectFile(
+                droppedFile,
+              );
+            }
+          }}
+          className={cn(
+            "flex",
+            "min-h-[260px]",
+            "cursor-pointer",
+            "flex-col",
+            "items-center",
+            "justify-center",
+            "rounded-2xl",
+            "border-2",
+            "border-dashed",
+            "px-6",
+            "text-center",
+            "transition",
+
+            isDragging
+              ? [
+                  "border-[#008378]",
+                  "bg-[#EDF8F6]",
+                ]
+              : [
+                  "border-[#BCC9C6]",
+                  "bg-[#F7F9FB]",
+                  "hover:border-[#008378]",
+                  "hover:bg-[#F0F8F7]",
+                ],
+
+            isUploading &&
+              "cursor-not-allowed opacity-70",
+          )}
+        >
+          <span
             className="
-              flex items-center
-              gap-2 text-cyan-300
+              flex
+              h-16
+              w-16
+              items-center
+              justify-center
+              rounded-full
+              bg-white
+              text-[#00685F]
+              shadow-[0_1px_2px_rgba(0,0,0,0.06)]
             "
           >
             <UploadCloud
               aria-hidden="true"
-              className="h-5 w-5"
-            />
-
-            <span
               className="
-                text-sm font-medium
+                h-7
+                w-7
               "
-            >
-              Reading Upload
-            </span>
-          </div>
+            />
+          </span>
 
-          <h1
-            id="reading-upload-title"
+          <h2
             className="
-              mt-3 text-3xl
-              font-bold text-white
-              sm:text-4xl
+              mt-5
+              text-[20px]
+              font-bold
+              leading-7
+              text-[#191C1E]
             "
           >
-            منبع خودت را به درس تعاملی تبدیل کن
-          </h1>
+            فایل را اینجا رها کن
+          </h2>
 
           <p
             className="
-              mt-4 max-w-3xl
-              text-sm leading-8
-              text-slate-400
+              mt-2
+              text-sm
+              leading-6
+              text-[#64748B]
             "
           >
-            فایل را Upload کن؛ AI متن را
-            استخراج می‌کند، سطح را تشخیص
-            می‌دهد، سختی محتوا را تحلیل
-            می‌کند، Section می‌سازد و
-            واژگان، Grammar، صوت و سؤال‌های
-            درک مطلب تولید می‌کند.
+            یا برای انتخاب فایل از سیستم کلیک کن
           </p>
+
+          <span
+            className="
+              mt-5
+              inline-flex
+              h-9
+              items-center
+              justify-center
+              rounded-lg
+              bg-[#00685F]
+              px-5
+              text-sm
+              font-bold
+              text-white
+              shadow-[0_1px_2px_rgba(0,0,0,0.05)]
+            "
+          >
+            انتخاب فایل
+          </span>
 
           <div
             className="
-              mt-5 flex
-              flex-wrap gap-2
+              mt-5
+              flex
+              flex-wrap
+              items-center
+              justify-center
+              gap-2
             "
           >
             {READING_SUPPORTED_UPLOAD_LABELS.map(
               (label) => (
                 <span
-                  key={label}
+                  key={
+                    label
+                  }
                   className="
-                    rounded-full
+                    rounded
                     border
-                    border-white/[0.06]
-                    bg-white/[0.03]
-                    px-2.5 py-1
+                    border-[#BCC9C6]/50
+                    bg-white
+                    px-2
+                    py-1
                     text-[10px]
-                    text-slate-500
+                    font-medium
+                    tracking-[0.05em]
+                    text-[#64748B]
                   "
                 >
                   {label}
@@ -509,411 +829,909 @@ export function ReadingSourceUploader() {
             )}
           </div>
         </div>
-      </section>
 
-      <div
-        className="
-          grid gap-6
-          lg:grid-cols-12
-        "
-      >
-        <Card
-          className="
-            p-5 sm:p-6
-            lg:col-span-7
-          "
-        >
-          <input
-            ref={inputRef}
-            type="file"
-            accept={
-              READING_SOURCE_ACCEPT
-            }
-            disabled={isUploading}
-            className="sr-only"
-            aria-label="انتخاب فایل Reading"
-            onChange={(event) => {
-              const selectedFile =
-                event.target.files?.[0];
-
-              if (selectedFile) {
-                selectFile(
-                  selectedFile,
-                );
-              }
-
-              event.target.value =
-                "";
-            }}
-          />
-
+        {file &&
+        fileValidation?.success ? (
           <div
-            role="button"
-            tabIndex={
-              isUploading
-                ? -1
-                : 0
-            }
-            aria-disabled={
-              isUploading
-            }
-            onClick={() => {
-              if (!isUploading) {
-                inputRef.current?.click();
-              }
-            }}
-            onKeyDown={(event) => {
-              if (isUploading) {
-                return;
-              }
-
-              if (
-                event.key ===
-                  "Enter" ||
-                event.key === " "
-              ) {
-                event.preventDefault();
-
-                inputRef.current?.click();
-              }
-            }}
-            onDragOver={(event) => {
-              event.preventDefault();
-
-              if (isUploading) {
-                return;
-              }
-
-              event.dataTransfer.dropEffect =
-                "copy";
-
-              setIsDragging(true);
-            }}
-            onDragLeave={() => {
-              setIsDragging(false);
-            }}
-            onDrop={(event) => {
-              event.preventDefault();
-
-              setIsDragging(false);
-
-              if (isUploading) {
-                return;
-              }
-
-              const droppedFile =
-                event.dataTransfer
-                  .files[0];
-
-              if (droppedFile) {
-                selectFile(
-                  droppedFile,
-                );
-              }
-            }}
-            className={cn(
-              "rounded-2xl border-2",
-              "border-dashed px-5",
-              "py-10 text-center",
-              "transition",
-
-              isDragging
-                ? [
-                    "border-cyan-300/50",
-                    "bg-cyan-400/10",
-                  ]
-                : [
-                    "border-white/[0.09]",
-                    "bg-white/[0.02]",
-                    "hover:border-cyan-300/25",
-                    "hover:bg-cyan-400/[0.04]",
-                  ],
-
-              isUploading &&
-                "pointer-events-none opacity-60",
-            )}
+            className="
+              mt-5
+              flex
+              items-center
+              gap-4
+              rounded-xl
+              border
+              border-[#BCC9C6]/40
+              bg-[#F7F9FB]
+              p-4
+            "
           >
-            <div
+            <span
               className="
-                mx-auto flex h-16 w-16
+                flex
+                h-12
+                w-12
+                shrink-0
                 items-center
                 justify-center
-                rounded-2xl
-                bg-cyan-400/10
-                text-cyan-300
+                rounded-xl
+                bg-[#008378]/10
+                text-[#00685F]
               "
             >
-              <UploadCloud
-                aria-hidden="true"
-                className="h-8 w-8"
-              />
-            </div>
+              {fileValidation.fileKind ===
+              "image" ? (
+                <ImageIcon
+                  aria-hidden="true"
+                  className="
+                    h-5
+                    w-5
+                  "
+                />
+              ) : (
+                <FileText
+                  aria-hidden="true"
+                  className="
+                    h-5
+                    w-5
+                  "
+                />
+              )}
+            </span>
 
-            <p
-              className="
-                mt-4 text-sm
-                font-bold
-                text-slate-200
-              "
-            >
-              فایل را اینجا رها کن
-            </p>
-
-            <p
-              className="
-                mt-2 text-xs
-                text-slate-500
-              "
-            >
-              یا برای انتخاب فایل کلیک کن
-            </p>
-
-            <p
-              className="
-                mt-4 text-[11px]
-                text-slate-700
-              "
-            >
-              PDF، DOCX، TXT، JPG،
-              PNG و WEBP
-            </p>
-          </div>
-
-          {file &&
-          fileValidation?.success ? (
             <div
               className="
-                mt-5 flex
-                items-center gap-4
-                rounded-2xl border
-                border-white/[0.07]
-                bg-white/[0.025]
-                p-4
+                min-w-0
+                flex-1
               "
             >
+              <p
+                dir="ltr"
+                className="
+                  truncate
+                  text-left
+                  text-sm
+                  font-bold
+                  text-[#191C1E]
+                "
+              >
+                {file.name}
+              </p>
+
               <div
                 className="
-                  flex h-12 w-12
-                  shrink-0 items-center
+                  mt-1
+                  flex
+                  flex-wrap
+                  gap-3
+                  text-xs
+                  text-[#64748B]
+                "
+              >
+                <span>
+                  {formatFileSize(
+                    file.size,
+                  )}
+                </span>
+
+                <span>
+                  {
+                    READING_SOURCE_FILE_KIND_LABELS[
+                      fileValidation.fileKind
+                    ]
+                  }
+                </span>
+              </div>
+            </div>
+
+            {!isUploading ? (
+              <button
+                type="button"
+                onClick={(
+                  event,
+                ) => {
+                  event.stopPropagation();
+
+                  removeFile();
+                }}
+                aria-label="حذف فایل انتخاب شده"
+                className="
+                  inline-flex
+                  h-10
+                  w-10
+                  shrink-0
+                  items-center
                   justify-center
                   rounded-xl
-                  bg-cyan-400/10
-                  text-cyan-300
+                  border
+                  border-[#DCE5E3]
+                  bg-white
+                  text-[#64748B]
+                  transition
+                  hover:border-red-200
+                  hover:bg-red-50
+                  hover:text-red-600
                 "
               >
-                {fileValidation.fileKind ===
-                "image" ? (
-                  <ImageIcon
-                    aria-hidden="true"
-                    className="h-5 w-5"
-                  />
-                ) : (
-                  <FileText
-                    aria-hidden="true"
-                    className="h-5 w-5"
-                  />
-                )}
-              </div>
-
-              <div
-                className="
-                  min-w-0 flex-1
-                "
-              >
-                <p
+                <Trash2
+                  aria-hidden="true"
                   className="
-                    truncate text-sm
-                    font-medium
-                    text-slate-200
+                    h-4
+                    w-4
                   "
-                >
-                  {file.name}
-                </p>
+                />
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+      </section>
 
-                <div
-                  className="
-                    mt-1 flex
-                    flex-wrap gap-3
-                    text-xs
-                    text-slate-600
-                  "
-                >
-                  <span>
-                    {formatFileSize(
-                      file.size,
-                    )}
-                  </span>
-
-                  <span>
-                    {
-                      READING_SOURCE_FILE_KIND_LABELS[
-                        fileValidation
-                          .fileKind
-                      ]
-                    }
-                  </span>
-                </div>
-              </div>
-
-              {!isUploading ? (
-                <button
-                  type="button"
-                  onClick={removeFile}
-                  aria-label="حذف فایل انتخاب‌شده"
-                  className="
-                    inline-flex h-10 w-10
-                    shrink-0 items-center
-                    justify-center
-                    rounded-xl border
-                    border-white/[0.07]
-                    bg-white/[0.025]
-                    text-slate-500
-                    transition
-                    hover:bg-red-400/10
-                    hover:text-red-300
-                  "
-                >
-                  <Trash2
-                    aria-hidden="true"
-                    className="h-4 w-4"
-                  />
-                </button>
-              ) : null}
-            </div>
-          ) : null}
-        </Card>
-
-        <Card
+      {file ? (
+        <section
           className="
-            p-5 sm:p-6
-            lg:col-span-5
+            mt-6
+            rounded-2xl
+            border
+            border-[#BCC9C6]/40
+            bg-white
+            p-6
+            shadow-[0_4px_20px_rgba(0,0,0,0.04)]
           "
         >
           <div
             className="
-              flex items-center
-              gap-2 text-emerald-300
+              flex
+              items-start
+              gap-3
             "
           >
-            <ShieldCheck
-              aria-hidden="true"
-              className="h-5 w-5"
-            />
-
-            <h2
+            <span
               className="
-                font-bold text-white
+                flex
+                h-10
+                w-10
+                shrink-0
+                items-center
+                justify-center
+                rounded-xl
+                bg-[#008378]/10
+                text-[#00685F]
               "
             >
-              چه اتفاقی برای فایل می‌افتد؟
-            </h2>
+              <Sparkles
+                aria-hidden="true"
+                className="
+                  h-5
+                  w-5
+                "
+              />
+            </span>
+
+            <div>
+              <h2
+                className="
+                  text-lg
+                  font-bold
+                  text-[#191C1E]
+                "
+              >
+                تنظیمات تحلیل
+              </h2>
+
+              <p
+                className="
+                  mt-1
+                  text-sm
+                  leading-6
+                  text-[#64748B]
+                "
+              >
+                قبل از شروع تحلیل، اطلاعات و نحوه آماده‌سازی متن را مشخص کن.
+              </p>
+            </div>
           </div>
 
           <div
             className="
-              mt-5 space-y-4
+              mt-6
+              grid
+              gap-4
+              md:grid-cols-2
             "
           >
-            {[
-              [
-                "۱",
-                "اعتبارسنجی فایل",
-                "فرمت، حجم و Signature فایل بررسی می‌شود.",
-              ],
-              [
-                "۲",
-                "استخراج متن",
-                "متن PDF، Word، TXT یا تصویر استخراج می‌شود.",
-              ],
-              [
-                "۳",
-                "تحلیل AI",
-                "سطح، سختی، Vocabulary، Grammar و ساختار تحلیل می‌شوند.",
-              ],
-              [
-                "۴",
-                "ساخت Lesson",
-                "Section، سؤال، Audio و محتوای آموزشی ساخته می‌شود.",
-              ],
-            ].map(
-              ([
-                number,
-                title,
-                description,
-              ]) => (
-                <div
-                  key={number}
-                  className="
-                    flex items-start
-                    gap-3
-                  "
-                >
-                  <span
-                    className="
-                      flex h-8 w-8
-                      shrink-0 items-center
-                      justify-center
-                      rounded-lg
-                      bg-white/[0.05]
-                      text-xs font-bold
-                      text-cyan-300
-                    "
-                  >
-                    {number}
-                  </span>
+            <label
+              className="
+                md:col-span-2
+              "
+            >
+              <span
+                className="
+                  text-sm
+                  font-medium
+                  text-[#3D4947]
+                "
+              >
+                عنوان منبع
+              </span>
 
-                  <div>
-                    <p
-                      className="
-                        text-sm font-medium
-                        text-slate-300
-                      "
-                    >
-                      {title}
-                    </p>
+              <input
+                type="text"
+                value={
+                  metadata.title ??
+                  ""
+                }
+                disabled={
+                  isUploading
+                }
+                onChange={(
+                  event,
+                ) => {
+                  updateMetadata({
+                    title:
+                      event.target.value ||
+                      null,
+                  });
+                }}
+                className="
+                  mt-2
+                  h-11
+                  w-full
+                  rounded-xl
+                  border
+                  border-[#BCC9C6]
+                  bg-white
+                  px-4
+                  text-sm
+                  text-[#191C1E]
+                  outline-none
+                  transition
+                  focus:border-[#008378]
+                  focus:ring-2
+                  focus:ring-[#008378]/10
+                "
+              />
+            </label>
 
-                    <p
-                      className="
-                        mt-1 text-xs
-                        leading-6
-                        text-slate-600
-                      "
+            <label>
+              <span
+                className="
+                  text-sm
+                  font-medium
+                  text-[#3D4947]
+                "
+              >
+                زبان متن
+              </span>
+
+              <select
+                value={
+                  metadata.languageCode
+                }
+                disabled={
+                  isUploading
+                }
+                onChange={(
+                  event,
+                ) => {
+                  updateMetadata({
+                    languageCode:
+                      event.target.value,
+                  });
+                }}
+                className="
+                  mt-2
+                  h-11
+                  w-full
+                  rounded-xl
+                  border
+                  border-[#BCC9C6]
+                  bg-white
+                  px-3
+                  text-sm
+                  text-[#191C1E]
+                  outline-none
+                  focus:border-[#008378]
+                "
+              >
+                <option value="en">
+                  انگلیسی
+                </option>
+
+                <option value="de">
+                  آلمانی
+                </option>
+
+                <option value="fr">
+                  فرانسوی
+                </option>
+
+                <option value="es">
+                  اسپانیایی
+                </option>
+              </select>
+            </label>
+
+            <label>
+              <span
+                className="
+                  text-sm
+                  font-medium
+                  text-[#3D4947]
+                "
+              >
+                سطح CEFR
+              </span>
+
+              <select
+                value={
+                  metadata.cefrLevel ??
+                  ""
+                }
+                disabled={
+                  isUploading
+                }
+                onChange={(
+                  event,
+                ) => {
+                  updateMetadata({
+                    cefrLevel:
+                      event.target.value
+                        ? event.target.value as ReadingCefrLevel
+                        : null,
+                  });
+                }}
+                className="
+                  mt-2
+                  h-11
+                  w-full
+                  rounded-xl
+                  border
+                  border-[#BCC9C6]
+                  bg-white
+                  px-3
+                  text-sm
+                  text-[#191C1E]
+                  outline-none
+                  focus:border-[#008378]
+                "
+              >
+                <option value="">
+                  تشخیص خودکار
+                </option>
+
+                {CEFR_LEVELS.map(
+                  (level) => (
+                    <option
+                      key={
+                        level
+                      }
+                      value={
+                        level
+                      }
                     >
-                      {description}
-                    </p>
-                  </div>
-                </div>
-              ),
-            )}
+                      {level}
+                    </option>
+                  ),
+                )}
+              </select>
+            </label>
           </div>
-        </Card>
-      </div>
 
-      {file ? (
-        <ReadingUploadSettings
-          metadata={metadata}
-          disabled={isUploading}
-          onChange={
-            setMetadata
-          }
-        />
+          <div
+            className="
+              mt-6
+              grid
+              gap-4
+              md:grid-cols-2
+            "
+          >
+            <ChoiceGroup
+              title="نوع تحلیل"
+              options={[
+                {
+                  value:
+                    "standard",
+
+                  label:
+                    "استاندارد",
+
+                  description:
+                    "تحلیل سریع‌تر برای متن‌های ساده",
+                },
+
+                {
+                  value:
+                    "deep",
+
+                  label:
+                    "تحلیل عمیق",
+
+                  description:
+                    "واژگان، گرامر، سؤال و ساختار متن",
+                },
+              ]}
+              value={
+                metadata.options.analysisMode
+              }
+              disabled={
+                isUploading
+              }
+              onChange={(
+                value,
+              ) => {
+                updateOption(
+                  "analysisMode",
+                  value as ReadingUploadMetadata["options"]["analysisMode"],
+                );
+              }}
+            />
+
+            <ChoiceGroup
+              title="طول بخش‌ها"
+              options={[
+                {
+                  value:
+                    "short",
+
+                  label:
+                    "کوتاه",
+
+                  description:
+                    "بخش‌های کوچک و سریع",
+                },
+
+                {
+                  value:
+                    "balanced",
+
+                  label:
+                    "متعادل",
+
+                  description:
+                    "مناسب مطالعه روزانه",
+                },
+
+                {
+                  value:
+                    "long",
+
+                  label:
+                    "بلند",
+
+                  description:
+                    "بخش‌های طولانی‌تر",
+                },
+              ]}
+              value={
+                metadata.options.sectionLength
+              }
+              disabled={
+                isUploading
+              }
+              onChange={(
+                value,
+              ) => {
+                updateOption(
+                  "sectionLength",
+                  value as ReadingUploadMetadata["options"]["sectionLength"],
+                );
+              }}
+            />
+          </div>
+
+          <div
+            className="
+              mt-6
+              grid
+              gap-3
+              sm:grid-cols-2
+            "
+          >
+            <SettingToggle
+              title="استخراج واژگان"
+              checked={
+                metadata.options.extractVocabulary
+              }
+              disabled={
+                isUploading
+              }
+              onChange={(
+                checked,
+              ) => {
+                updateOption(
+                  "extractVocabulary",
+                  checked,
+                );
+              }}
+            />
+
+            <SettingToggle
+              title="تحلیل گرامر"
+              checked={
+                metadata.options.extractGrammar
+              }
+              disabled={
+                isUploading
+              }
+              onChange={(
+                checked,
+              ) => {
+                updateOption(
+                  "extractGrammar",
+                  checked,
+                );
+              }}
+            />
+
+            <SettingToggle
+              title="تولید صوت"
+              checked={
+                metadata.options.generateAudio
+              }
+              disabled={
+                isUploading
+              }
+              onChange={(
+                checked,
+              ) => {
+                updateOption(
+                  "generateAudio",
+                  checked,
+                );
+              }}
+            />
+
+            <SettingToggle
+              title="ساخت سؤال تمرینی"
+              checked={
+                metadata.options.generateQuestions
+              }
+              disabled={
+                isUploading
+              }
+              onChange={(
+                checked,
+              ) => {
+                updateOption(
+                  "generateQuestions",
+                  checked,
+                );
+              }}
+            />
+          </div>
+
+          {metadata.options.generateQuestions ? (
+            <label
+              className="
+                mt-5
+                block
+                max-w-[280px]
+              "
+            >
+              <span
+                className="
+                  text-sm
+                  font-medium
+                  text-[#3D4947]
+                "
+              >
+                تعداد سؤال در هر بخش
+              </span>
+
+              <select
+                value={
+                  metadata.options.questionsPerSection
+                }
+                disabled={
+                  isUploading
+                }
+                onChange={(
+                  event,
+                ) => {
+                  updateOption(
+                    "questionsPerSection",
+                    Number(
+                      event.target.value,
+                    ),
+                  );
+                }}
+                className="
+                  mt-2
+                  h-11
+                  w-full
+                  rounded-xl
+                  border
+                  border-[#BCC9C6]
+                  bg-white
+                  px-3
+                  text-sm
+                  text-[#191C1E]
+                  outline-none
+                  focus:border-[#008378]
+                "
+              >
+                {[
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                ].map(
+                  (count) => (
+                    <option
+                      key={
+                        count
+                      }
+                      value={
+                        count
+                      }
+                    >
+                      {numberFormatter.format(
+                        count,
+                      )} سؤال
+                    </option>
+                  ),
+                )}
+              </select>
+            </label>
+          ) : null}
+        </section>
       ) : null}
 
-      <ReadingUploadProgress
-        phase={phase}
-        uploadProgress={
-          uploadProgress
-        }
-        result={result}
-        errorMessage={
-          errorMessage
-        }
-      />
+      {phase ===
+      "uploading" ? (
+        <section
+          className="
+            mt-6
+            rounded-2xl
+            border
+            border-[#BCC9C6]/40
+            bg-white
+            p-6
+          "
+        >
+          <div
+            className="
+              flex
+              items-center
+              justify-between
+              gap-4
+            "
+          >
+            <div>
+              <h2
+                className="
+                  text-base
+                  font-bold
+                  text-[#191C1E]
+                "
+              >
+                در حال آپلود فایل
+              </h2>
 
-      {file ? (
+              <p
+                className="
+                  mt-1
+                  text-sm
+                  text-[#64748B]
+                "
+              >
+                تا پایان ارسال فایل این صفحه را نبند.
+              </p>
+            </div>
+
+            <strong
+              className="
+                text-sm
+                text-[#00685F]
+              "
+            >
+              {numberFormatter.format(
+                uploadProgress,
+              )}
+              ٪
+            </strong>
+          </div>
+
+          <div
+            className="
+              mt-4
+              h-2
+              overflow-hidden
+              rounded-full
+              bg-[#E0E3E5]
+            "
+          >
+            <div
+              className="
+                h-full
+                rounded-full
+                bg-[#00685F]
+                transition-[width]
+              "
+              style={{
+                width:
+                  `${uploadProgress}%`,
+              }}
+            />
+          </div>
+        </section>
+      ) : null}
+
+      {phase ===
+        "processing" &&
+      result ? (
+        <section
+          className="
+            mt-6
+            rounded-2xl
+            border
+            border-[#A7DED8]
+            bg-[#F0FDFA]
+            p-6
+          "
+        >
+          <div
+            className="
+              flex
+              items-start
+              gap-3
+            "
+          >
+            <span
+              className="
+                flex
+                h-10
+                w-10
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                bg-[#D6EDEB]
+                text-[#00685F]
+              "
+            >
+              <CheckCircle2
+                aria-hidden="true"
+                className="
+                  h-5
+                  w-5
+                "
+              />
+            </span>
+
+            <div
+              className="
+                min-w-0
+                flex-1
+              "
+            >
+              <h2
+                className="
+                  text-base
+                  font-bold
+                  text-[#191C1E]
+                "
+              >
+                فایل با موفقیت دریافت شد
+              </h2>
+
+              <p
+                className="
+                  mt-1
+                  text-sm
+                  leading-6
+                  text-[#3D4947]
+                "
+              >
+                تحلیل AI آغاز شده و منبع بعد از آماده‌شدن در بخش «منابع من» نمایش داده می‌شود.
+              </p>
+
+              <div
+                className="
+                  mt-4
+                  flex
+                  flex-wrap
+                  items-center
+                  gap-3
+                "
+              >
+                <Link
+                  href={`/reading/resources/${result.resourceId}`}
+                  className="
+                    inline-flex
+                    h-9
+                    items-center
+                    justify-center
+                    gap-1.5
+                    rounded-lg
+                    bg-[#00685F]
+                    px-4
+                    text-sm
+                    font-bold
+                    text-white
+                  "
+                >
+                  مشاهده وضعیت
+
+                  <ChevronLeft
+                    aria-hidden="true"
+                    className="
+                      h-4
+                      w-4
+                    "
+                  />
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={
+                    resetForm
+                  }
+                  className="
+                    inline-flex
+                    h-9
+                    items-center
+                    justify-center
+                    gap-2
+                    rounded-lg
+                    border
+                    border-[#BCC9C6]
+                    bg-white
+                    px-4
+                    text-sm
+                    font-medium
+                    text-[#3D4947]
+                  "
+                >
+                  <RotateCcw
+                    aria-hidden="true"
+                    className="
+                      h-4
+                      w-4
+                    "
+                  />
+
+                  افزودن منبع دیگر
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {errorMessage ? (
+        <div
+          role="alert"
+          className="
+            mt-6
+            rounded-xl
+            border
+            border-red-200
+            bg-red-50
+            px-4
+            py-3
+            text-sm
+            leading-6
+            text-red-700
+          "
+        >
+          {errorMessage}
+        </div>
+      ) : null}
+
+      {file &&
+      phase !==
+        "processing" ? (
         <div
           className="
-            flex flex-wrap gap-3
+            mt-6
+            flex
+            flex-wrap
+            items-center
+            gap-3
           "
         >
           {isUploading ? (
@@ -923,84 +1741,486 @@ export function ReadingSourceUploader() {
                 cancelUpload
               }
               className="
-                inline-flex min-h-11
+                inline-flex
+                min-h-11
                 items-center
-                justify-center gap-2
-                rounded-xl border
-                border-red-400/15
-                bg-red-400/[0.05]
-                px-5 py-2.5
-                text-sm font-medium
-                text-red-200
-                transition
-                hover:bg-red-400/10
+                justify-center
+                rounded-lg
+                border
+                border-red-200
+                bg-white
+                px-5
+                text-sm
+                font-bold
+                text-red-600
               "
             >
-              توقف Upload
+              توقف آپلود
             </button>
           ) : (
             <button
               type="button"
-              disabled={
-                phase ===
-                "processing"
-              }
               onClick={() => {
                 void handleSubmit();
               }}
               className="
-                inline-flex min-h-11
+                inline-flex
+                min-h-11
                 items-center
-                justify-center gap-2
-                rounded-xl
-                bg-cyan-400
-                px-5 py-2.5
-                text-sm font-bold
-                text-slate-950
+                justify-center
+                gap-2
+                rounded-lg
+                bg-[#00685F]
+                px-6
+                text-sm
+                font-bold
+                text-white
+                shadow-[0_1px_2px_rgba(0,0,0,0.05)]
                 transition
-                hover:bg-cyan-300
-                disabled:cursor-not-allowed
-                disabled:opacity-50
+                hover:bg-[#005B53]
               "
             >
-              <UploadCloud
-                aria-hidden="true"
-                className="h-4 w-4"
-              />
+              {isUploading ? (
+                <LoaderCircle
+                  aria-hidden="true"
+                  className="
+                    h-4
+                    w-4
+                    animate-spin
+                  "
+                />
+              ) : (
+                <Sparkles
+                  aria-hidden="true"
+                  className="
+                    h-4
+                    w-4
+                  "
+                />
+              )}
 
-              شروع Upload و تحلیل AI
+              شروع آپلود و تحلیل AI
             </button>
           )}
 
-          <button
-            type="button"
-            disabled={isUploading}
-            onClick={resetForm}
-            className="
-              inline-flex min-h-11
-              items-center
-              justify-center gap-2
-              rounded-xl border
-              border-white/[0.08]
-              bg-white/[0.035]
-              px-5 py-2.5
-              text-sm
-              text-slate-400
-              transition
-              hover:bg-white/[0.07]
-              hover:text-white
-              disabled:opacity-40
-            "
-          >
-            <RotateCcw
-              aria-hidden="true"
-              className="h-4 w-4"
-            />
+          {!isUploading ? (
+            <button
+              type="button"
+              onClick={
+                resetForm
+              }
+              className="
+                inline-flex
+                min-h-11
+                items-center
+                justify-center
+                gap-2
+                rounded-lg
+                border
+                border-[#BCC9C6]
+                bg-white
+                px-5
+                text-sm
+                font-medium
+                text-[#3D4947]
+                transition
+                hover:border-[#008378]
+                hover:text-[#00685F]
+              "
+            >
+              <RotateCcw
+                aria-hidden="true"
+                className="
+                  h-4
+                  w-4
+                "
+              />
 
-            پاک‌کردن فرم
-          </button>
+              پاک کردن
+            </button>
+          ) : null}
         </div>
       ) : null}
+
+      <section
+        className="
+          mt-8
+          grid
+          gap-4
+          sm:grid-cols-3
+        "
+      >
+        <InfoCard
+          icon={
+            ShieldCheck
+          }
+          title="فایل امن"
+          description="نوع و حجم فایل قبل از ارسال اعتبارسنجی می‌شود."
+        />
+
+        <InfoCard
+          icon={
+            Sparkles
+          }
+          title="تحلیل هوشمند"
+          description="سطح، واژگان و ساختار متن توسط AI بررسی می‌شود."
+        />
+
+        <InfoCard
+          icon={
+            FileText
+          }
+          title="درس آماده"
+          description="منبع بعد از پردازش به بخش‌های قابل مطالعه تبدیل می‌شود."
+        />
+      </section>
     </main>
+  );
+}
+
+function ChoiceGroup({
+  title,
+  options,
+  value,
+  disabled,
+  onChange,
+}: Readonly<{
+  title:
+    string;
+
+  options:
+    readonly {
+      value:
+        string;
+
+      label:
+        string;
+
+      description:
+        string;
+    }[];
+
+  value:
+    string;
+
+  disabled:
+    boolean;
+
+  onChange:
+    (
+      value:
+        string,
+    ) => void;
+}>) {
+  return (
+    <fieldset
+      disabled={
+        disabled
+      }
+      className="
+        rounded-xl
+        border
+        border-[#DCE5E3]
+        bg-[#F7F9FB]
+        p-4
+      "
+    >
+      <legend
+        className="
+          px-1
+          text-sm
+          font-medium
+          text-[#3D4947]
+        "
+      >
+        {title}
+      </legend>
+
+      <div
+        className="
+          mt-2
+          space-y-2
+        "
+      >
+        {options.map(
+          (option) => {
+            const selected =
+              option.value ===
+              value;
+
+            return (
+              <button
+                key={
+                  option.value
+                }
+                type="button"
+                disabled={
+                  disabled
+                }
+                onClick={() => {
+                  onChange(
+                    option.value,
+                  );
+                }}
+                className={cn(
+                  "flex",
+                  "w-full",
+                  "items-start",
+                  "gap-3",
+                  "rounded-lg",
+                  "border",
+                  "p-3",
+                  "text-right",
+                  "transition",
+
+                  selected
+                    ? [
+                        "border-[#008378]",
+                        "bg-white",
+                      ]
+                    : [
+                        "border-transparent",
+                        "hover:bg-white",
+                      ],
+                )}
+              >
+                <span
+                  className={cn(
+                    "mt-0.5",
+                    "flex",
+                    "h-5",
+                    "w-5",
+                    "shrink-0",
+                    "items-center",
+                    "justify-center",
+                    "rounded-full",
+                    "border",
+
+                    selected
+                      ? [
+                          "border-[#008378]",
+                          "bg-[#008378]",
+                          "text-white",
+                        ]
+                      : [
+                          "border-[#BCC9C6]",
+                          "bg-white",
+                        ],
+                  )}
+                >
+                  {selected ? (
+                    <Check
+                      aria-hidden="true"
+                      className="
+                        h-3
+                        w-3
+                      "
+                    />
+                  ) : null}
+                </span>
+
+                <span>
+                  <span
+                    className="
+                      block
+                      text-sm
+                      font-bold
+                      text-[#191C1E]
+                    "
+                  >
+                    {
+                      option.label
+                    }
+                  </span>
+
+                  <span
+                    className="
+                      mt-1
+                      block
+                      text-xs
+                      leading-5
+                      text-[#64748B]
+                    "
+                  >
+                    {
+                      option.description
+                    }
+                  </span>
+                </span>
+              </button>
+            );
+          },
+        )}
+      </div>
+    </fieldset>
+  );
+}
+
+function SettingToggle({
+  title,
+  checked,
+  disabled,
+  onChange,
+}: Readonly<{
+  title:
+    string;
+
+  checked:
+    boolean;
+
+  disabled:
+    boolean;
+
+  onChange:
+    (
+      checked:
+        boolean,
+    ) => void;
+}>) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={
+        checked
+      }
+      disabled={
+        disabled
+      }
+      onClick={() => {
+        onChange(
+          !checked,
+        );
+      }}
+      className="
+        flex
+        min-h-[56px]
+        items-center
+        justify-between
+        gap-4
+        rounded-xl
+        border
+        border-[#DCE5E3]
+        bg-[#F7F9FB]
+        px-4
+        text-right
+        transition
+        hover:bg-[#F1F6F5]
+        disabled:opacity-60
+      "
+    >
+      <span
+        className="
+          text-sm
+          font-medium
+          text-[#3D4947]
+        "
+      >
+        {title}
+      </span>
+
+      <span
+        aria-hidden="true"
+        className={cn(
+          "relative",
+          "h-6",
+          "w-11",
+          "shrink-0",
+          "rounded-full",
+          "transition",
+
+          checked
+            ? "bg-[#008378]"
+            : "bg-[#C8D1CF]",
+        )}
+      >
+        <span
+          className={cn(
+            "absolute",
+            "top-1",
+            "h-4",
+            "w-4",
+            "rounded-full",
+            "bg-white",
+            "shadow-sm",
+            "transition-all",
+
+            checked
+              ? "left-1"
+              : "left-6",
+          )}
+        />
+      </span>
+    </button>
+  );
+}
+
+function InfoCard({
+  icon: Icon,
+  title,
+  description,
+}: Readonly<{
+  icon:
+    typeof ShieldCheck;
+
+  title:
+    string;
+
+  description:
+    string;
+}>) {
+  return (
+    <div
+      className="
+        rounded-2xl
+        border
+        border-[#DCE5E3]
+        bg-white
+        p-5
+      "
+    >
+      <span
+        className="
+          flex
+          h-10
+          w-10
+          items-center
+          justify-center
+          rounded-xl
+          bg-[#008378]/10
+          text-[#00685F]
+        "
+      >
+        <Icon
+          aria-hidden="true"
+          className="
+            h-5
+            w-5
+          "
+        />
+      </span>
+
+      <h3
+        className="
+          mt-4
+          text-sm
+          font-bold
+          text-[#191C1E]
+        "
+      >
+        {title}
+      </h3>
+
+      <p
+        className="
+          mt-2
+          text-xs
+          leading-5
+          text-[#64748B]
+        "
+      >
+        {description}
+      </p>
+    </div>
   );
 }

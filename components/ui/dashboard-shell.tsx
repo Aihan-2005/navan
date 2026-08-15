@@ -32,10 +32,10 @@ function shouldUseLightReadingShell(
   pathname: string,
 ): boolean {
   return (
-    pathname ===
-      "/reading" ||
-    pathname ===
-      "/reading/resources"
+    pathname === "/reading" ||
+    pathname === "/reading/library" ||
+    pathname === "/reading/resources" ||
+    pathname === "/reading/upload"
   );
 }
 

@@ -7,6 +7,7 @@ import {
   FileType2,
   Image as ImageIcon,
   Link2,
+  MoreVertical,
   type LucideIcon,
 } from "lucide-react";
 
@@ -25,14 +26,16 @@ type ReadingMyResourceCardProps =
       ReadingMyResourceItem;
   }>;
 
-const numberFormatter =
-  new Intl.NumberFormat(
+const numberFormatter = new Intl.NumberFormat(
     "fa-IR",
-  );const sourceMeta:
+  );
+
+const sourceMeta:
   Record<
     ReadingMyResourceSourceKind,
     {
-      label: string;
+      label:
+        string;
 
       icon:
         LucideIcon;
@@ -52,12 +55,13 @@ const numberFormatter =
         "border-[#008378]/20 bg-[#008378]/10 text-[#00685F]",
     },
 
-    docx: {
-      label:
+    docx: {label:
         "DOCX",
 
       icon:
-        FileType2, className:
+        FileType2,
+
+      className:
         "border-[#2563EB]/20 bg-[#2563EB]/10 text-[#2563EB]",
     },
 
@@ -81,12 +85,11 @@ const numberFormatter =
 
       className:
         "border-[#8A4CFC]/20 bg-[#8A4CFC]/10 text-[#712AE2]",
-    },
-
-    image: {
+    },image: {
       label:
         "تصویر",
-icon:
+
+      icon:
         ImageIcon,
 
       className:
@@ -111,12 +114,10 @@ function formatRelativeDate(
       0,
       now.getTime() -
         date.getTime(),
-    );
-
-  const days =
+    );const days =
     Math.floor(
       differenceMs /
-      86_400_000,
+        86_400_000,
     );
 
   if (days === 0) {
@@ -146,7 +147,9 @@ function formatRelativeDate(
       days / 7,
     ),
   )} هفته پیش`;
-}function getActivityLabel(
+}
+
+function getActivityLabel(
   resource:
     ReadingMyResourceItem,
 ): string {
@@ -175,18 +178,14 @@ export function ReadingMyResourceCard({
 
   const SourceIcon =
     source.icon;
-const isCompleted =
+
+  const isCompleted =
     resource.progressPercent >=
     100;
 
   const isProcessing =
     resource.status ===
     "processing";
-
-  const progressColor =
-    isCompleted
-      ? "bg-[#22C55E]"
-      : "bg-[#00685F]";
 
   const actionLabel =
     isProcessing
@@ -200,45 +199,42 @@ const isCompleted =
 
   const actionClassName =
     isProcessing
-      ? `
-        border
-        border-[#008378]/20
-        bg-[#008378]/10
-        text-[#00685F]
-      `: isCompleted
-        ? `
-          border-2
-          border-[#BCC9C6]
-          bg-white
-          text-[#3D4947]
-          hover:border-[#008378]
-          hover:text-[#00685F]
-        `
-        : `
-          bg-[#00685F]
-          text-white
-          shadow-[0_1px_2px_rgba(0,0,0,0.05)]
-          hover:bg-[#005B53]
-        `;
+      ? [
+ "border",
+          "border-[#008378]/20",
+          "bg-[#008378]/10",
+          "text-[#00685F]",
+        ]
+      : isCompleted
+        ? [
+            "border",
+            "border-[#BCC9C6]",
+            "bg-white",
+            "text-[#3D4947]",
+            "hover:border-[#008378]",
+            "hover:text-[#00685F]",
+          ]
+        : [
+            "bg-[#00685F]",
+            "text-white",
+            "shadow-[0_1px_2px_rgba(0,0,0,0.05)]",
+            "hover:bg-[#005B53]",
+          ];
 
-  const actionContent = (
-    <>
-      {actionLabel}
-    </>
-  );
-
-  return (
+  const content = (
     <article
       className="
         flex
         min-h-[298px]
         flex-col
         rounded-2xl
-        border
-        border-[#BCC9C6]/30
+        borderborder-[#BCC9C6]/30
         bg-white
         p-6
         shadow-[0_4px_20px_rgba(0,0,0,0.04)]
+        transition
+        hover:border-[#9EB6B1]/50
+        hover:shadow-[0_6px_22px_rgba(0,0,0,0.06)]
       "
     >
       <div
@@ -261,7 +257,7 @@ const isCompleted =
           <span
             className={cn(
               "inline-flex",
-              "h-6",
+       "h-6",
               "items-center",
               "gap-1.5",
               "rounded",
@@ -276,34 +272,36 @@ const isCompleted =
           >
             <SourceIcon
               aria-hidden="true"
-              className="h-3 w-3"
+              className="
+                h-3
+                w-3
+              "
             />
 
-            {source.label}
+            {
+              source.label
+            }
           </span>
 
-          {!isCompleted ? (
-            <span
-              dir="ltr"
-              className="
-                inline-flex
-                h-6
-                items-center
-                rounded
-                bg-[#ECEEF0]
-                px-2
-                text-xs
-                font-medium
-                leading-[14px]
-                tracking-[0.05em]
-                text-[#3D4947]
-              "
-            >
-              {
-                resource.cefrLevel
-              }
-            </span>
-          ) : null}
+          <span
+            dir="ltr"
+            className="
+              inline-flex h-6
+              items-center
+              rounded
+              bg-[#ECEEF0]
+              px-2
+              text-[10px]
+              font-medium
+              leading-[14px]
+              tracking-[0.05em]
+              text-[#3D4947]
+            "
+          >
+            {
+              resource.cefrLevel
+            }
+          </span>
         </div>
 
         {isCompleted ? (
@@ -317,15 +315,16 @@ const isCompleted =
             "
           />
         ) : (
-          <span
+          <MoreVertical
             aria-hidden="true"
             className="
-              h-[22px]
-              w-1
-              rounded-full
-              bg-[#E0E3E5]
+              h-5
+              w-5
+              shrink-0
+              text-[#6D7A77]
             "
-          /> )}
+          />
+        )}
       </div>
 
       <div
@@ -343,19 +342,22 @@ const isCompleted =
           className="
             max-w-[220px]
             text-right
-            text-[22px]
+            text-[20px]
             font-bold
-            leading-[30px]
+            leading-[28px]
             text-[#191C1E]
           "
         >
-          {resource.title}
+          {
+            resource.title
+          }
         </h2>
       </div>
 
       <p
         className="
-          mt-2min-h-5
+          mt-2
+          min-h-5
           text-sm
           font-normal
           leading-5
@@ -370,8 +372,7 @@ const isCompleted =
       <div
         className="
           mt-auto
-          pt-6
-        "
+          pt-6"
       >
         <div
           className="
@@ -401,8 +402,7 @@ const isCompleted =
               isCompleted
                 ? "text-[#16A34A]"
                 : "text-[#00685F]",
-            )}
-          >
+            )}>
             {numberFormatter.format(
               resource.progressPercent,
             )}
@@ -432,7 +432,9 @@ const isCompleted =
               "rounded-full",
               "transition-[width]",
               "duration-500",
-              progressColor,
+ isCompleted
+                ? "bg-[#22C55E]"
+                : "bg-[#00685F]",
             )}
             style={{
               width:
@@ -441,54 +443,46 @@ const isCompleted =
           />
         </div>
 
-        {resource.href ? (
-          <Link
-            href={
-              resource.href}
-            className={cn(
-              "mt-4",
-              "inline-flex",
-              "h-9",
-              "w-full",
-              "items-center",
-              "justify-center",
-              "rounded-lg",
-              "text-sm",
-              "font-bold",
-              "leading-4",
-              "tracking-[0.01em]",
-              "transition",
-              "focus-visible:outline-none",
-              "focus-visible:ring-2",
-              "focus-visible:ring-[#00685F]/20",
-              actionClassName,
-            )}
-          >
-            {actionContent}
-          </Link>
-        ) : (
-          <span
-            aria-disabled="true"
-            className={cn(
-              "mt-4",
-              "inline-flex",
-              "h-9",
-              "w-full",
-              "cursor-default",
-"items-center",
-              "justify-center",
-              "rounded-lg",
-              "text-sm",
-              "font-bold",
-              "leading-4",
-              "tracking-[0.01em]",
-              actionClassName,
-            )}
-          >
-            {actionContent}
-          </span>
-        )}
-      </div>
-    </article>
+        <div
+          className={cn(
+            "mt-4",
+            "inline-flex",
+            "h-9",
+            "w-full",
+            "items-center",
+            "justify-center",
+            "rounded-lg",
+            "text-sm",
+            "font-bold",
+            "leading-4",
+            "tracking-[0.01em]",
+            "transition",
+            actionClassName,
+          )}
+        >
+          {actionLabel}
+        </div>
+      </div> </article>
+  );
+
+  if (!resource.href) {
+    return content;
+  }
+
+  return (
+    <Link
+      href={
+        resource.href
+      }
+      className="
+        block
+        rounded-2xl
+        focus-visible:outline-none
+        focus-visible:ring-2
+        focus-visible:ring-[#00685F]/30
+      "
+    >
+      {content}
+    </Link>
   );
 }

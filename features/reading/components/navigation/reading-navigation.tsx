@@ -25,19 +25,13 @@ const figmaNavigationItems =
 
       label:
         "مطالعه من",
-
-      exact: true,
     },
 
-    {
-      href:
+    {href:
         "/reading/library",
 
       label:
         "کتابخانه",
-
-      exact:
-        true,
     },
 
     {
@@ -46,9 +40,6 @@ const figmaNavigationItems =
 
       label:
         "منابع من",
-
-      exact:
-        true,
     },
   ] as const;
 
@@ -65,14 +56,14 @@ const legacyNavigationItems =
         BookOpenText,
 
       exact:
-        true,
-    },
+        true,},
 
     {
       href:
         "/reading/library",
 
-      label:"کتابخانه",
+      label:
+        "کتابخانه",
 
       icon:
         LibraryBig,
@@ -89,9 +80,7 @@ const legacyNavigationItems =
         "آپلود منبع",
 
       icon:
-        UploadCloud,
-
-      exact:
+        UploadCloud,exact:
         false,
     },
   ] as const;
@@ -100,11 +89,18 @@ function shouldUseFigmaNavigation(
   pathname: string,
 ): boolean {
   return (
-    pathname ===
-      "/reading" ||
-    pathname ===
-      "/reading/resources"
+    pathname === "/reading" ||
+    pathname === "/reading/library" ||
+    pathname === "/reading/resources" ||
+    pathname === "/reading/upload"
   );
+}
+
+function isFigmaTabActive(
+  pathname: string,
+  href: string,
+): boolean {
+  return pathname === href;
 }
 
 export function ReadingNavigation() {
@@ -114,8 +110,11 @@ export function ReadingNavigation() {
   if (
     shouldUseFigmaNavigation(
       pathname,
-    )
-  ) {
+    )) {
+    const isUploadPage =
+      pathname ===
+      "/reading/upload";
+
     return (
       <nav
         aria-label="منوی بخش خواندن"
@@ -141,8 +140,7 @@ export function ReadingNavigation() {
           className="
             flex
             h-full
-            min-w-0
-            items-start
+            min-w-0 items-start
             gap-4
             overflow-x-auto
             sm:gap-6
@@ -151,18 +149,15 @@ export function ReadingNavigation() {
           {figmaNavigationItems.map(
             (item) => {
               const active =
-                item.exact
-                  ? pathname ===
-                    item.href
-                  : pathname ===
-                      item.href ||
-                    pathname.startsWith(
-                      `${item.href}/`,
-                    );
+                isFigmaTabActive(
+                  pathname,
+                  item.href,
+                );
 
               return (
                 <Link
-                  key={ item.href
+                  key={
+                    item.href
                   }
                   href={
                     item.href
@@ -175,8 +170,7 @@ export function ReadingNavigation() {
                   className={cn(
                     "relative",
                     "flex h-[41px]",
-                    "shrink-0",
-                    "items-start",
+                    "shrink-0", "items-start",
                     "px-1 pt-0.5",
                     "text-sm font-bold",
                     "leading-4",
@@ -192,7 +186,8 @@ export function ReadingNavigation() {
                   )}
                 >
                   {item.label}
- {active ? (
+
+                  {active ? (
                     <span
                       aria-hidden="true"
                       className="
@@ -205,35 +200,46 @@ export function ReadingNavigation() {
                       "
                     />
                   ) : null}
-                </Link>
-              );
+                </Link>);
             },
           )}
         </div>
 
         <Link
           href="/reading/upload"
-          className="
-            inline-flex
-            h-8
-            shrink-0
-            items-center
-            justify-center
-            gap-2
-            rounded-lg
-             bg-[#00685F]/10
-            px-4
-            text-sm
-            font-semibold
-            leading-4
-            tracking-[0.01em]
-            text-[#00685F]
-            transition
-            hover:bg-[#00685F]/15
-            focus-visible:outline-none
-            focus-visible:ring-2
-            focus-visible:ring-[#00685F]/25
-          "
+          aria-current={
+            isUploadPage
+              ? "page"
+              : undefined
+          }
+          className={cn(
+            "inline-flex",
+            "h-8",
+            "shrink-0",
+            "items-center",
+            "justify-center",
+            "gap-2",
+            "rounded-lg",
+            "px-4",
+            "text-sm",
+            "font-semibold",
+            "leading-4",
+            "tracking-[0.01em]",
+            "transition",
+            "focus-visible:outline-none",
+            "focus-visible:ring-2",
+            "focus-visible:ring-[#00685F]/25",
+isUploadPage
+              ? [
+                  "bg-[#00685F]",
+                  "text-white",
+                ]
+              : [
+                  "bg-[#00685F]/10",
+                  "text-[#00685F]",
+                  "hover:bg-[#00685F]/15",
+                ],
+          )}
         >
           <Plus
             aria-hidden="true"
@@ -250,9 +256,8 @@ export function ReadingNavigation() {
             "
           >
             افزودن منبع
-          </span>
-        </Link>
-         </nav>
+          </span></Link>
+      </nav>
     );
   }
 
@@ -282,7 +287,7 @@ export function ReadingNavigation() {
                 item.href
               : pathname ===
                   item.href ||
-                 pathname.startsWith(
+                pathname.startsWith(
                   `${item.href}/`,
                 );
 
@@ -306,8 +311,7 @@ export function ReadingNavigation() {
                 "inline-flex",
                 "min-h-12",
                 "items-center",
-                "justify-center",
-                "gap-2",
+                "justify-center","gap-2",
                 "rounded-xl",
                 "px-3",
                 "text-sm",
@@ -335,8 +339,7 @@ export function ReadingNavigation() {
                 {item.label}
               </span>
             </Link>
-          );
-        },
+          ); },
       )}
     </nav>
   );

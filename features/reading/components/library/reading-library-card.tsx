@@ -1,13 +1,18 @@
 import Link from "next/link";
+
 import {
-  BookOpen,
   BookOpenText,
-  BookText,
+  Brain,
+  BriefcaseBusiness,
+  Clapperboard,
   Clock3,
-  FileText,
-  GraduationCap,
-  Image as ImageIcon,
-  Newspaper,
+  Coffee,
+  CookingPot,
+  Landmark,
+  Mail,
+  Microscope,
+  Plane,
+  UsersRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -17,151 +22,361 @@ import {
 
 import type {
   ReadingResourceSummary,
-  ReadingResourceType,
 } from "../../types/reading.types";
 
-type ReadingLibraryCardProps = Readonly<{
-  resource: ReadingResourceSummary;
-}>;
+type ReadingLibraryCardProps =
+  Readonly<{
+    resource:
+      ReadingResourceSummary;
+  }>;type ResourceVisual =
+  Readonly<{
+    icon:
+      LucideIcon;
 
-type ResourceVisual = Readonly<{
-  icon: LucideIcon;
-  headerClassName: string;
-  iconClassName: string;
-}>;const resourceVisuals = {
-  book: {
-    icon: BookOpen,
-    headerClassName: "bg-[#FFF1BF]",
-    iconClassName: "text-[#ECA33B]",
-  },
+    headerClassName:
+      string;
 
-  graded_reader: {
-    icon: GraduationCap,
-    headerClassName: "bg-[#E2EEFF]",
-    iconClassName: "text-[#7692F3]",
-  },
-
-  short_story: {
-    icon: BookText,
-    headerClassName: "bg-[#F3E8FF]",
-    iconClassName: "text-[#9567E8]",
-  },
-
-  article: {
-    icon: Newspaper,
-    headerClassName: "bg-[#FFE4E7]",
-    iconClassName: "text-[#F46F91]",
-  },
-
-  lesson: {
-    icon: BookOpenText,
-    headerClassName: "bg-[#DDF8E8]",
-    iconClassName: "text-[#5BCB8A]",
-  },
-image_text: {
-    icon: ImageIcon,
-    headerClassName: "bg-[#DFF3FF]",
-    iconClassName: "text-[#55ACE0]",
-  },
-
-  document: {
-    icon: FileText,
-    headerClassName: "bg-[#DDF5F2]",
-    iconClassName: "text-[#58BDB5]",
-  },
-} satisfies Record<
-  ReadingResourceType,
-  ResourceVisual
->;
+    iconClassName:
+      string;
+  }>;
 
 const persianNumberFormatter =
-  new Intl.NumberFormat("fa-IR");
+  new Intl.NumberFormat(
+    "fa-IR",
+  );
+
+function getResourceVisual(
+  resource:
+    ReadingResourceSummary,
+): ResourceVisual {
+  const title =
+    resource.title.toLowerCase();
+
+  if (
+    title.includes(
+      "travel",
+    ) ||title.includes(
+      "airport",
+    )
+  ) {
+    return {
+      icon:
+        Plane,
+
+      headerClassName:
+        "bg-[#F1DDFB]",
+
+      iconClassName:
+        "text-[#8A4CFC]",
+    };
+  }
+
+  if (
+    title.includes(
+      "business",
+    ) ||
+    title.includes(
+      "email",
+    )
+  ) {
+    return {
+      icon:
+        Mail, headerClassName:
+        "bg-[#D7EDFF]",
+
+      iconClassName:
+        "text-[#3BA5DF]",
+    };
+  }
+
+  if (
+    title.includes(
+      "cafe",
+    ) ||
+    title.includes(
+      "everyday english",
+    )
+  ) {
+    return {
+      icon:
+        Coffee,
+
+      headerClassName:
+        "bg-[#DDF8E8]",
+
+      iconClassName:
+        "text-[#3FBD7B]",
+    };
+  }
+
+  if ( title.includes(
+      "science",
+    )
+  ) {
+    return {
+      icon:
+        Microscope,
+
+      headerClassName:
+        "bg-[#FFE0E3]",
+
+      iconClassName:
+        "text-[#F46F91]",
+    };
+  }
+
+  if (
+    title.includes(
+      "cooking",
+    ) ||
+    title.includes(
+      "recipe",
+    )
+  ) {
+    return {
+      icon:
+        CookingPot,
+
+      headerClassName: "bg-[#FFF1BF]",
+
+      iconClassName:
+        "text-[#ECA33B]",
+    };
+  }
+
+  if (
+    title.includes(
+      "historical",
+    ) ||
+    title.includes(
+      "history",
+    )
+  ) {
+    return {
+      icon:
+        Landmark,
+
+      headerClassName:
+        "bg-[#DDE4FF]",
+
+      iconClassName:
+        "text-[#7287F5]",
+    };
+  }
+
+  if (
+    title.includes(
+      "family",
+    )
+  ) {
+    return {
+      icon:
+        UsersRound,
+
+      headerClassName:
+        "bg-[#DDF5F2]",
+
+      iconClassName:
+        "text-[#58BDB5]",
+    };
+  }
+
+  if (
+    title.includes(
+      "movie",
+    ) ||
+    title.includes(
+      "film",
+    )
+  ) {
+    return {
+      icon:
+        Clapperboard,
+
+      headerClassName:
+        "bg-[#D5FBF4]",
+
+      iconClassName:
+        "text-[#4BC9B9]",
+    };
+  }
+
+  if (
+    title.includes(
+      "mental",
+    ) ||
+    title.includes(
+      "health",
+    )
+  ) {
+    return {
+      icon:
+        Brain,
+
+      headerClassName:
+        "bg-[#FBE1F0]",
+
+      iconClassName:
+        "text-[#F46BA6]",
+    };
+  }
+
+  if (
+    resource.resourceType ===
+      "book" ||
+    resource.resourceType ===
+      "graded_reader"
+  ) {
+    return {
+      icon:
+        BookOpenText,
+
+      headerClassName:
+        "bg-[#E5EDFF]",
+
+      iconClassName:
+        "text-[#6D86E8]",
+    };
+  }
+
+  return {
+    icon:
+      BriefcaseBusiness,
+
+    headerClassName:
+      "bg-[#EAF1F3]",
+
+    iconClassName:
+      "text-[#64748B]",
+  };
+}
 
 function getActionLabel(
-  resource: ReadingResourceSummary,
-): string {
-  if (resource.status === "processing") {
+  resource:
+    ReadingResourceSummary,
+    ): string {
+  if (
+    resource.status ===
+    "processing"
+  ) {
     return "در حال آماده‌سازی";
   }
 
   if (
-    resource.status === "coming_soon"
+    resource.status ===
+    "coming_soon"
   ) {
     return "به‌زودی";
-  }if (resource.status === "failed") {
+  }
+
+  if (
+    resource.status ===
+    "failed"
+  ) {
     return "در دسترس نیست";
   }
 
-  if (resource.progressPercent > 0) {
+  if (
+    resource.progressPercent >
+    0
+  ) {
     return "ادامه";
   }
 
-  return "شروع";
-}
+  return "شروع";}
 
 export function ReadingLibraryCard({
   resource,
 }: ReadingLibraryCardProps) {
   const visual =
-    resourceVisuals[resource.resourceType];
+    getResourceVisual(
+      resource,
+    );
 
-  const ResourceIcon = visual.icon;
+  const ResourceIcon =
+    visual.icon;
 
   const isNavigable =
-    resource.status === "ready" ||
-    resource.status === "processing";
+    resource.status ===
+      "ready" ||
+    resource.status ===
+      "processing";
 
   const actionLabel =
-    getActionLabel(resource);
+    getActionLabel(
+      resource,
+    );
 
   const cardContent = (
-    <article className={cn(
-        "group flex h-[330px] w-full",
-        "flex-col overflow-hidden",
-        "rounded-2xl border",
+    <article
+      className={cn(
+        "group",
+        "flex",
+        "min-h-[308px]",
+    "w-full",
+        "flex-col",
+        "overflow-hidden",
+        "rounded-2xl",
+        "border",
         "border-[#E0E3E5]",
         "bg-white",
-        "shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.05)]",
         "transition-[transform,box-shadow,border-color]",
         "duration-200",
+
         isNavigable && [
           "hover:-translate-y-0.5",
           "hover:border-[#C8D1D3]",
           "hover:shadow-[0_5px_18px_rgba(25,28,30,0.08)]",
         ],
+
         !isNavigable &&
           "opacity-70",
       )}
     >
       <div
         className={cn(
-          "relative flex h-32 shrink-0",
-          "items-center justify-center",
+          "relative",
+          "flex",
+          "h-[122px]",
+          "shrink-0",
+          "items-center",
+          "justify-center",
           "p-4",
           visual.headerClassName,
         )}
       >
-        <span
+         <span
+          dir="ltr"
           className="
-            absolute right-4 top-4
-            inline-flex min-w-[26px]
-          items-center justify-center
-            rounded-md bg-white
-            px-1.5 py-1
-            text-[10px] font-medium
-            leading-none text-[#00685F]
+            absolute
+            right-3
+            top-3
+            inline-flex
+            min-w-[28px]
+            items-center
+            justify-center
+            rounded
+            bg-white
+            px-1.5
+            py-1
+            text-[10px]
+            font-medium
+            leading-none
+            text-[#00685F]
             shadow-[0_1px_2px_rgba(0,0,0,0.03)]
           "
-          dir="ltr"
         >
-          {resource.cefrLevel}
+          {
+            resource.cefrLevel
+          }
         </span>
 
         <ResourceIcon
           aria-hidden="true"
           strokeWidth={2}
           className={cn(
-            "h-10 w-10",
+     "h-10 w-10",
             visual.iconClassName,
           )}
         />
@@ -169,74 +384,102 @@ export function ReadingLibraryCard({
 
       <div
         className="
-          flex min-h-0 flex-1
-          flex-col p-5
+          flex
+          min-h-0
+          flex-1
+          flex-col
+          p-4
         "
       >
         <h3
-          className="  min-h-7 truncate
-            text-center text-[18px]
-            font-bold leading-7
-            text-[#191C1E]
-          "
           dir={
-            resource.languageCode === "fa"
+            resource.languageCode ===
+            "fa"
               ? "rtl"
               : "ltr"
           }
-          title={resource.title}
+          title={
+            resource.title
+          }
+          style={{
+            fontFamily:
+              "var(--font-plus-jakarta-sans)",
+          }}
+          className="min-h-6
+            truncate
+            text-center
+            text-[16px]
+            font-bold
+            leading-6
+            text-[#191C1E]
+          "
         >
           {resource.title}
         </h3>
 
-        <div className="mt-1 min-h-10">
+        <div
+          className="
+            mt-1
+            min-h-10
+          "
+        >
           {resource.description ? (
             <p
               className="
                 line-clamp-2
-                text-right text-sm
-                font-normal leading-5
+                text-right
+                text-xs
+                font-normal
+                leading-5
                 text-[#3D4947]
               "
             >
-              {resource.description}
+              {resource.description
+              }
             </p>
           ) : (
             <p
               className="
-                 text-right text-sm
-                leading-5 text-[#77807E]
+                text-right
+                text-xs
+                leading-5
+                text-[#77807E]
               "
             >
-              توضیحات این منبع به‌زودی
-              اضافه می‌شود.
+              توضیحات این منبع به‌زودی اضافه می‌شود.
             </p>
           )}
         </div>
 
-        <div
+     <div
           className="
-            mt-auto flex h-8
-            items-center justify-between
-            border-b border-transparent
-            pb-4 text-xs
+            mt-auto
+            flex
+            h-8
+            items-center
+            justify-between
+            pb-3
+            text-[11px]
             leading-[14px]
             text-[#3D4947]
           "
         >
           <span
             className="
-              inline-flex items-center gap-1
+              inline-flex
+              items-center
+              gap-1
               whitespace-nowrap
             "
           >
             <BookOpenText
               aria-hidden="true"
-              className="h-[15px] w-[15px]"
-              strokeWidth={1.8}
+              className="
+                h-3.5
+                w-3.5
+              "
             />
-
-            {persianNumberFormatter.format(
+{persianNumberFormatter.format(
               resource.totalSections,
             )}{" "}
             بخش
@@ -244,30 +487,41 @@ export function ReadingLibraryCard({
 
           <span
             className="
-              inline-flex items-center gap-1
+              inline-flex
+              items-center
+              gap-1
               whitespace-nowrap
             "
           >
             <Clock3
               aria-hidden="true"
-              className="h-[14px] w-[14px]"
-              strokeWidth={1.8}
+              className="
+                h-3.5
+                w-3.5
+              "
             />
 
             {persianNumberFormatter.format(
               resource.estimatedMinutes,
-          )}{" "}
+            )}{" "}
             دقیقه
           </span>
         </div>
-
-        <div
+ <div
           className={cn(
-            "mt-4 flex h-9 shrink-0",
-            "items-center justify-center",
-            "rounded-lg bg-[#F8F8F8]",
-            "text-sm font-bold",
-            "leading-4 tracking-[0.14px]",
+            "mt-2",
+            "flex",
+            "h-9",
+            "shrink-0",
+            "items-center",
+            "justify-center",
+            "rounded-lg",
+            "bg-[#F8F8F8]",
+            "text-sm",
+            "font-bold",
+            "leading-4",
+            "tracking-[0.01em]",
+
             isNavigable
               ? "text-[#E65100]"
               : "text-[#9DA4A3]",
@@ -285,10 +539,11 @@ export function ReadingLibraryCard({
 
   return (
     <Link
-       href={`/reading/resources/${resource.id}`}
+      href={`/reading/resources/${resource.id}`}
       aria-label={`${actionLabel} ${resource.title}`}
       className="
-        block rounded-2xl
+        block
+        rounded-2xl
         focus-visible:outline-none
         focus-visible:ring-2
         focus-visible:ring-[#00685F]/40

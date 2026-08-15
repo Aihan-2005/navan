@@ -1,6 +1,9 @@
 "use client";
 
-import { Search } from "lucide-react";
+import {
+  Search,
+} from "lucide-react";
+
 import {
   useMemo,
   useState,
@@ -16,11 +19,11 @@ import {
   ReadingLibraryCard,
 } from "./reading-library-card";
 
-type ReadingLibraryProps = Readonly<{
-  resources:
+type ReadingLibraryProps =
+  Readonly<{
+    resources:
     readonly ReadingResourceSummary[];
-}>;
-
+  }>;
 type LevelFilter =
   | "all"
   | ReadingCefrLevel;
@@ -29,39 +32,62 @@ type TypeFilter =
   | "all"
   | ReadingResourceType;
 
-type TypeFilterOption = Readonly<{
-  value: TypeFilter;
-  label: string;
-}>;
+type TypeFilterOption =
+  Readonly<{
+    value:
+    TypeFilter;
+
+    label:
+    string;
+  }>;
 
 const LEVEL_OPTIONS = [
-  "C2",
-  "C1",
-  "B2",
-  "B1",
-  "A2",
   "A1",
+  "A2",
+  "B1",
+  "B2",
+  "C1",
+  "C2",
 ] as const satisfies readonly ReadingCefrLevel[];
 
 const TYPE_OPTIONS = [
   {
     value: "all",
-    label: "همه",
+
+    label:
+      "همه",
   },
+
   {
-    value: "short_story",
-    label: "داستان",
+    value:
+      "short_story",
+
+    label:
+      "داستان",
   },
+
   {
-    value: "article",
-    label: "مقاله",
+    value:
+      "book",
+
+    label:
+      "کتاب",
   },
+
   {
-    value: "lesson", label: "درس",
+    value:
+      "article",
+
+    label:
+      "مقاله",
   },
+
   {
-    value: "book",
-    label: "کتاب",
+    value:
+      "lesson",
+
+    label:
+      "درس",
   },
 ] as const satisfies readonly TypeFilterOption[];
 
@@ -70,91 +96,139 @@ function normalizeSearchValue(
 ): string {
   return value
     .trim()
-    .toLocaleLowerCase("fa-IR");
+    .toLocaleLowerCase(
+      "fa-IR",
+    );
 }
 
 export function ReadingLibrary({
   resources,
 }: ReadingLibraryProps) {
-  const [searchQuery, setSearchQuery] =
+  const [
+    searchQuery,
+    setSearchQuery,
+  ] =
     useState("");
 
-  const [levelFilter, setLevelFilter] =
-    useState<LevelFilter>("all");
-
-  const [typeFilter, setTypeFilter] =
-    useState<TypeFilter>("all");
-
-  const filteredResources = useMemo(() => {
-    const normalizedQuery =
-      normalizeSearchValue(searchQuery);
-
-    return resources.filter((resource) => {
-      const searchableValues = [
-        resource.title,
-        resource.author ?? "",
-        resource.description ?? "",
-        ...resource.topics,
-      ];
-
-      const matchesSearch =
-        normalizedQuery.length === 0 ||
-        searchableValues.some((value) =>
-          normalizeSearchValue(
-            value,
-          ).includes(normalizedQuery),
-        );
-
-      const matchesLevel =
-        levelFilter === "all" ||
-        resource.cefrLevel === levelFilter;
-
-      const matchesType =
-        typeFilter === "all" ||
-        resource.resourceType === typeFilter;
-
-      return (
-        matchesSearch &&
-        matchesLevel &&
-matchesType
-      );
-    });
-  }, [
+  const [
     levelFilter,
-    resources,
-    searchQuery,
+    setLevelFilter,
+  ] = useState<LevelFilter>(
+    "all",
+  );
+
+  const [
     typeFilter,
-  ]);
+    setTypeFilter,
+  ] =
+    useState<TypeFilter>(
+      "all",
+    );
+
+  const filteredResources =
+    useMemo(
+      () => {
+        const normalizedQuery =
+          normalizeSearchValue(
+            searchQuery,
+          );
+
+        return resources.filter(
+          (resource) => {
+            const searchableValues =
+              [
+                resource.title,
+
+                resource.author ??
+                "",
+
+                resource.description ??
+                "",
+
+                ...resource.topics,
+              ];
+
+            const matchesSearch =
+              normalizedQuery.length ===
+              0 ||
+              searchableValues.some(
+                (value) =>
+                  normalizeSearchValue(
+                    value,
+                  ).includes(
+                    normalizedQuery,
+                  ),
+              );
+
+            const matchesLevel =
+              levelFilter ===
+              "all" ||
+              resource.cefrLevel ===
+              levelFilter;
+
+            const matchesType =
+              typeFilter ===
+              "all" ||
+              resource.resourceType ===
+              typeFilter;
+
+            return (
+              matchesSearch &&
+              matchesLevel &&
+              matchesType
+            );
+          },
+        );
+      },
+      [
+        levelFilter,
+        resources,
+        searchQuery,
+        typeFilter,
+      ],
+    );
 
   function toggleLevel(
-    level: ReadingCefrLevel,
+    level:
+      ReadingCefrLevel,
   ): void {
-    setLevelFilter((currentLevel) =>
-      currentLevel === level
-        ? "all"
-        : level,
+    setLevelFilter(
+      (currentLevel) =>
+        currentLevel === level
+          ? "all"
+          : level,
     );
   }
 
   return (
     <main
       aria-labelledby="reading-library-title"
+      style={{
+        fontFamily:
+          "var(--font-vazirmatn)",
+      }}
       className="
-        mx-auto w-full max-w-[936px]
+        mx-auto
+        w-full
+        max-w-[936px]
         pb-8
-        [font-family:var(--font-vazirmatn)]
+        text-[#191C1E]
       "
     >
-      <section>
+      <header
+        className="
+          min-h-[72px]
+          pb-2
+        "
+      >
         <h1
           id="reading-library-title"
-          className="
-            text-right text-[32px]
+          className="text-right
+            text-[28px]
             font-bold
-            leading-[44px]
-            tracking-[-0.02em]
+            leading-9
+            tracking-[-0.01em]
             text-[#191C1E]
-            sm:text-[36px]
           "
         >
           کتابخانه
@@ -162,28 +236,35 @@ matchesType
 
         <p
           className="
-            mt-2 text-right
-            text-base font-normal
-            leading-7 text-[#3D4947]
-            sm:text-[18px]
+            mt-2
+            text-right
+            text-base
+            font-normal
+            leading-6
+            text-[#3D4947]
           "
         >
-          مجموعه‌ای از متن‌ها و داستان‌های
-          سطح‌بندی‌شده
+          مجموعه‌ای از متن‌ها و داستان‌های سطح‌بندی‌شده
         </p>
-      </section>
+      </header>
 
-      <section aria-label="فیلترهای کتابخانه"
+      <section
+        aria-label="فیلترهای کتابخانه"
         className="
-          mt-6 flex min-h-[38px]
-          flex-wrap items-center
-          gap-3
+          mt-2
+          flex min-h-[38px]
+          flex-wrap
+          items-center
+          gap-2
         "
       >
         <label
           className="
-            relative block h-[38px]
-            w-full shrink-0
+            relative
+            block
+            h-8
+            w-full
+            shrink-0
             sm:w-[158px]
           "
         >
@@ -195,9 +276,11 @@ matchesType
             aria-hidden="true"
             strokeWidth={1.8}
             className="
-              pointer-events-none
-              absolute right-3 top-1/2
-              h-[18px] w-[18px]
+              pointer-events-none absolute
+              right-3
+              top-1/2
+              h-4
+              w-4
               -translate-y-1/2
               text-[#3D4947]
             "
@@ -205,21 +288,28 @@ matchesType
 
           <input
             type="search"
-            value={searchQuery}
-            onChange={(event) => {
+            value={
+              searchQuery
+            }
+            onChange={(
+              event,
+            ) => {
               setSearchQuery(
                 event.target.value,
               );
             }}
             placeholder="جستجو..."
             className="
-              h-full w-full
+              h-full
+              w-full
               rounded-lg
-              border border-[#BCC9C6]
-              bg-[#F4F6F7]
+              border
+              border-[#BCC9C6]bg-[#F4F6F7]
               py-1.5
-              pr-10 pl-4
-              text-right text-sm
+              pr-9
+              pl-3
+              text-right
+              text-xs
               font-normal
               text-[#191C1E]
               outline-none
@@ -230,124 +320,161 @@ matchesType
               focus:ring-[#00897F]/10
             "
           />
-        </label>  <div
-          className="
-            flex flex-wrap
-            items-center gap-2
-          "
-          aria-label="نوع محتوا"
-        >
-          {TYPE_OPTIONS.map((option) => {
-            const active =
-              typeFilter === option.value;
+        </label>
 
-            return (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={active}
-                onClick={() => {
-                  setTypeFilter(
-                    option.value,
-                  );
-                }}
-                className={`
-                  inline-flex h-7
-                  items-center justify-center
-                  rounded-full
-                  border px-4
-                  text-xs font-medium
-                  leading-[14px]
-                  tracking-[0.05em]
-                  transition
-                  ${
-                    active
-                      ? `
-                        border-[#191C1E]
-                        bg-[#191C1E]
-                        text-[#F7F9FB]
-                      `
-                      : `
-                        border-[#BCC9C6]
-                        bg-[#ECEEF0]
-                        text-[#3D4947]
-                        hover:border-[#8EA19D]
-                        hover:bg-[#E5E9EA]
-                      `
+        <div
+          aria-label="نوع محتوا"
+          className="
+            flex
+            flex-wrap
+            items-center
+            gap-2
+          "
+        >
+          {TYPE_OPTIONS.map(
+            (option) => {
+              const active =
+                typeFilter === option.value;
+
+              return (
+                <button
+                  key={
+                    option.value
                   }
-                `}
-              >
-                {option.label}
-              </button>
-            );
-          })}
+                  type="button"
+                  aria-pressed={
+                    active
+                  }
+                  onClick={() => {
+                    setTypeFilter(
+                      option.value,
+                    );
+                  }}
+                  className={`
+                    inline-flex
+                    h-7
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    px-4
+                    text-xs
+                    font-medium
+                    leading-[14px]
+                    tracking-[0.05em]
+                    transition
+                    ${active
+                      ? `
+                          border-[#191C1E]
+                          bg-[#191C1E]
+                          text-white
+                        `
+                      : `
+                          border-[#BCC9C6]
+                          bg-[#ECEEF0]
+                          text-[#3D4947]
+                          hover:border-[#8EA19D]
+                          hover:bg-[#E5E9EA]
+                        `
+                    }
+                  `}
+                >
+                  {
+                    option.label
+                  }
+                </button>
+              );
+            },
+          )}
         </div>
 
         <span
           aria-hidden="true"
           className="
-            hidden h-7 w-px
-         shrink-0 bg-[#D4DCDA]
-            md:block
+            mx-1
+        hidden
+            h-7
+            w-px
+            shrink-0
+            bg-[#D4DCDA]
+            lg:block
           "
         />
 
         <div
-          className="
-            flex flex-wrap
-            items-center gap-2
-          "
           aria-label="سطح زبان"
+          className="
+            flex
+            flex-wrap
+            items-center
+            gap-2
+          "
         >
-          {LEVEL_OPTIONS.map((level) => {
-            const active =
-              levelFilter === level;
+          {LEVEL_OPTIONS.map(
+            (level) => {
+              const active =
+                levelFilter ===
+                level;
 
-            return (
-              <button
-                key={level}
-                type="button"
-                dir="ltr"
-                aria-pressed={active}
-                onClick={() => {
-                  toggleLevel(level);
-                }}
-                className={`
-                  inline-flex h-7
-                  min-w-[42px]
-                  items-center justify-center
-                  rounded-lg border
-                  px-3
-                  text-xs font-medium
-                  leading-[14px]
-                  tracking-[0.05em]
-                  transition
-                  ${
-                    active
-                      ? `
-                        border-[#00685F]
-                        bg-[#00685F]
-                        text-white
-                      `
-                      : `
-                        border-[#00685F33]
-                        bg-[#00685F1A]
-                        text-[#00685F]
-                        hover:bg-[#00685F26]
-                      `
+              return (
+                <button
+                  key={
+                    level
                   }
-                `}
-              >
-                {level}
-              </button>
-            );
-          })}
+                  type="button"
+                  dir="ltr"
+                  aria-pressed={
+                    active
+                  }
+                  onClick={() => {
+                    toggleLevel(
+                      level,
+                    );
+                  }}
+                  className={`
+                    inline-flex
+                    h-7
+                    min-w-[36px]
+                    items-center
+                    justify-center
+                    rounded-md
+                    border
+                    px-2
+                    text-[11px]
+                    font-medium
+                    leading-[14px]
+                    tracking-[0.05em]
+                    transition
+                    ${active
+                      ? `
+                          border-[#00685F]
+                          bg-[#00685F]
+                          text-white
+                        `
+                      : `
+                          border-[#00685F33]
+                          bg-[#00685F1A]
+                          text-[#00685F]
+                          hover:bg-[#00685F26]
+                        `
+                    }
+                  `}
+                >
+                  {level}
+                </button>
+              );
+            },
+          )}
         </div>
-      </section>{filteredResources.length > 0 ? (
+      </section>
+
+      {filteredResources.length >
+        0 ? (
         <section
           aria-label="منابع کتابخانه"
           className="
-            mt-6 grid
+            mt-6
+            grid
             grid-cols-[repeat(auto-fill,minmax(200px,1fr))]
             gap-6
           "
@@ -355,8 +482,12 @@ matchesType
           {filteredResources.map(
             (resource) => (
               <ReadingLibraryCard
-                key={resource.id}
-                resource={resource}
+                key={
+                  resource.id
+                }
+                resource={
+                  resource
+                }
               />
             ),
           )}
@@ -364,28 +495,36 @@ matchesType
       ) : (
         <section
           className="
-            mt-8 flex min-h-56
-            flex-col items-center
+            mt-8
+            flex
+            min-h-56
+            flex-col
+            items-center
             justify-center
             rounded-2xl
-            border border-dashed
+            border
+            border-dashed
             border-[#BCC9C6]
             bg-white/60
-            px-6 text-center
-          "
+            px-6
+            text-center
+            "
         >
           <Search
             aria-hidden="true"
             className="
-              h-9 w-9
+              h-9
+              w-9
               text-[#84918F]
             "
           />
 
           <h2
             className="
-              mt-4 text-lg
-              font-bold text-[#191C1E]
+              mt-4
+              text-lg
+              font-bold
+              text-[#191C1E]
             "
           >
             منبعی پیدا نشد
@@ -393,14 +532,15 @@ matchesType
 
           <p
             className="
-              mt-1 text-sm
-              leading-6 text-[#687573]
+              mt-1
+              text-sm
+              leading-6
+              text-[#687573]
             "
-          >
-            جستجو یا فیلتر انتخاب‌شده را تغییر
-            بده.
+          >            جستجو یا فیلتر انتخاب‌شده را تغییر بده.
           </p>
         </section>
       )}
-    </main>  );
+    </main>
+  );
 }
