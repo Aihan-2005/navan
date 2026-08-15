@@ -3,68 +3,81 @@ import type {
 } from "zod";
 
 import type {
-  speakingAiReplySchema,
-  speakingAnalysisEngineSchema,
-  speakingCorrectionCategorySchema,
-  speakingCorrectionSchema,
-  speakingCorrectionSeveritySchema,
-  speakingPronunciationFindingSchema,
-  speakingScoreBreakdownSchema,
-  speakingTranscriptSegmentSchema,
-  speakingTurnAnalysisSchema,
-  speakingTurnAnalyzeMetadataSchema,
-  speakingTurnModeSchema,
-} from "../schemas/speaking-turn.schema";
+  speakingCoachStyleSchema,
+  speakingDifficultySchema,
+  speakingModeSchema,
+  speakingOverviewSchema,
+  speakingScenarioSchema,
+  speakingStatsSchema,
+} from "../schemas/speaking.schema";
 
-export type SpeakingTurnMode =
+export type SpeakingMode =
   z.infer<
-    typeof speakingTurnModeSchema
+    typeof speakingModeSchema
   >;
 
-export type SpeakingAnalysisEngine =
+export type SpeakingDifficulty =
   z.infer<
-    typeof speakingAnalysisEngineSchema
+    typeof speakingDifficultySchema
   >;
 
-export type SpeakingCorrectionCategory =
+export type SpeakingCoachStyle =
   z.infer<
-    typeof speakingCorrectionCategorySchema
+    typeof speakingCoachStyleSchema
   >;
 
-export type SpeakingCorrectionSeverity =
+export type SpeakingScenario =
   z.infer<
-    typeof speakingCorrectionSeveritySchema
-  >;export type SpeakingTurnAnalyzeMetadata =
-  z.infer<
-    typeof speakingTurnAnalyzeMetadataSchema
+    typeof speakingScenarioSchema
   >;
 
-export type SpeakingTranscriptSegment =
+export type SpeakingStats =
   z.infer<
-    typeof speakingTranscriptSegmentSchema
+    typeof speakingStatsSchema
   >;
 
-export type SpeakingScoreBreakdown =
+export type SpeakingOverview =
   z.infer<
-    typeof speakingScoreBreakdownSchema
+    typeof speakingOverviewSchema
   >;
 
-export type SpeakingCorrection =
-  z.infer<
-    typeof speakingCorrectionSchema
-  >;
+export type RecordedAudio =
+  Readonly<{
+    /**
+     * فایل صوتی واقعی ساخته‌شده توسط MediaRecorder.
+     */
+    blob:
+      Blob;
 
-export type SpeakingPronunciationFinding =
-  z.infer<
-    typeof speakingPronunciationFindingSchema
-  >;
+    /**
+     * Object URL موقت برای Preview داخل Browser.
+     */
+    url:
+      string;
 
-export type SpeakingAiReply =
-  z.infer<
-    typeof speakingAiReplySchema
-  >;
+    /**
+     * MIME type واقعی فایل ضبط‌شده.
+     *
+     * مثال:
+     * audio/webm;codecs=opus
+     */
+    mimeType:
+      string;
 
-export type SpeakingTurnAnalysis =
-  z.infer<
-    typeof speakingTurnAnalysisSchema
-  >;
+    /**
+     * مدت واقعی ضبط بدون احتساب زمان Pause.
+     */
+    durationSeconds:
+      number;
+
+    /**
+     * حجم Blob برای نمایش UI و Validation قبل از Upload.
+     */
+    sizeBytes:
+      number;
+
+    /** * زمان ایجاد Recording.
+     */
+    createdAt:
+      string;
+  }>;
