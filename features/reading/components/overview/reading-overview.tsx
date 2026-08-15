@@ -45,10 +45,10 @@ export function ReadingOverview({
   const {
     stats,
     continueReading,
+    weeklyGoal,
     learningJourney,
     primaryInsight,
     recentActivities,
-    weeklyGoal,
   } = overview;
 
   const continueHref =
@@ -57,8 +57,7 @@ export function ReadingOverview({
       : continueReading
         ? `/reading/resources/${continueReading.resourceId}`
         : "/reading";
-
-  const detailsHref =
+const detailsHref =
     continueReading
       ? `/reading/resources/${continueReading.resourceId}`
       : "/reading";
@@ -75,7 +74,7 @@ export function ReadingOverview({
         w-full
         max-w-[936px]
         space-y-8
-        pb-4
+        pb-8
         text-[#191C1E]
       "
     >
@@ -86,8 +85,7 @@ export function ReadingOverview({
             min-h-[279px]
             overflow-hidden
             rounded-xl
-            border
-            border-[#BCC9C6]/30
+            border border-[#BCC9C6]/30
             bg-[linear-gradient(135deg,rgba(0,104,95,0.10)_0%,rgba(0,131,120,0.20)_100%)]
             p-6
             shadow-[0_4px_20px_rgba(13,148,136,0.04)]
@@ -99,10 +97,10 @@ export function ReadingOverview({
             className="
               pointer-events-none
               absolute
-              -bottom-16
-              right-1/3
-              h-40
-              w-40
+              -bottom-20
+              right-[28%]
+              h-48
+              w-48
               rounded-full
               bg-white/20
               blur-3xl
@@ -113,12 +111,12 @@ export function ReadingOverview({
             className="
               relative
               flex
- min-h-[213px]
+              min-h-[213px]
               flex-col
-              justify-between
               gap-8
               md:flex-row
               md:items-center
+md:gap-[62px]
             "
           >
             <div
@@ -137,21 +135,24 @@ export function ReadingOverview({
                   px-2
                   text-xs
                   font-normal
+                  leading-[14px]
                   tracking-[0.05em]
                   text-[#00685F]
                 "
               >
                 ادامه مطالعه
               </span>
- <h1
+
+              <h1
                 id="reading-page-title"
-                dir="ltr"
+dir="ltr"
                 style={{
                   fontFamily:
                     "var(--font-plus-jakarta-sans)",
                 }}
                 className="
                   mt-3
+                  max-w-[646px]
                   text-right
                   text-[24px]
                   font-bold
@@ -161,21 +162,19 @@ export function ReadingOverview({
                   sm:text-[28px]
                 "
               >
-                {
-                  continueReading.title
-                }
+                {continueReading.title}
               </h1>
 
               <p
                 className="
                   mt-1
                   text-base
+                  font-normal
                   leading-6
                   text-[#3D4947]
-        "
+                "
               >
-                بخش{" "}
-                {numberFormatter.format(
+                بخش{" "}{numberFormatter.format(
                   continueReading.currentSectionOrder,
                 )}{" "}
                 از{" "}
@@ -187,7 +186,8 @@ export function ReadingOverview({
               <div
                 className="
                   mt-5
-                  max-w-md
+                  w-full
+                  max-w-[448px]
                 "
               >
                 <div
@@ -199,11 +199,12 @@ export function ReadingOverview({
                     gap-2
                     text-sm
                     font-bold
+                    leading-4
                   "
                 >
                   <span
                     className="
-                      inline-flex
+                    inline-flex
                       items-center
                       gap-1.5
                       text-[#3D4947]
@@ -232,10 +233,8 @@ export function ReadingOverview({
                         continueReading.comprehensionScore,
                       )}
                       ٪ درک متن
-                    </span>
-                  ) : null}
-
-                  </div>
+                    </span>   ) : null}
+                </div>
 
                 <div
                   role="progressbar"
@@ -257,15 +256,14 @@ export function ReadingOverview({
                     className="
                       h-full
                       rounded-full
-                   bg-[#00685F]
+                      bg-[#00685F]
                       transition-[width]
                       duration-500
                     "
                     style={{
                       width:
                         `${continueReading.progressPercent}%`,
-                    }}
-                  />
+                    }}/>
                 </div>
               </div>
 
@@ -274,17 +272,18 @@ export function ReadingOverview({
                   mt-6
                   flex
                   flex-wrap
+                  items-center
                   gap-3
                 "
               >
                 <Link
                   href={
-
-                   continueHref
+                    continueHref
                   }
                   className="
                     inline-flex
                     h-11
+                    min-w-[153px]
                     items-center
                     justify-center
                     gap-2
@@ -293,10 +292,15 @@ export function ReadingOverview({
                     px-6
                     text-sm
                     font-bold
-                    text-white
+                    leading-4
+                                        tracking-[0.01em]
+text-white
                     shadow-[0_1px_2px_rgba(0,0,0,0.05)]
                     transition
-                    hover:bg-[#005B53]
+                    hover:bg-[#005A52]
+                    focus-visible:outline-none
+                    focus-visible:ring-2
+                    focus-visible:ring-[#00685F]/25
                   "
                 >
                   <BookOpenText
@@ -305,7 +309,7 @@ export function ReadingOverview({
                   />
 
                   ادامه مطالعه
-                 </Link>
+                </Link>
 
                 <Link
                   href={
@@ -314,18 +318,25 @@ export function ReadingOverview({
                   className="
                     inline-flex
                     h-11
+                    min-w-[143px]
                     items-center
                     justify-center
                     rounded-lg
                     border
-                    border-[#6D7A77]
+                                        border-[#6D7A77]
+bg-transparent
                     px-6
                     text-sm
                     font-bold
+                    leading-4
+                    tracking-[0.01em]
                     text-[#191C1E]
                     transition
                     hover:border-[#00685F]
                     hover:text-[#00685F]
+                    focus-visible:outline-none
+                    focus-visible:ring-2
+                    focus-visible:ring-[#00685F]/20
                   "
                 >
                   مشاهده جزئیات
@@ -335,7 +346,7 @@ export function ReadingOverview({
 
             <div
               aria-hidden="true"
-               className="
+              className="
                 mx-auto
                 hidden
                 h-[169px]
@@ -343,8 +354,7 @@ export function ReadingOverview({
                 shrink-0
                 -rotate-[9.9deg]
                 rounded-lg
-                border
-                border-[#BCC9C6]/20
+                border border-[#BCC9C6]/20
                 bg-[#F7F9FB]
                 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.10),0_2px_4px_-2px_rgba(0,0,0,0.10)]
                 md:block
@@ -353,11 +363,11 @@ export function ReadingOverview({
               <div
                 className="
                   mx-auto
-                  mt-6
+                  mt-7
                   h-2
                   w-16
                   rounded-full
-                  bg-[#E2E8F0]
+                  bg-[#DDE4E6]
                 "
               />
 
@@ -365,10 +375,20 @@ export function ReadingOverview({
                 className="
                   mx-auto
                   mt-4
-               h-1.5
-                  w-20
+                  h-1.5
+                  w-[84px]
                   rounded-full
-                  bg-[#E8EEF2]
+                  bg-[#E7ECEE]
+                "
+              />
+
+              <div
+                className="mx-auto
+                  mt-2
+                  h-1.5
+                  w-[72px]
+                  rounded-full
+                  bg-[#E7ECEE]
                 "
               />
 
@@ -377,9 +397,9 @@ export function ReadingOverview({
                   mx-auto
                   mt-2
                   h-1.5
-                  w-16
+                  w-20
                   rounded-full
-                  bg-[#E8EEF2]
+                  bg-[#E7ECEE]
                 "
               />
             </div>
@@ -388,13 +408,13 @@ export function ReadingOverview({
       ) : null}
 
       <section
-        aria-label="آمار Reading"
+        aria-label="آمار مطالعه"
         className="
           grid
           gap-4
           sm:grid-cols-2
-          lg:grid-cols-4
-          lg:gap-6 "
+          lg:grid-cols-4lg:gap-6
+        "
       >
         <ReadingStatCard
           title="جلسه‌های شنیداری"
@@ -403,7 +423,7 @@ export function ReadingOverview({
               stats.totalSessions,
             )
           }
-          description="تعداد جلسه‌های ثبت‌شده"
+          description="تعداد جلسه‌های ثبت شده"
           icon={
             Headphones
           }
@@ -419,16 +439,16 @@ export function ReadingOverview({
           icon={
             TimerReset
           }
-          tone="violet" />
+          tone="violet"
+        />
 
-        <ReadingStatCard
-          title="واژگان تثبیت شده"
+        <ReadingStatCard title="واژگان تثبیت شده"
           value={
             numberFormatter.format(
               stats.masteredWords,
             )
           }
-          description="واژگان یادگرفته‌شده"
+          description="واژگان یادگرفته شده"
           icon={
             WholeWord
           }
@@ -440,7 +460,7 @@ export function ReadingOverview({
           value={`${numberFormatter.format(
             stats.currentStreakDays,
           )} روز`}
-          description="تعداد روزهای تداوم"
+          description="تداوم مطالعه"
           icon={
             Flame
           }
@@ -450,9 +470,10 @@ export function ReadingOverview({
 
       <section
         className="
-          griditems-start
+          grid
+          items-start
           gap-8
-          lg:grid-cols-[minmax(0,2.1fr)_minmax(260px,1fr)]
+          lg:grid-cols-[minmax(0,2.11fr)_minmax(250px,1fr)]
         "
       >
         <div
@@ -477,10 +498,10 @@ export function ReadingOverview({
         <ReadingOverviewSidePanel
           weeklyGoal={
             weeklyGoal
-          }
-          insight={
+          }insight={
             primaryInsight
-          } />
+          }
+        />
       </section>
     </main>
   );

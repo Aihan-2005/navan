@@ -1,6 +1,9 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import {
+  usePathname,
+} from "next/navigation";
+
 import {
   useCallback,
   useEffect,
@@ -10,33 +13,61 @@ import {
 
 import Header from "../../layout/header";
 import Sidebar from "../../layout/sidebar";
-import { cn } from "../../lib/utils/cn";
 
-type DashboardShellProps = Readonly<{
-  children: ReactNode;
-}>;
+import {
+  cn,
+} from "../../lib/utils/cn";
+
+type DashboardShellProps =
+  Readonly<{
+    children:
+      ReactNode;
+  }>;
 
 export type DashboardAppearance =
   | "dark"
   | "light";
 
+function shouldUseLightReadingShell(
+  pathname: string,
+): boolean {
+  return (
+    pathname ===
+      "/reading" ||
+    pathname ===
+      "/reading/resources"
+  );
+}
+
 export default function DashboardShell({
   children,
 }: DashboardShellProps) {
-  const pathname = usePathname();
+  const pathname =
+    usePathname();
 
-  const [isSidebarOpen, setIsSidebarOpen] =
+  const [
+    isSidebarOpen,
+    setIsSidebarOpen,
+  ] =
     useState(false);
 
-  const appearance: DashboardAppearance =
-    pathname === "/reading/library"
-      ? "light"
-      : "dark";
+  const appearance:
+    DashboardAppearance =
+      shouldUseLightReadingShell(
+        pathname,
+      )
+        ? "light"
+        : "dark";
 
   const closeSidebar =
-    useCallback((): void => {
-      setIsSidebarOpen(false);
-    }, []);
+    useCallback(
+      (): void => {
+        setIsSidebarOpen(
+          false,
+        );
+      },
+      [],
+    );
 
   useEffect(() => {
     if (!isSidebarOpen) {
@@ -44,9 +75,13 @@ export default function DashboardShell({
     }
 
     function handleEscapeKey(
-      event: KeyboardEvent,
+      event:
+        KeyboardEvent,
     ): void {
-      if (event.key === "Escape") {
+      if (
+        event.key ===
+        "Escape"
+      ) {
         closeSidebar();
       }
     }
@@ -84,28 +119,47 @@ export default function DashboardShell({
         "overflow",
       );
     };
-  }, [isSidebarOpen]);
+  }, [
+    isSidebarOpen,
+  ]);
 
   return (
     <div
       dir="rtl"
+      data-dashboard-appearance={
+        appearance
+      }
       className={cn(
         "min-h-dvh",
-        appearance === "light"
-          ? "bg-[#F7F9FB] text-[#191C1E]"
-          : "bg-[#041121] text-white",
+
+        appearance ===
+          "light"
+          ? [
+              "bg-[#F7F9FB]",
+              "text-[#191C1E]",
+            ]
+          : [
+              "bg-[#041121]",
+              "text-white",
+            ],
       )}
     >
       <Header
-        appearance={appearance}
+        appearance={
+          appearance
+        }
         setIsSidebarOpen={
           setIsSidebarOpen
         }
       />
 
       <Sidebar
-        appearance={appearance}
-        isSidebarOpen={isSidebarOpen}
+        appearance={
+          appearance
+        }
+        isSidebarOpen={
+          isSidebarOpen
+        }
         setIsSidebarOpen={
           setIsSidebarOpen
         }
@@ -118,7 +172,9 @@ export default function DashboardShell({
           "px-4 pb-16",
           "sm:px-6",
           "lg:mr-72 lg:px-8",
-          appearance === "light"
+
+          appearance ===
+            "light"
             ? [
                 "bg-[#F7F9FB]",
                 "pt-[104px]",

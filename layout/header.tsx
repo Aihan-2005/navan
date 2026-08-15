@@ -43,12 +43,13 @@ function LightHeader({
       dir="rtl"
     >
       <div
-        className="
-          mx-auto grid h-full
-          w-full max-w-[936px]grid-cols-[auto_minmax(0,1fr)_auto]
-          items-center gap-4
-          lg:grid-cols-[minmax(170px,1fr)_minmax(260px,470px)_minmax(170px,1fr)]
-        "
+       className="
+  mx-auto grid h-full
+  w-full max-w-[936px]
+  grid-cols-[auto_minmax(0,1fr)_auto]
+  items-center gap-4
+  lg:grid-cols-[minmax(170px,1fr)_minmax(260px,470px)_minmax(170px,1fr)]
+"
         dir="ltr"
       >
         <div

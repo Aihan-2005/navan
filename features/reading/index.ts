@@ -3,6 +3,10 @@ export {
 } from "./api/get-reading-library";
 
 export {
+  getReadingMyResources,
+} from "./api/get-reading-my-resources";
+
+export {
   getReadingOverview,
 } from "./api/get-reading-overview";
 
@@ -24,9 +28,8 @@ export {
 } from "./api/upload-reading-source";
 
 export {
-  ReadingAiAnalysisPanel,
+    ReadingAiAnalysisPanel,
 } from "./components/analysis/reading-ai-analysis-panel";
-
 export {
   ReadingLibrary,
 } from "./components/library/reading-library";
@@ -52,6 +55,14 @@ export {
 } from "./components/overview/reading-stat-card";
 
 export {
+  ReadingMyResourceCard,
+} from "./components/resource/reading-my-resource-card"
+
+export {
+  ReadingMyResources,
+} from "./components/resource/reading-my-resources";
+
+export {
   ReadingResourceDetail,
 } from "./components/resource/reading-resource-detail";
 
@@ -63,6 +74,14 @@ export {
   ReadingSectionWorkspace,
 } from "./components/workspace/reading-section-workspace";
 
+export {
+  readingMyResourceItemSchema,
+  readingMyResourceSourceKindSchema,
+  readingMyResourcesSchema,
+  readingMyResourcesStatsSchema,
+  readingMyResourceStatusSchema,
+} from "./schemas/reading-my-resources.schema";
+
 export type {
   ContinueReading,
 
@@ -70,9 +89,7 @@ export type {
   ReadingCefrLevel,
 
   ReadingComprehensionOption,
-  ReadingComprehensionQuestion,
-
-  ReadingGrammarExample,
+  ReadingComprehensionQuestion,ReadingGrammarExample,
   ReadingGrammarPoint,
 
   ReadingInsight,
@@ -96,9 +113,7 @@ export type {
   ReadingSectionDetail as ReadingSectionDetailData,
   ReadingSectionDetailInput,
   ReadingSectionStatus,
-  ReadingSectionSummary,
-
-  ReadingSourceFileKind,
+  ReadingSectionSummary,ReadingSourceFileKind,
   ReadingSourceType,
 
   ReadingSourceUploadMetadata,
@@ -112,6 +127,15 @@ export type {
 } from "./types/reading.types";
 
 export type {
+  ReadingMyResourceItem,
+  ReadingMyResourceSourceKind,
+  ReadingMyResources as ReadingMyResourcesData,
+  ReadingMyResourcesInput,
+  ReadingMyResourcesStats,
+  ReadingMyResourceStatus,
+} from "./types/reading-my-resources.types";
+
+export type {
   ReadingAiAnalysisStatus,
   ReadingAiContentQuality,
   ReadingAiDifficultyScores,
@@ -119,8 +143,7 @@ export type {
   ReadingAiInsightPriority,
   ReadingAiInsightType,
   ReadingAiVocabularyProfile,
-  ReadingResourceAiAnalysis,
-} from "./types/reading-ai-analysis.types";
+  ReadingResourceAiAnalysis,} from "./types/reading-ai-analysis.types";
 
 export type {
   ReadingUploadAnalysisMode,

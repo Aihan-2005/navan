@@ -1,211 +1,319 @@
 "use client";
 
 import Link from "next/link";
+
 import {
   BookOpenText,
   LibraryBig,
   Plus,
   UploadCloud,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
 
-import { cn } from "../../../../lib/utils/cn";
+import {
+  usePathname,
+} from "next/navigation";
 
-const STANDARD_NAVIGATION_ITEMS = [
-  {
-    href: "/reading",
-    label: "نمای کلی",
-    icon: BookOpenText,
-    exact: true,
-  },
-  {
-    href: "/reading/library",
-    label: "کتابخانه",
-    icon: LibraryBig,
-    exact: false,
-  },
-  {
-    href: "/reading/upload",
-    label: "آپلود منبع",
-    icon: UploadCloud,
-    exact: false,
-  },
-] as const;
+import {
+  cn,
+} from "../../../../lib/utils/cn";
 
-const LIBRARY_TABS = [
-  {
-    href: "/reading",
-    label: "مطالعه من",
-  },
-  {
-    href: "/reading/library",
-    label: "کتابخانه",
-  },
-  {
-    href: "/reading/upload",
-    label: "منابع من",
-  },
-] as const;
+const figmaNavigationItems =
+  [
+    {
+      href:
+        "/reading",
 
-function isRouteActive(
+      label:
+        "مطالعه من",
+
+      exact: true,
+    },
+
+    {
+      href:
+        "/reading/library",
+
+      label:
+        "کتابخانه",
+
+      exact:
+        true,
+    },
+
+    {
+      href:
+        "/reading/resources",
+
+      label:
+        "منابع من",
+
+      exact:
+        true,
+    },
+  ] as const;
+
+const legacyNavigationItems =
+  [
+    {
+      href:
+        "/reading",
+
+      label:
+        "نمای کلی",
+
+      icon:
+        BookOpenText,
+
+      exact:
+        true,
+    },
+
+    {
+      href:
+        "/reading/library",
+
+      label:"کتابخانه",
+
+      icon:
+        LibraryBig,
+
+      exact:
+        false,
+    },
+
+    {
+      href:
+        "/reading/upload",
+
+      label:
+        "آپلود منبع",
+
+      icon:
+        UploadCloud,
+
+      exact:
+        false,
+    },
+  ] as const;
+
+function shouldUseFigmaNavigation(
   pathname: string,
-  href: string,
-  exact = false,
 ): boolean {
-  if (exact) {
-    return pathname === href;
-  }
-return (
-    pathname === href ||
-    pathname.startsWith(`${href}/`)
+  return (
+    pathname ===
+      "/reading" ||
+    pathname ===
+      "/reading/resources"
   );
 }
 
-function LibraryNavigation() {
-  const pathname = usePathname();
+export function ReadingNavigation() {
+  const pathname =
+    usePathname();
 
-  return (
-    <nav
-      aria-label="منوی بخش خواندن"
-      className="
-        mx-auto mb-6
-        w-full max-w-[936px]
-        [font-family:var(--font-vazirmatn)]
-      "
-    >
-      <div
+  if (
+    shouldUseFigmaNavigation(
+      pathname,
+    )
+  ) {
+    return (
+      <nav
+        aria-label="منوی بخش خواندن"
+        style={{
+          fontFamily:
+            "var(--font-vazirmatn)",
+        }}
         className="
-          flex min-h-11
-          items-end justify-between
-          gap-4
-          border-b border-[#BCC9C6]
+          mx-auto
+          mb-6
+          flex
+          h-[41px]
+          w-full
+          max-w-[936px]
+          items-start
+          justify-between
+          gap-5
+          border-b
+          border-[#BCC9C6]
         "
       >
         <div
           className="
-            flex min-w-0
-            items-end gap-5
-            sm:gap-8
+            flex
+            h-full
+            min-w-0
+            items-start
+            gap-4
+            overflow-x-auto
+            sm:gap-6
           "
         >
-          {LIBRARY_TABS.map((item) => {
-            const active =
-              pathname === item.href;
+          {figmaNavigationItems.map(
+            (item) => {
+              const active =
+                item.exact
+                  ? pathname ===
+                    item.href
+                  : pathname ===
+                      item.href ||
+                    pathname.startsWith(
+                      `${item.href}/`,
+                    );
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={
-                  active
-                    ? "page"
-                    : undefined
-                }
-                className={cn(
-                  "relative inline-flex h-11",
-                  "items-center whitespace-nowrap",
-                  "px-1 text-sm font-medium",
-                  "transition-colors",
-                  "focus-visible:outline-none",
-                  "focus-visible:ring-2",
-                  "focus-visible:ring-[#00897F]/30",
-                  active? "text-[#00685F]"
-                    : [
-                        "text-[#3D4947]",
-                        "hover:text-[#00685F]",
-                      ],
-                )}
-              >
-                {item.label}
+              return (
+                <Link
+                  key={ item.href
+                  }
+                  href={
+                    item.href
+                  }
+                  aria-current={
+                    active
+                      ? "page"
+                      : undefined
+                  }
+                  className={cn(
+                    "relative",
+                    "flex h-[41px]",
+                    "shrink-0",
+                    "items-start",
+                    "px-1 pt-0.5",
+                    "text-sm font-bold",
+                    "leading-4",
+                    "tracking-[0.01em]",
+                    "transition-colors",
 
-                {active ? (
-                  <span
-                    aria-hidden="true"
-                    className="
-                      absolute inset-x-0
-                      bottom-0 h-0.5
-                      rounded-full
-                      bg-[#00897F]
-                    "
-                  />
-                ) : null}
-              </Link>
-            );
-          })}
+                    active
+                      ? "text-[#00685F]"
+                      : [
+                          "text-[#3D4947]",
+                          "hover:text-[#00685F]",
+                        ],
+                  )}
+                >
+                  {item.label}
+ {active ? (
+                    <span
+                      aria-hidden="true"
+                      className="
+                        absolute
+                        inset-x-0
+                        bottom-0
+                        h-0.5
+                        rounded-full
+                        bg-[#00685F]
+                      "
+                    />
+                  ) : null}
+                </Link>
+              );
+            },
+          )}
         </div>
 
         <Link
           href="/reading/upload"
           className="
-            mb-2 inline-flex
-            h-7 shrink-0
-            items-center justify-center
-            gap-1 rounded-lg
-            bg-[#DCEFED]
-            px-3
-            text-xs font-medium
+            inline-flex
+            h-8
+            shrink-0
+            items-center
+            justify-center
+            gap-2
+            rounded-lg
+             bg-[#00685F]/10
+            px-4
+            text-sm
+            font-semibold
+            leading-4
+            tracking-[0.01em]
             text-[#00685F]
             transition
-            hover:bg-[#CFE8E5]
+            hover:bg-[#00685F]/15
             focus-visible:outline-none
             focus-visible:ring-2
-            focus-visible:ring-[#00897F]/30
+            focus-visible:ring-[#00685F]/25
           "
         >
           <Plus
             aria-hidden="true"
-            className="h-3.5 w-3.5"
+            className="
+              h-3.5
+              w-3.5
+            "
           />
 
-          <span className="hidden sm:inline">
+          <span
+            className="
+              hidden
+              sm:inline
+            "
+          >
             افزودن منبع
           </span>
         </Link>
-      </div>
-    </nav>
-  );
-}
-
-function StandardReadingNavigation() {
-  const pathname = usePathname();
+         </nav>
+    );
+  }
 
   return (
     <nav
       aria-label="منوی بخش خواندن"
       className="
-        mx-auto mb-6 grid
-        w-full max-w-7xl
-        grid-cols-3 gap-2
+        mx-auto
+        mb-6
+        grid
+        w-full
+        max-w-7xl
+        grid-cols-3
+        gap-2
         rounded-2xl
-        border border-white/[0.07]
-        bg-white/[0.025] p-2
+        border
+        border-white/[0.07]
+        bg-white/[0.025]
+        p-2
       "
     >
-      {STANDARD_NAVIGATION_ITEMS.map(
+      {legacyNavigationItems.map(
         (item) => {
           const active =
-            isRouteActive(
-              pathname,
-              item.href,
-              item.exact,
-            );
+            item.exact
+              ? pathname ===
+                item.href
+              : pathname ===
+                  item.href ||
+                 pathname.startsWith(
+                  `${item.href}/`,
+                );
 
-          const Icon = item.icon;
+          const Icon =
+            item.icon;
 
           return (
             <Link
-              key={item.href}
-              href={item.href}
+              key={
+                item.href
+              }
+              href={
+                item.href
+              }
               aria-current={
                 active
                   ? "page"
                   : undefined
-              } className={cn(
-                "inline-flex min-h-12",
-                "items-center justify-center",
-                "gap-2 rounded-xl px-3",
-                "text-sm font-medium",
+              }
+              className={cn(
+                "inline-flex",
+                "min-h-12",
+                "items-center",
+                "justify-center",
+                "gap-2",
+                "rounded-xl",
+                "px-3",
+                "text-sm",
+                "font-medium",
                 "transition",
+
                 active
                   ? [
                       "bg-cyan-400/10",
@@ -232,14 +340,4 @@ function StandardReadingNavigation() {
       )}
     </nav>
   );
-}
-
-export function ReadingNavigation() {
-  const pathname = usePathname();
-
-  if (pathname === "/reading/library") {
-    return <LibraryNavigation />;
-  }
-
-  return <StandardReadingNavigation />;
 }

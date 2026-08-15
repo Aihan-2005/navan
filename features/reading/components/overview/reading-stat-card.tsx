@@ -9,25 +9,26 @@ import {
 type ReadingStatCardProps =
   Readonly<{
     title:
-      string;
+    string;
 
     value:
-      string;
+    string;
 
     description:
-      string;
+    string;
 
     icon:
-      LucideIcon;
+    LucideIcon;
 
     tone?:
-      | "teal"
-      | "violet"
-      | "slate"
-      | "orange";
+    | "teal"
+    | "violet"
+    | "slate"
+    | "orange";
   }>;
 
-const toneStyles = {teal: {
+const toneStyles = {
+  teal: {
     border:
       "border-x-[#00685F]",
 
@@ -56,11 +57,9 @@ const toneStyles = {teal: {
       "border-x-[#F97316]",
 
     iconWrapper:
-    "bg-[#FFF7ED] text-[#F97316]",
+      "bg-[#FFF7ED] text-[#F97316]",
   },
-} as const;
-
-export function ReadingStatCard({
+} as const; export function ReadingStatCard({
   title,
   value,
   description,
@@ -69,26 +68,36 @@ export function ReadingStatCard({
 }: ReadingStatCardProps) {
   const selectedTone =
     toneStyles[
-      tone
+    tone
     ];
 
   return (
     <article
       className={cn(
-        "flex min-h-[106px] items-center gap-4",
-        "rounded-[24px] border border-[#E2E8F0]",
-        "border-x-[3px]",
-        "bg-white/80 px-5 py-5",
+        "flex",
+        "min-h-[106px]",
+        "items-center",
+        "gap-4",
+        "rounded-[24px]",
+        "border",
+        "border-y-[#E2E8F0]",
+        "border-x-4",
+        "bg-white/80",
+        "px-5 py-5",
         "shadow-[0_1px_2px_rgba(0,0,0,0.05)]",
         "backdrop-blur-xl",
         selectedTone.border,
-      )}>
-      <div
-        className={cn(
-          "flex h-12 w-12 shrink-0 items-center justify-center",
-          "rounded-full",
-          selectedTone.iconWrapper,
-        )}
+      )}
+    >
+      <div className={cn(
+        "flex",
+        "h-12 w-12",
+        "shrink-0",
+        "items-center",
+        "justify-center",
+        "rounded-full",
+        selectedTone.iconWrapper,
+      )}
       >
         <Icon
           aria-hidden="true"
@@ -96,7 +105,12 @@ export function ReadingStatCard({
         />
       </div>
 
-      <div className="min-w-0">
+      <div
+        className="
+          min-w-0
+          flex-1
+        "
+      >
         <p
           className="
             whitespace-nowrap
@@ -105,13 +119,11 @@ export function ReadingStatCard({
             leading-5
             text-[#64748B]
           "
-        >
-          {title}
-        </p>
-
-        <p
+        >          {title}
+        </p><p
           className="
             mt-1
+            whitespace-nowrap
             text-2xl
             font-bold
             leading-8
