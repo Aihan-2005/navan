@@ -3,81 +3,125 @@ import type {
 } from "zod";
 
 import type {
-  speakingCoachStyleSchema,
-  speakingDifficultySchema,
-  speakingModeSchema,
-  speakingOverviewSchema,
-  speakingScenarioSchema,
-  speakingStatsSchema,
-} from "../schemas/speaking.schema";
+  speakingAiReplySchema,
+  speakingAnalysisEngineSchema,
+  speakingCorrectionCategorySchema,
+  speakingCorrectionSchema,
+  speakingCorrectionSeveritySchema,
+  speakingPronunciationFindingSchema,
+  speakingScoreBreakdownSchema,
+  speakingTranscriptSegmentSchema,
+  speakingTurnAnalysisSchema,
+  speakingTurnAnalyzeMetadataSchema,
+  speakingTurnModeSchema,
+} from "../schemas/speaking-turn.schema";
 
-export type SpeakingMode =
+/**
+ * نوع تمرین مربوط به یک Turn صوتی.
+ *
+ * scenario:
+ * پاسخ داخل یک سناریوی مشخص.
+ *
+ * free:
+ * گفت‌وگوی آزاد.
+ */
+export type SpeakingTurnMode =
   z.infer<
-    typeof speakingModeSchema
+    typeof speakingTurnModeSchema
   >;
 
-export type SpeakingDifficulty =
+/**
+ * مشخص می‌کند تحلیل توسط Mock
+ * یا AI واقعی تولید شده است.
+ */
+export type SpeakingAnalysisEngine =
   z.infer<
-    typeof speakingDifficultySchema
+    typeof speakingAnalysisEngineSchema
   >;
 
-export type SpeakingCoachStyle =
+/**
+ * دسته‌بندی اصلاحی که برای پاسخ کاربر
+ * توسط سیستم تشخیص داده شده است.
+ */
+export type SpeakingCorrectionCategory =
   z.infer<
-    typeof speakingCoachStyleSchema
+    typeof speakingCorrectionCategorySchema
   >;
 
-export type SpeakingScenario =
+/**
+ * اهمیت اصلاح.
+ */export type SpeakingCorrectionSeverity =
   z.infer<
-    typeof speakingScenarioSchema
+    typeof speakingCorrectionSeveritySchema
   >;
 
-export type SpeakingStats =
+/**
+ * Metadata ارسالی همراه فایل صوتی
+ * به API تحلیل Speaking.
+ */
+export type SpeakingTurnAnalyzeMetadata =
   z.infer<
-    typeof speakingStatsSchema
+    typeof speakingTurnAnalyzeMetadataSchema
   >;
 
-export type SpeakingOverview =
+/**
+ * یک Segment از Transcript.
+ *
+ * بعداً STT واقعی می‌تواند Transcript
+ * را به چند Segment زمانی تقسیم کند.
+ */
+export type SpeakingTranscriptSegment =
   z.infer<
-    typeof speakingOverviewSchema
+    typeof speakingTranscriptSegmentSchema
   >;
 
-export type RecordedAudio =
-  Readonly<{
-    /**
-     * فایل صوتی واقعی ساخته‌شده توسط MediaRecorder.
-     */
-    blob:
-      Blob;
+/**
+ * امتیازهای اصلی Speaking.
+ */
+export type SpeakingScoreBreakdown =
+  z.infer<
+    typeof speakingScoreBreakdownSchema
+  >;
 
-    /**
-     * Object URL موقت برای Preview داخل Browser.
-     */
-    url:
-      string;
+/**
+ * اصلاح گرامر، واژگان، تلفظ
+ * یا طبیعی بودن جمله.
+ */
+export type SpeakingCorrection =
+  z.infer<
+    typeof speakingCorrectionSchema
+  >;
 
-    /**
-     * MIME type واقعی فایل ضبط‌شده.
-     *
-     * مثال:
-     * audio/webm;codecs=opus
-     */
-    mimeType:
-      string;
+/**
+ * نکته اختصاصی تلفظ.
+ */
+export type SpeakingPronunciationFinding =
+  z.infer<
+    typeof speakingPronunciationFindingSchema
+  >;/**
+ * پاسخ مربی AI برای ادامه مکالمه.
+ */
+export type SpeakingAiReply =
+  z.infer<
+    typeof speakingAiReplySchema
+  >;
 
-    /**
-     * مدت واقعی ضبط بدون احتساب زمان Pause.
-     */
-    durationSeconds:
-      number;
-
-    /**
-     * حجم Blob برای نمایش UI و Validation قبل از Upload.
-     */
-    sizeBytes:
-      number;
-
-    /** * زمان ایجاد Recording.
-     */
-    createdAt:
-      string;
-  }>;
+/**
+ * نتیجه کامل تحلیل یک Turn صوتی.
+ *
+ * این Type همان Contract اصلی بین:
+ *
+ * Voice Recorder
+ *      ↓
+ * Speaking API
+ *      ↓
+ * STT / AI
+ *      ↓
+ * Speaking UI
+ *
+ * است.
+ */
+export type SpeakingTurnAnalysis =
+  z.infer<
+    typeof speakingTurnAnalysisSchema
+  >;
