@@ -16,6 +16,10 @@ export {
 } from "./api/upload-listening-notes";
 
 export {
+  ListeningAiDiagnosisPanel,
+} from "./components/analysis/listening-ai-diagnosis-panel";
+
+export {
   ListeningAnalysisView,
 } from "./components/analysis/listening-analysis-view";
 
@@ -34,6 +38,10 @@ export {
 export {
   ListeningAudioPlayer,
 } from "./components/player/listening-audio-player";
+
+export {
+  ListeningListenOnlySession,
+} from "./components/practice/listening-listen-only-session";
 
 export {
   ListeningPracticeWorkspace,
@@ -55,12 +63,34 @@ export {
   ListeningStatCard,
 } from "./components/overview/listening-stat-card";
 
+export {
+  listeningActionPlanItemSchema,
+  listeningAiCoachSchema,
+listeningAnalysisEngineSchema,
+  listeningAttemptAnalysisSchema,
+  listeningComparisonKindSchema,
+  listeningComparisonSegmentSchema,
+  listeningDifficultSegmentSchema,
+  listeningErrorPatternCategorySchema,
+  listeningErrorPatternSchema,
+  listeningErrorPatternSeveritySchema,
+  listeningMissedWordSchema,
+  listeningScoreBreakdownSchema,
+  listeningSkillProfileSchema,
+  listeningTeacherFeedbackSchema,
+  listeningVocabularyDiscoverySchema,
+  listeningVocabularyMasterySchema,
+} from "./schemas/listening-analysis.schema";
+
 export type {
   CefrLevel,
 
   ContinueListening,
+ ListeningAccent,
 
-  ListeningAccent,
+  ListeningActionPlanItem,
+  ListeningAiCoach,
+  ListeningAnalysisEngine,
 
   ListeningAnswerSource,
 
@@ -76,10 +106,18 @@ export type {
   ListeningContentSummary,
   ListeningContentType,
 
+  ListeningDifficultSegment,
+
   ListeningDraftSaveStatus,
+
+  ListeningErrorPattern,
+  ListeningErrorPatternCategory,
+  ListeningErrorPatternSeverity,
 
   ListeningInsight,
   ListeningInsightType,
+
+  ListeningMissedWord,
 
   ListeningNoteExtractionStatus,
   ListeningNoteFileKind,
@@ -88,15 +126,19 @@ export type {
   ListeningOverview as ListeningOverviewData,
   ListeningOverviewInput,
 
+  ListeningPlaybackSnapshot,
   ListeningPracticeMode,
 
   ListeningScoreBreakdown,
+  ListeningSkillProfile,
 
   ListeningSourceType,
-
   ListeningStats,
 
   ListeningTeacherFeedback,
+
+  ListeningVocabularyDiscovery,
+  ListeningVocabularyMastery,
 
   RecentListeningActivity,
 } from "./types/listening.types";

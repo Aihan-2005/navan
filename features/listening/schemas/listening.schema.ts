@@ -1,115 +1,172 @@
-import { z } from "zod";
+import {
+  z,
+} from "zod";
 
-export const listeningContentTypeSchema = z.enum([
-  "podcast",
-  "conversation",
-  "story",
-  "news",
-  "interview",
-  "lecture",
-  "exam",
-  "custom",
-]);
+export const listeningContentTypeSchema =
+  z.enum([
+    "podcast",
+    "conversation",
+    "story",
+    "news",
+    "interview",
+    "lecture",
+    "exam",
+    "custom",
+  ]);
 
-export const listeningSourceTypeSchema = z.enum([
-  "platform",
-  "user_upload",
-  "external_url",
-]);
+export const listeningSourceTypeSchema =
+  z.enum([
+    "platform",
+    "user_upload",
+    "external_url",
+  ]);
 
-export const listeningPracticeModeSchema = z.enum([
-  "full_dictation",
-  "guided_dictation",
-  "fill_in_the_blank",
-  "comprehension",
-  "shadowing",
-]);
+export const listeningPracticeModeSchema =
+  z.enum([
+    /**
+     * فقط گوش دادن.
+     *
+     * در این Mode هیچ Transcript یا Submit
+     * اجباری نیست.
+     */
+    "listen_only",
 
-export const listeningAccentSchema = z.enum([
-  "american",
-  "british",
-  "australian",
-  "canadian",
-  "mixed",
-  "unknown",
-]);
+    "full_dictation",
+    "guided_dictation",
+    "fill_in_the_blank",
+    "comprehension",
+    "shadowing",
+  ]);
 
-export const cefrLevelSchema = z.enum([
-  "A1",
-  "A2",
-  "B1",
-  "B2",
-  "C1",
-  "C2",
-]);
+export const listeningAccentSchema =
+  z.enum([
+    "american",
+    "british","australian",
+    "canadian",
+    "mixed",
+    "unknown",
+  ]);
 
-export const listeningContentStatusSchema = z.enum([
-  "ready",
-  "processing",
-  "coming_soon",
-]);
+export const cefrLevelSchema =
+  z.enum([
+    "A1",
+    "A2",
+    "B1",
+    "B2",
+    "C1",
+    "C2",
+  ]);
 
-export const listeningInsightTypeSchema = z.enum([
-  "strength",
-  "weakness",
-  "recommendation",
-  "achievement",
-]);
+export const listeningContentStatusSchema =
+  z.enum([
+    "ready",
+    "processing",
+    "coming_soon",
+  ]);
 
-export const listeningContentSummarySchema = z.object({
-  id: z.string().trim().min(1),
+export const listeningInsightTypeSchema =
+  z.enum([
+    "strength",
+    "weakness",
+    "recommendation",
+    "achievement",
+  ]);
+export const listeningContentSummarySchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-  title: z.string().trim().min(1),
-  description: z.string().trim().min(1).nullable(),
+    title: z
+      .string()
+      .trim()
+      .min(1),
 
-  contentType: listeningContentTypeSchema,
-  sourceType: listeningSourceTypeSchema,
+    description: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable(),
 
-  cefrLevel: cefrLevelSchema,
-  accent: listeningAccentSchema,
+    contentType:
+      listeningContentTypeSchema,
 
-  durationSeconds: z.number().int().positive(),
-  estimatedPracticeMinutes: z.number().int().positive(),
+    sourceType:
+      listeningSourceTypeSchema,
 
-  averageWordsPerMinute: z
-    .number()
-    .int()
-    .positive()
-    .nullable(),
+    cefrLevel:
+      cefrLevelSchema,
 
-  speakerCount: z
-    .number()
-    .int()
-    .positive()
-    .nullable(),
+    accent:
+      listeningAccentSchema,
 
-  topics: z
-    .array(z.string().trim().min(1))
-    .default([]),
+    durationSeconds: z
+      .number()
+      .int()
+      .positive(),
 
-  vocabularyPreview: z
-    .array(z.string().trim().min(1))
-    .default([]),
+    estimatedPracticeMinutes: z
+      .number()
+      .int()
+      .positive(),
 
-  availablePracticeModes: z
-    .array(listeningPracticeModeSchema)
-    .min(1),
+    averageWordsPerMinute: z
+      .number()
+      .int()
+      .positive()
+      .nullable(),
 
-  status: listeningContentStatusSchema,
+    speakerCount: z
+      .number()
+      .int()
+      .positive()
+      .nullable(),
 
-  isFeatured: z.boolean(),
-  isCompleted: z.boolean(),
+    topics: z
+      .array(
+        z
+          .string()
+          .trim()
+          .min(1),
+      )
+      .default([]),
 
-  bestAccuracyScore: z
-    .number()
-    .min(0)
-    .max(100)
-    .nullable(),
-});
+    vocabularyPreview: z
+      .array(
+        z
+          .string()
+          .trim()
+          .min(1),
+      )
+      .default([]),
+
+    availablePracticeModes: z
+      .array(
+        listeningPracticeModeSchema,
+      )
+      .min(1),
+
+    status:
+      listeningContentStatusSchema,
+
+    isFeatured:
+      z.boolean(),
+
+    isCompleted:
+      z.boolean(),bestAccuracyScore: z
+      .number()
+      .min(0)
+      .max(100)
+      .nullable(),
+  });
 
 export const listeningContentDetailSchema =
   listeningContentSummarySchema.extend({
-    audioUrl: z.string().trim().min(1),
+    audioUrl: z
+      .string()
+      .trim()
+      .min(1),
 
     coverImageUrl: z
       .string()
@@ -124,19 +181,29 @@ export const listeningContentDetailSchema =
       .max(10),
 
     instructions: z
-      .array(z.string().trim().min(1))
+      .array(
+        z
+          .string()
+          .trim()
+          .min(1),
+      )
       .default([]),
 
     hintWords: z
-      .array(z.string().trim().min(1))
+      .array(
+        z
+          .string()
+          .trim()
+          .min(1),
+      )
       .default([]),
-
-    minimumTranscriptWords: z
+  minimumTranscriptWords: z
       .number()
       .int()
       .positive(),
 
-    transcriptAvailable: z.boolean(),
+    transcriptAvailable:
+      z.boolean(),
 
     audioAttribution: z
       .string()
@@ -145,81 +212,179 @@ export const listeningContentDetailSchema =
       .nullable(),
   });
 
-export const listeningStatsSchema = z.object({
-  totalSessions: z.number().int().nonnegative(),
-  weeklyMinutes: z.number().int().nonnegative(),
+export const listeningStatsSchema =
+  z.object({
+    totalSessions: z
+      .number()
+      .int()
+      .nonnegative(),
 
-  averageAccuracyScore: z.number().min(0).max(100),
-  bestAccuracyScore: z.number().min(0).max(100),
+    weeklyMinutes: z
+      .number()
+      .int()
+      .nonnegative(),
 
-  currentStreakDays: z.number().int().nonnegative(),
-});
+    averageAccuracyScore: z
+      .number()
+      .min(0)
+      .max(100),
 
-export const continueListeningSchema = z.object({
-  attemptId: z.string().trim().min(1),
-  contentId: z.string().trim().min(1),
+    bestAccuracyScore: z
+      .number()
+      .min(0)
+      .max(100),
 
-  title: z.string().trim().min(1),
-  description: z.string().trim().min(1).nullable(),
+    currentStreakDays: z
+      .number()
+      .int()
+      .nonnegative(),
+  });export const continueListeningSchema =
+  z.object({
+    attemptId: z
+      .string()
+      .trim()
+      .min(1),
 
-  practiceMode: listeningPracticeModeSchema,
+    contentId: z
+      .string()
+      .trim()
+      .min(1),
 
-  progressPercent: z.number().min(0).max(100),
-  currentPositionSeconds: z.number().int().nonnegative(),
-  durationSeconds: z.number().int().positive(),
+    title: z
+      .string()
+      .trim()
+      .min(1),
 
-  updatedAt: z.string().datetime(),
-});
+    description: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable(),
 
-export const listeningInsightSchema = z.object({
-  id: z.string().trim().min(1),
+    practiceMode:
+      listeningPracticeModeSchema,
 
-  type: listeningInsightTypeSchema,
+    progressPercent: z
+      .number()
+      .min(0)
+      .max(100),
 
-  title: z.string().trim().min(1),
-  description: z.string().trim().min(1),
+    currentPositionSeconds: z
+      .number()
+      .int()
+      .nonnegative(),
 
-  actionLabel: z.string().trim().min(1).nullable(),
-  actionHref: z.string().trim().min(1).nullable(),
+    durationSeconds: z
+      .number()
+      .int()
+      .positive(),
 
-  createdAt: z.string().datetime(),
-});
+    updatedAt:z.string().datetime(),
+  });
 
-export const recentListeningActivitySchema = z.object({
-  id: z.string().trim().min(1),
-  contentId: z.string().trim().min(1),
+export const listeningInsightSchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-  title: z.string().trim().min(1),
+    type:
+      listeningInsightTypeSchema,
 
-  contentType: listeningContentTypeSchema,
-  practiceMode: listeningPracticeModeSchema,
+    title: z
+      .string()
+      .trim()
+      .min(1),
 
-  durationMinutes: z.number().int().nonnegative(),
-  accuracyScore: z.number().min(0).max(100),
+    description: z
+      .string()
+      .trim()
+      .min(1),
 
-  completedAt: z.string().datetime(),
-});
+    actionLabel: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable(),
 
-export const listeningOverviewSchema = z.object({
-  stats: listeningStatsSchema,
+    actionHref: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable(),
 
-  continueListening: continueListeningSchema
-    .nullable()
-    .default(null),
+    createdAt:
+      z.string().datetime(),
+  });
 
-  featuredContents: z
-    .array(listeningContentSummarySchema)
-    .default([]),
+export const recentListeningActivitySchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-  recommendedContents: z
-    .array(listeningContentSummarySchema)
-    .default([]),
+    contentId: z
+      .string()
+      .trim()
+      .min(1),
 
-  primaryInsight: listeningInsightSchema
-    .nullable()
-    .default(null),
+    title: z
+      .string()
+      .trim()
+      .min(1),
 
-  recentActivities: z
-    .array(recentListeningActivitySchema)
-    .default([]),
-});
+    contentType:
+      listeningContentTypeSchema,
+
+    practiceMode:
+      listeningPracticeModeSchema,
+
+    durationMinutes: z
+      .number()
+      .int()
+      .nonnegative(),
+
+    accuracyScore: z
+      .number()
+      .min(0)
+      .max(100),
+
+    completedAt:
+      z.string().datetime(),
+  });
+
+export const listeningOverviewSchema =
+  z.object({
+    stats:
+      listeningStatsSchema,
+
+    continueListening:
+      continueListeningSchema
+        .nullable()
+        .default(null),
+
+    featuredContents: z
+      .array(
+        listeningContentSummarySchema,
+      )
+      .default([]),
+
+    recommendedContents: z
+      .array(
+        listeningContentSummarySchema,
+      )
+      .default([]),
+
+    primaryInsight:
+      listeningInsightSchema
+        .nullable()
+        .default(null),
+
+    recentActivities: z
+      .array(
+        recentListeningActivitySchema,
+      )
+      .default([]),
+  });
