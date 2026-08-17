@@ -19,8 +19,17 @@ export {
 } from "./components/classroom-participants-panel";
 
 export {
+  ClassroomRoomAccessGuard,
+} from "./components/classroom-room-access-guard";
+
+export {
   ClassroomRoomSidebar,
 } from "./components/classroom-room-sidebar";
+
+export {
+  useActiveClassroomRoom,
+  useClassroomRoomAccess,
+} from "./hooks/use-classroom-active-room";
 
 export {
   useClassroomRoom,
@@ -46,8 +55,20 @@ export type {
   ClassroomRoomTransportStatusListener,
 } from "./realtime/classroom-room-transport";
 
+export {
+  acquireClassroomActiveRoomLease,
+  CLASSROOM_ACTIVE_ROOM_HEARTBEAT_MS,
+  CLASSROOM_ACTIVE_ROOM_LEASE_TTL_MS,
+  getClassroomActiveRoomStorageKey,
+  readClassroomActiveRoomLease,
+  refreshClassroomActiveRoomLease,
+  releaseClassroomActiveRoomLease,
+} from "./session/classroom-active-room";
 
-
+export type {
+  AcquireClassroomRoomResult,
+  ClassroomActiveRoomLease,
+} from "./session/classroom-active-room";
 
 export {
   classroomChatMessageCreatedEventSchema,

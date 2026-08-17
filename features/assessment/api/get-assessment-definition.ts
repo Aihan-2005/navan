@@ -1,4 +1,8 @@
 import {
+  miniQuizAssessmentsMock,
+} from "../mocks/mini-quiz-assessments.mock";
+
+import {
   placementAssessmentMock,
 } from "../mocks/placement-assessment.mock";
 
@@ -43,14 +47,16 @@ function getApiBaseUrl(): string {
 }
 
 function parseAssessmentDefinition(
-  payload: unknown,
+  payload:
+    unknown,
 ): AssessmentDefinition {
   const result =
     assessmentDefinitionSchema.safeParse(
       payload,
     );
 
-  if (!result.success) {
+  if (!result.success
+  ) {
     console.error(
       "Invalid Assessment definition:",
       result.error.flatten(),
@@ -64,8 +70,36 @@ function parseAssessmentDefinition(
   return result.data;
 }
 
+function findMockAssessment(
+  identifier:
+    string,
+): AssessmentDefinition | null {
+  const assessments = [
+    placementAssessmentMock,
+    ...miniQuizAssessmentsMock,
+  ];
+
+  const assessment =
+    assessments.find(
+      (
+        candidate,
+      ) =>
+        candidate.id ===
+          identifier ||
+        candidate.slug ===
+          identifier,
+    );
+
+  return assessment
+    ? parseAssessmentDefinition(
+        assessment,
+      )
+    : null;
+}
+
 export async function getAssessmentDefinition(
-  assessmentIdOrSlug: string,
+  assessmentIdOrSlug:
+    string,
 ): Promise<AssessmentDefinition | null> {
   const identifier =
     assessmentIdOrSlug.trim();
@@ -74,18 +108,10 @@ export async function getAssessmentDefinition(
     return null;
   }
 
-  if (shouldUseMockData()) {
-    if (
-      placementAssessmentMock.id !==
-        identifier &&
-      placementAssessmentMock.slug !==
-        identifier
-    ) {
-      return null;
-    }
-
-    return parseAssessmentDefinition(
-      placementAssessmentMock,
+  if (
+    shouldUseMockData()
+  ) { return findMockAssessment(
+      identifier,
     );
   }
 
@@ -101,31 +127,37 @@ export async function getAssessmentDefinition(
     await fetch(
       requestUrl,
       {
-        method: "GET",
+        method:
+          "GET",
 
         headers: {
           Accept:
             "application/json",
         },
 
-        cache: "no-store",
+        cache:
+          "no-store",
       },
     );
 
   if (
-    response.status === 404
+    response.status ===
+    404
   ) {
     return null;
   }
 
-  if (!response.ok) {
+  if (
+    !response.ok
+  ) {
     throw new Error(
       `Assessment definition request failed with status ${response.status}.`,
     );
   }
 
-  const payload: unknown =
-    await response.json();
+  const payload:
+    unknown =
+      await response.json();
 
   return parseAssessmentDefinition(
     payload,

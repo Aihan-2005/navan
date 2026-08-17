@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   ArrowLeft,
   CalendarClock,
-  Copy,
+  DoorOpen,
   Headphones,
   LockKeyhole,
   MessageCircleMore,
@@ -20,12 +20,24 @@ import {
 } from "next/navigation";
 
 import {
+  useSession,
+} from "next-auth/react";
+
+import {
   useState,
 } from "react";
 
 import {
   Card,
 } from "../../../components/ui/card";
+
+import {
+  cn,
+} from "../../../lib/utils/cn";
+
+import {
+  useActiveClassroomRoom,
+} from "../hooks/use-classroom-active-room";
 
 import type {
   ClassroomOverview as ClassroomOverviewData,
@@ -39,7 +51,7 @@ type ClassroomOverviewProps =
   }>;
 
 const numberFormatter =
-  new Intl.NumberFormat(
+   new Intl.NumberFormat(
     "fa-IR",
   );
 
@@ -49,22 +61,77 @@ export function ClassroomOverview({
   const router =
     useRouter();
 
+  const {
+    data:
+      session,
+
+    status:
+      sessionStatus,
+  } =
+    useSession();
+
+  const userId =
+    session?.user?.id ??
+    session?.user?.email ??
+    null;
+
+  const {
+    activeLease,
+  } =
+    useActiveClassroomRoom(
+      userId,
+    );
+
   const [
     inviteCode,
     setInviteCode,
   ] =
     useState("");
 
-  function joinByCode(): void {
+  const [
+    joinError,
+    setJoinError,
+  ] =
+    useState<string | null>(
+      null,
+    );
+
+  const isSessionStateLoading =
+    sessionStatus ===
+    "loading";
+
+  const hasActiveClass =
+    Boolean(
+      activeLease,
+    );
+
+ function joinByCode(): void {
     const normalizedCode =
       inviteCode.trim();
 
-    if (!normalizedCode) {
+    if (
+      !normalizedCode ||
+      isSessionStateLoading
+    ) {
       return;
     }
 
+    if (
+      activeLease
+    ) {
+      setJoinError(
+        "در حال حاضر یک کلاس فعال دارید. ابتدا از کلاس فعلی خارج شوید.",
+      );
+
+      return;
+    }
+
+    setJoinError(
+      null,
+    );
+
     router.push(
- `/classroom/rooms/${encodeURIComponent(
+      `/classroom/rooms/${encodeURIComponent(
         normalizedCode,
       )}`,
     );
@@ -80,6 +147,98 @@ export function ClassroomOverview({
       "
       aria-labelledby="classroom-title"
     >
+      {activeLease ? (
+        <section
+          className="
+            flex
+            flex-col
+            gap-4
+            rounded-2xl
+            border
+            border-emerald-400/15
+            bg-emerald-400/[0.04]
+            p-5
+            sm:flex-row
+            sm:items-center
+            sm:justify-between
+          ">
+          <div>
+            <div
+              className="
+                flex
+                items-center
+                gap-2
+                text-xs
+                font-medium
+                text-emerald-300
+              "
+            >
+              <Radio
+                aria-hidden="true"
+                className="h-4 w-4"
+              />
+
+              یک کلاس برای حساب شما فعال است
+            </div>
+
+            <p
+              dir="ltr"
+              className="
+                mt-2
+                text-left
+                text-lg
+                font-bold
+                text-white
+              "
+            >
+              {
+                activeLease.roomTitle
+              }
+            </p>
+
+            <p
+              className="
+                mt-2
+                text-xs
+                leading-6
+                text-slate-500
+              "
+            >
+              تا زمانی که از این کلاس خارج نشوید امکان ورود یا ساخت کلاس زنده دیگری وجود ندارد.
+            </p>
+          </div>
+
+          <Link
+            href={`/classroom/rooms/${encodeURIComponent(
+              activeLease.roomId,
+            )}`}
+            className="
+              inline-flex
+              min-h-11
+              shrink-0
+              items-center
+              justify-center
+              gap-2
+              rounded-xl
+               bg-emerald-400
+              px-5
+              text-sm
+              font-bold
+              text-slate-950
+              transition
+              hover:bg-emerald-300
+            "
+          >
+            <DoorOpen
+              aria-hidden="true"
+              className="h-4 w-4"
+            />
+
+            بازگشت به کلاس فعال
+          </Link>
+        </section>
+      ) : null}
+
       <section
         className="
           relative
@@ -109,7 +268,7 @@ export function ClassroomOverview({
 
         <div
           aria-hidden="true"
-          className="
+className="
             pointer-events-none
             absolute
             -bottom-28
@@ -122,7 +281,7 @@ export function ClassroomOverview({
           "
         />
 
-         <div
+        <div
           className="
             relative
             grid
@@ -168,7 +327,7 @@ export function ClassroomOverview({
               اتاق گفتگو
             </h1>
 
-             <p
+            <p
               className="
                 mt-4
                 max-w-3xl
@@ -189,31 +348,61 @@ export function ClassroomOverview({
                 gap-3
               "
             >
-              <Link
-                href="/classroom/rooms/english-free-talk"
-                className="
-                  inline-flex
-                  min-h-11
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  bg-violet-400
-                  px-5
-                  text-sm
+              {activeLease ? (
+                <Link
+                  href={`/classroom/rooms/${encodeURIComponent(
+                    activeLease.roomId,
+                  )}`}
+                  className="
+                    inline-flex
+                    min-h-11
+                    items-center
+                    justify-center
+                    gap-2
+                    rounded-xl
+                    bg-violet-400
+                    px-5
+                    text-sm
                   font-bold
-                  text-slate-950
-                  transition
-                  hover:bg-violet-300
-                "
-              >
-                <Plus
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                />
+                    text-slate-950
+                    transition
+                    hover:bg-violet-300
+                  "
+                >
+                  <DoorOpen
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                  />
 
-                ساخت اتاق آزمایشی
-              </Link>
+                  بازگشت به کلاس فعال
+                </Link>
+              ) : (
+                <Link
+                  href="/classroom/rooms/english-free-talk"
+                  className="
+                    inline-flex
+                    min-h-11
+                    items-center
+                    justify-center
+                    gap-2
+                    rounded-xl
+                    bg-violet-400
+                    px-5
+                    text-sm
+                    font-bold
+                    text-slate-950
+                    transition
+                    hover:bg-violet-300
+                  "
+                >
+                   <Plus
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                  />
+
+                  ساخت اتاق آزمایشی
+                </Link>
+              )}
 
               <span
                 className="
@@ -224,22 +413,22 @@ export function ClassroomOverview({
                   rounded-xl
                   border
                   border-white/[0.07]
-bg-white/[0.025]
+                  bg-white/[0.025]
                   px-4
                   text-xs
                   text-slate-500
                 "
               >
-                <Radio
+                <LockKeyhole
                   aria-hidden="true"
                   className="
                     h-4
                     w-4
-                    text-emerald-300
+                    text-amber-300
                   "
                 />
 
-                زیرساخت Real-time در مرحله بعد
+                هر حساب فقط یک کلاس هم‌زمان
               </span>
             </div>
           </div>
@@ -257,11 +446,8 @@ bg-white/[0.025]
                 font-bold
                 text-white
               "
-            >
-              پیوستن با کد دعوت
-            </h2>
-
-            <p
+            >              پیوستن با کد دعوت
+</h2><p
               className="
                 mt-2
                 text-xs
@@ -269,7 +455,9 @@ bg-white/[0.025]
                 text-slate-500
               "
             >
-              کد اتاقی که دوستت برایت فرستاده وارد کن.
+              {hasActiveClass
+                ? "برای ورود به کلاس دیگری ابتدا باید از کلاس فعال خارج شوید."
+                : "کد اتاقی که دوستت برایت فرستاده وارد کن."}
             </p>
 
             <div
@@ -281,15 +469,23 @@ bg-white/[0.025]
               dir="ltr"
             >
               <input
-                                type="text"
-value={
+                type="text"
+                value={
                   inviteCode
+                }
+                disabled={
+                  hasActiveClass ||
+                  isSessionStateLoading
                 }
                 onChange={(
                   event,
                 ) => {
                   setInviteCode(
                     event.target.value,
+                  );
+
+                  setJoinError(
+                    null,
                   );
                 }}
                 onKeyDown={(
@@ -321,6 +517,8 @@ value={
                   focus:border-violet-300/30
                   focus:ring-2
                   focus:ring-violet-400/10
+                  disabled:cursor-not-allowed
+                  disabled:opacity-40
                 "
               />
 
@@ -330,16 +528,17 @@ value={
                   joinByCode
                 }
                 disabled={
-                  !inviteCode.trim()
+                  !inviteCode.trim() ||
+                  hasActiveClass ||
+                  isSessionStateLoading
                 }
                 className="
                   inline-flex
                   h-11
                   items-center
                   justify-center
-                  gap-2
-                                    rounded-xl
-bg-white/[0.08]
+                  rounded-xl
+                  bg-white/[0.08]
                   px-4
                   text-sm
                   font-medium
@@ -353,6 +552,20 @@ bg-white/[0.08]
                 ورود
               </button>
             </div>
+
+            {joinError ? (
+              <p
+                role="alert"
+                className="
+                  mt-3
+                  text-xs
+                  leading-6
+                  text-amber-300
+                "
+              >
+                {joinError}
+              </p>
+            ) : null}
 
             <div
               className="
@@ -385,7 +598,8 @@ bg-white/[0.08]
         className="
           grid
           gap-4
-          md:grid-cols-3  "
+          md:grid-cols-3
+        "
       >
         <StatCard
           icon={
@@ -421,8 +635,7 @@ bg-white/[0.08]
       <section>
         <div
           className="
-            flex
-            items-end
+            flex items-end
             justify-between
             gap-4
           "
@@ -443,7 +656,8 @@ bg-white/[0.08]
 
               <span className="text-xs">
                 Live now
-              </span>  </div>
+              </span>
+            </div>
 
             <h2
               className="
@@ -477,6 +691,10 @@ bg-white/[0.08]
                 room={
                   room
                 }
+                activeRoomId={
+                  activeLease?.roomId ??
+                  null
+                }
               />
             ),
           )}
@@ -485,7 +703,8 @@ bg-white/[0.08]
 
       {data.upcomingRooms.length >
       0 ? (
-        <section><div
+        <section>
+          <div
             className="
               flex
               items-center
@@ -525,8 +744,12 @@ bg-white/[0.08]
                   key={
                     room.id
                   }
-                  room={
+         room={
                     room
+                  }
+                  activeRoomId={
+                    activeLease?.roomId ??
+                    null
                   }
                 />
               ),
@@ -540,7 +763,8 @@ bg-white/[0.08]
 
 function StatCard({
   icon: Icon,
-  label, value,
+  label,
+  value,
 }: Readonly<{
   icon:
     typeof Radio;
@@ -572,7 +796,7 @@ function StatCard({
         {label}
       </p>
 
-      <p
+        <p
         className="
           mt-1
           text-2xl
@@ -588,29 +812,47 @@ function StatCard({
   );
 }
 
-
 function RoomCard({
   room,
+  activeRoomId,
 }: Readonly<{
   room:
     ClassroomRoomSummary;
+
+  activeRoomId:
+    string | null;
 }>) {
   const isLive =
     room.status ===
     "live";
 
+  const isCurrentActiveRoom =
+    isLive &&
+    activeRoomId ===
+      room.id;
+
+  const isBlockedByActiveRoom =
+    isLive &&
+    Boolean(
+      activeRoomId,
+    ) &&
+    !isCurrentActiveRoom;
+
   return (
     <Card
-      className="
-        group
-        p-5
-        transition
-        hover:border-violet-400/15
-      "
+      className={cn(
+        "group",
+        "p-5",
+        "transition",
+
+        isBlockedByActiveRoom
+          ? "opacity-65"
+          : "hover:border-violet-400/15",
+      )}
     >
       <div
-        className="
-          flex
+                className="
+ flex
           items-start
           justify-between
           gap-4
@@ -648,7 +890,7 @@ function RoomCard({
               "
               dir="ltr"
             >
-                 {room.cefrLevel}
+              {room.cefrLevel}
             </span>
 
             {room.visibility ===
@@ -661,6 +903,22 @@ function RoomCard({
                   text-slate-500
                 "
               />
+            ) : null}
+
+            {isCurrentActiveRoom ? (
+              <span
+                className="
+                  rounded-full
+                  bg-emerald-400/10
+                  px-2.5
+                  py-1
+                  text-[10px]
+                  font-medium
+                  text-emerald-300
+                "
+              >
+                کلاس فعال شما
+              </span>
             ) : null}
           </div>
 
@@ -688,8 +946,7 @@ function RoomCard({
             {room.topic}
           </p>
         </div>
-
-        <div
+ <div
           className="
             flex
             h-11
@@ -747,8 +1004,7 @@ function RoomCard({
                 text-[10px]
                 text-slate-500
               "
-            >
-              {tag}
+            >{tag}
             </span>
           ),
         )}
@@ -761,7 +1017,7 @@ function RoomCard({
           items-center
           justify-between
           gap-4
-     border-t
+          border-t
           border-white/[0.05]
           pt-4
         "
@@ -789,28 +1045,49 @@ function RoomCard({
           )}
         </div>
 
-        <Link
-          href={`/classroom/rooms/${room.id}`}
-          className="
-            inline-flex
-            items-center
-            gap-2
-            text-sm
-            font-medium
-            text-violet-300
-            transition
-            group-hover:text-violet-200
-          "
-        >
-          {isLive
-            ? "ورود به اتاق"
-            : "مشاهده جلسه"}
+        {isBlockedByActiveRoom ? (
+          <span
+            className="
+              inline-flex
+              items-center
+              gap-2
+              text-xs
+              text-amber-300
+            "
+          >
+            <LockKeyhole
+              aria-hidden="true"
+              className="h-3.5 w-3.5"
+            />
 
-          <ArrowLeft
-            aria-hidden="true"
-            className="h-4 w-4"
-          />
-        </Link>
+            ابتدا از کلاس فعلی خارج شوید
+          </span>
+        ) : ( <Link
+            href={`/classroom/rooms/${room.id}`}
+            className="
+              inline-flex
+              items-center
+              gap-2
+              text-sm
+              font-medium
+              text-violet-300
+              transition
+              group-hover:text-violet-200
+            "
+          >
+            {isCurrentActiveRoom
+              ? "بازگشت به اتاق"
+              : isLive
+                ? "ورود به اتاق"
+                : "مشاهده جلسه"}
+
+            <ArrowLeft
+              aria-hidden="true"
+              className="h-4 w-4"
+            />
+          </Link>
+        )}
       </div>
-    </Card>  );
+    </Card>
+  );
 }

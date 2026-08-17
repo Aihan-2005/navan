@@ -8,6 +8,7 @@ import {
 
 import {
   ClassroomLiveRoom,
+  ClassroomRoomAccessGuard,
   getClassroomRoom,
 } from "../../../../../features/classroom";
 
@@ -48,11 +49,11 @@ export async function generateMetadata({
       room.description,
   };
 }
+
 export default async function ClassroomRoomPage({
   params,
 }: ClassroomRoomPageProps) {
-  const {
-    roomId,
+  const { roomId,
   } =
     await params;
 
@@ -66,10 +67,23 @@ export default async function ClassroomRoomPage({
   }
 
   return (
-    <ClassroomLiveRoom
-      room={
-        room
+    <ClassroomRoomAccessGuard
+      roomId={
+        room.id
       }
-    />
+      roomTitle={
+        room.title
+      }
+      enabled={
+        room.status ===
+        "live"
+      }
+    >
+      <ClassroomLiveRoom
+        room={
+          room
+        }
+      />
+    </ClassroomRoomAccessGuard>
   );
 }

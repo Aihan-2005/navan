@@ -13,15 +13,20 @@ export const assessmentMiniQuizzesMock = [
     description:
       "یک ارزیابی کوتاه برای زمان‌ها، ساختار جمله و Conditionals سطح B1.",
 
-    skill: "grammar",
+    skill:
+      "grammar",
 
-    cefrLevel: "B1",
+    cefrLevel:
+      "B1",
 
-    estimatedMinutes: 4,
+    estimatedMinutes:
+      5,
 
-    questionCount: 5,
+    questionCount:
+      4,
 
-    xpReward: 40,
+    xpReward:
+      40,
 
     focusTags: [
       "Tenses",
@@ -30,9 +35,10 @@ export const assessmentMiniQuizzesMock = [
     ],
 
     status:
-      "coming_soon",
+      "available",
 
-    href: null,
+    href:
+      "/assessment/run/grammar-b1-quick-check",
   },
 
   {
@@ -45,15 +51,19 @@ export const assessmentMiniQuizzesMock = [
     description:
       "کوییز کوتاه برای بررسی معنی واژه، Collocation و انتخاب واژه در Context.",
 
-    skill: "vocabulary",
+    skill:
+      "vocabulary",
+ cefrLevel:
+      "B1",
 
-    cefrLevel: "B1",
+    estimatedMinutes:
+      5,
 
-    estimatedMinutes: 4,
+    questionCount:
+      4,
 
-    questionCount: 6,
-
-    xpReward: 45,
+    xpReward:
+      45,
 
     focusTags: [
       "Meaning",
@@ -62,9 +72,10 @@ export const assessmentMiniQuizzesMock = [
     ],
 
     status:
-      "coming_soon",
+      "available",
 
-    href: null,
+    href:
+      "/assessment/run/vocabulary-b1-context",
   },
 
   {
@@ -77,15 +88,20 @@ export const assessmentMiniQuizzesMock = [
     description:
       "تمرکز روی Main Idea، Detail Accuracy و استنتاج از متن.",
 
-    skill: "reading",
+    skill:
+      "reading",
 
-    cefrLevel: "B1",
+    cefrLevel:
+      "B1",
 
-    estimatedMinutes: 6,
+    estimatedMinutes:
+      7,
 
-    questionCount: 5,
+    questionCount:
+      4,
 
-    xpReward: 55,
+    xpReward:
+      55,
 
     focusTags: [
       "Main Idea",
@@ -93,10 +109,10 @@ export const assessmentMiniQuizzesMock = [
       "Inference",
     ],
 
-    status:
-      "coming_soon",
+    status: "available",
 
-    href: null,
+    href:
+      "/assessment/run/reading-b1-inference",
   },
 
   {
@@ -109,15 +125,20 @@ export const assessmentMiniQuizzesMock = [
     description:
       "ارزیابی کوتاه درک جزئیات و پیام اصلی فایل شنیداری.",
 
-    skill: "listening",
+    skill:
+      "listening",
 
-    cefrLevel: "B1",
+    cefrLevel:
+      "B1",
 
-    estimatedMinutes: 6,
+    estimatedMinutes:
+      6,
 
-    questionCount: 5,
+    questionCount:
+      5,
 
-    xpReward: 55,
+    xpReward:
+      55,
 
     focusTags: [
       "Main Idea",
@@ -125,9 +146,11 @@ export const assessmentMiniQuizzesMock = [
       "Listening",
     ],
 
+  
     status:
       "coming_soon",
 
-    href: null,
+    href:
+      null,
   },
 ] satisfies readonly AssessmentMiniQuizSummary[];
