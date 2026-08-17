@@ -1,56 +1,291 @@
 import Link from "next/link";
-import type { RecentWriting } from "../../types/writing.types";
-import { AnalysisScoreOverview } from "./analysis-score-overview";
-import { WritingIssueList } from "./writing-issue-list";
-import { RepetitionAnalysis } from "./repetition-analysis";
-import { VocabularyUpgrades } from "./vocabulary-upgrades";
-import { ImprovedVersionPanel } from "./improved-version-panel";
-import { WritingActionPlan } from "./writing-action-plan";
 
-type WritingAnalysisViewProps = Readonly<{
-  submission: RecentWriting;
-}>;
+import {
+  ArrowRight,
+  FileText,
+} from "lucide-react";
 
-export function WritingAnalysisView({ submission }: WritingAnalysisViewProps) {
-  const analysis = submission.analysis;
+import type {
+  RecentWriting,
+} from "../../types/writing.types";
+
+import {
+  AnalysisScoreOverview,
+} from "./analysis-score-overview";
+
+import {
+  ImprovedVersionPanel,
+} from "./improved-version-panel";
+
+import {
+  RepetitionAnalysis,
+} from "./repetition-analysis";
+
+import {
+  VocabularyUpgrades,
+} from "./vocabulary-upgrades";
+
+import {
+  WritingActionPlan,
+} from "./writing-action-plan";
+
+import {
+  WritingAiDiagnosisPanel,
+} from "./writing-ai-diagnosis-panel";
+
+import {
+  WritingIssueList,
+} from "./writing-issue-list";
+
+type WritingAnalysisViewProps =
+  Readonly<{
+    submission:
+      RecentWriting;
+  }>;
+
+export function WritingAnalysisView({
+  submission,
+}: WritingAnalysisViewProps) {
+  const analysis =
+    submission.analysis;
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-6" dir="rtl">
-      <section className="rounded-3xl border border-white/10 bg-slate-950/60 p-6">
-        <p className="text-sm text-cyan-300">جزئیات نوشته</p>
-        <h1 className="mt-2 text-2xl font-bold text-white">
-          {submission.title}
-        </h1>
-        <p className="mt-4 text-sm leading-8 text-slate-400">
-          {submission.excerpt}
-        </p>
-      </section>
+    <main
+      className="
+        mx-auto
+        w-full
+        max-w-7xl
+        space-y-6
+      "
+      dir="rtl"
+    >
+      <Link
+        href="/writing"
+        className="
+          inline-flex
+          items-center
+          gap-2
+          text-sm
+          text-slate-400
+          transition
+          hover:text-white
+        "
+      >
+        <ArrowRight
+          aria-hidden="true"
+          className="h-4 w-4"
+        />
 
-      <AnalysisScoreOverview analysis={analysis} date={submission.date} />
+        بازگشت به Writing
+      </Link>
 
-      <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <WritingIssueList analysis={analysis} />
+      <section
+        className="
+          relative
+          overflow-hidden
+          rounded-3xl
+          border
+          border-cyan-400/15
+          bg-slate-950/60
+          p-6
+          sm:p-8
+        "
+      >
+        <div
+          aria-hidden="true"
+          className="
+            pointer-events-none
+            absolute
+            -left-20
+            -top-20
+            h-60
+            w-60
+            rounded-full
+            bg-cyan-500/10
+            blur-3xl
+          "
+        />
 
-        <div className="space-y-6">
-          <RepetitionAnalysis analysis={analysis} />
-          <VocabularyUpgrades analysis={analysis} />
-          <ImprovedVersionPanel analysis={analysis} />
-          <WritingActionPlan analysis={analysis} />
+        <div className="relative">
+          <div
+            className="
+              flex
+              flex-wrap
+              items-center
+              gap-2
+            "
+          >
+            <span
+              className="
+                inline-flex
+                items-center
+                gap-1.5
+                rounded-full
+                bg-cyan-400/10
+                px-3
+                py-1
+                text-xs
+                text-cyan-300
+              "
+            >
+              <FileText
+                aria-hidden="true"
+                className="h-3.5 w-3.5"
+              />
+
+              تحلیل نوشته
+            </span>
+
+            {analysis.engine ? (
+              <span
+                className="
+                  rounded-full
+                  bg-violet-400/[0.07]
+                  px-3
+                  py-1
+                  text-xs
+                  text-violet-300
+                "
+              >
+                {analysis.engine ===
+                "ai"
+                  ? "AI Analysis"
+                  : "Mock Analysis"}
+              </span>
+            ) : null}
+          </div>
+
+          <h1
+            className="
+              mt-5
+              text-2xl
+              font-bold
+              text-white
+              sm:text-3xl
+            "
+          >
+            {submission.title}
+          </h1>
+
+          <p
+            className="
+              mt-4
+              max-w-4xl
+              text-sm
+              leading-8
+              text-slate-400
+            "
+          >
+            {submission.excerpt}
+          </p>
         </div>
       </section>
 
-      <div className="flex flex-wrap gap-3">
+      <AnalysisScoreOverview
+        analysis={
+          analysis
+        }
+        date={
+          submission.date
+        }
+      />
+
+      <WritingAiDiagnosisPanel
+        analysis={
+          analysis
+        }
+      />
+
+      <section
+        className="
+          grid
+          gap-6
+          xl:grid-cols-[1.1fr_0.9fr]
+        "
+      >
+        <WritingIssueList
+          analysis={
+            analysis
+          }
+        />
+
+        <div className="space-y-6">
+          <RepetitionAnalysis
+            analysis={
+              analysis
+            }
+          />
+
+          <VocabularyUpgrades
+            analysis={
+              analysis
+            }
+
+          />
+
+          <ImprovedVersionPanel
+            analysis={
+              analysis
+            }
+          />
+
+          <WritingActionPlan
+            analysis={
+              analysis
+            }
+          />
+        </div>
+      </section>
+
+      <div
+        className="
+          flex
+          flex-wrap
+          gap-3
+        "
+      >
         <Link
           href="/writing/history"
-          className="inline-flex items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/15"
+          className="
+            inline-flex
+            items-center
+            justify-center
+            rounded-2xl
+            border
+            border-cyan-300/20
+            bg-cyan-400/10
+            px-4
+            py-3
+            text-sm
+            font-semibold
+            text-cyan-200
+            transition
+            hover:bg-cyan-400/15
+          "
         >
           بازگشت به تاریخچه
         </Link>
+
         <Link
           href="/writing"
-          className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
+          className="
+            inline-flex
+            items-center
+            justify-center
+            rounded-2xl
+            border
+            border-white/10
+            bg-white/5
+            px-4
+            py-3
+            text-sm
+            font-semibold
+            text-slate-100
+            transition
+            hover:bg-white/10
+          "
         >
-          بازگشت به صفحه اصلی
+          نوشته جدید
         </Link>
       </div>
     </main>

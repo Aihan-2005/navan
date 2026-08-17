@@ -1,330 +1,833 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
+import {
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
+import {
+  useRouter,
+} from "next/navigation";
+
 import {
   ArrowRight,
-  FileText,
   PenSquare,
-  UploadCloud,
-  X,
 } from "lucide-react";
 
-import { Card } from "../../../../components/ui/card";
+import {
+  submitWritingAnalysis,
+} from "../../api/submit-writing-analysis";
 
-import { useWritingDraft } from "../../hooks/use-writing-draft";
-import type { WritingDraft, WritingExercise } from "../../types/writing.types";
-import { submitWritingAnalysis } from "../../api/submit-writing-analysis";
-import { AnalysisSubmitBar } from "./analysis-submit-bar";
-import { DraftStatus } from "./draft-status";
-import { LiveWritingStats } from "./live-writing-stats";
-import { WritingEditor } from "./writing-editor";
-import { WritingPromptPanel } from "./writing-prompt-panel";
-import { WritingToolbar } from "./writing-toolbar";
-import { DocumentDropzone } from "../upload/document-dropzone";
-import { DocumentExtractionState } from "../upload/document-extraction-state";
-import { UploadedDocumentCard } from "../upload/uploaded-document-card";
+import {
+  useWritingDraft,
+} from "../../hooks/use-writing-draft";
 
-type WritingMode = "free" | "exercise" | "draft";
+import type {
+  WritingDraft,
+  WritingExercise,
+  WritingMode,
+} from "../../types/writing.types";
 
-type WritingWorkspaceProps = Readonly<{
-  mode?: WritingMode;
-  exercise?: WritingExercise;
-  draft?: WritingDraft;
-  showHeader?: boolean;
-  category?: string;
-}>;
+import {
+  DocumentDropzone,
+} from "../upload/document-dropzone";
 
-function getWordCount(value: string): number {
-  const normalized = value.trim();
+import {
+  DocumentExtractionState,
+} from "../upload/document-extraction-state";
 
-  if (!normalized) {
+import {
+  UploadedDocumentCard,
+} from "../upload/uploaded-document-card";
+
+import {
+  AnalysisSubmitBar,
+} from "./analysis-submit-bar";
+
+import {
+  DraftStatus,
+} from "./draft-status";
+
+import {
+  LiveWritingStats,
+} from "./live-writing-stats";
+
+import {
+  WritingEditor,
+} from "./writing-editor";
+
+import {
+  WritingPromptPanel,
+} from "./writing-prompt-panel";
+
+import {
+  WritingToolbar,
+} from "./writing-toolbar";
+
+type WritingWorkspaceProps =
+  Readonly<{
+    mode?:
+      WritingMode;
+
+    exercise?:
+      WritingExercise;
+
+    draft?:
+      WritingDraft;
+
+    showHeader?:
+      boolean;
+
+    category?:
+      string;
+  }>;
+
+type UploadState =
+  | "idle"
+  | "uploading"
+  | "done";
+
+type ExtractionState =
+  | "idle"
+  | "extracting"
+  | "success"
+  | "error";
+
+function getWordCount(
+  value:
+    string,
+): number {
+  const normalized =
+    value.trim();
+
+  if (
+    !normalized
+  ) {
     return 0;
   }
 
-  return normalized.split(/\s+/u).filter(Boolean).length;
+  return normalized
+    .split(
+      /\s+/u,
+    )
+    .filter(
+      Boolean,
+    )
+    .length;
 }
 
-const defaultInstructions = [
-  "یک مقدمه‌ی روشن و جذاب برای متن بنویس.",
-  "به‌صورت منظم و روان ایده‌ها را پیش ببر.",
-  "در پایان، یک جمع‌بندی کوتاه و قوی اضافه کن.",
-];
+function getSentenceCount(
+  value:
+    string,
+): number {
+  const normalized =
+    value.trim();
+
+  if (
+    !normalized
+  ) {
+    return 0;
+  }
+
+  const sentences =
+    normalized
+      .split(
+        /[.!?]+(?:\s+|$)/u,
+      )
+      .map(
+        (
+          sentence,
+        ) =>
+          sentence.trim(),
+      )
+      .filter(
+        Boolean,
+      );
+
+  return Math.max(
+    1,
+    sentences.length,
+  );
+}
+
+const DEFAULT_INSTRUCTIONS =
+  [
+    "یک شروع روشن برای نوشته انتخاب کن.",
+    "هر ایده را تا جایی که لازم است توضیح بده.",
+    "در پایان متن را یک بار برای وضوح، ساختار و واژگان بازخوانی کن.",
+  ] as const;
+
+const DEFAULT_TIPS =
+  [
+    "در مرحله اول روی انتقال ایده تمرکز کن، نه کامل بودن متن.",
+    "بعد از پایان، جمله‌هایی را که بیش از حد پیچیده شده‌اند دوباره بررسی کن.",
+    "برای جلوگیری از تکرار، واژه‌ها را براساس Context جایگزین کن.",
+  ] as const;
 
 export function WritingWorkspace({
-  mode = "free",
+  mode =
+    "free",
+
   exercise,
+
   draft,
-  showHeader = true,
+
+  showHeader =
+    true,
+
   category,
 }: WritingWorkspaceProps) {
-  const router = useRouter();
-  const [analysisReady, setAnalysisReady] = useState(false);
-  const [uploadState, setUploadState] = useState<"idle" | "uploading" | "done">("idle");
-  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
-  const [uploadedFileSize, setUploadedFileSize] = useState<number | null>(null);
-  const [extractionState, setExtractionState] = useState<"idle" | "extracting" | "success" | "error">("idle");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router =
+    useRouter();
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef =
+    useRef<HTMLInputElement | null>(
+      null,
+    );
+
+  const [
+    uploadState,
+    setUploadState,
+  ] =
+    useState<UploadState>(
+      "idle",
+    );
+
+  const [
+    extractionState,
+    setExtractionState,
+  ] =
+    useState<ExtractionState>(
+      "idle",
+    );
+
+  const [
+    uploadedFileName,
+    setUploadedFileName,
+  ] =
+    useState<string | null>(
+      null,
+    );
+
+  const [
+    uploadedFileSize,
+    setUploadedFileSize,
+  ] =
+    useState<number | null>(
+      null,
+    );
+
+  const [
+    isSubmitting,
+    setIsSubmitting,
+  ] =
+    useState(false);
+
+  const [
+    submissionError,
+    setSubmissionError,
+  ] =
+    useState<string | null>(
+      null,
+    );
 
   const sessionKey =
-    mode === "exercise" && exercise
+    mode ===
+      "exercise" &&
+    exercise
       ? exercise.id
-      : draft?.id ?? "free-writing";
+      : draft?.id ??
+        "free-writing";
 
-  const { content, setContent, saveStatus, lastSavedAt, saveNow, clearDraft } =
-    useWritingDraft(sessionKey);
+  const {
+    content,
+    setContent,
 
-  const wordCount = useMemo(() => getWordCount(content), [content]);
-  const characterCount = content.length;
+    saveStatus,
+    lastSavedAt,
 
-  const targetWords =
-    mode === "exercise" && exercise
-      ? exercise.expectedWordCount
-      : mode === "draft" && draft
-        ? Math.max(draft.wordCount, 140)
-        : 140;
+    saveNow,
+    clearDraft,
+  } =
+    useWritingDraft(
+      sessionKey,
+    );
 
-  const minimumWords =
-    mode === "free"
-      ? 80
-      : Math.max(targetWords - 20, 100);
+  const wordCount =
+    useMemo(
+      () =>
+        getWordCount(
+          content,
+        ),
+      [
+        content,
+      ],
+    );
 
-  const canSubmit = wordCount >= minimumWords;
+  const sentenceCount =
+    useMemo(
+      () =>
+        getSentenceCount(
+          content,
+        ),
+      [
+        content,
+      ],
+    );
+
+  const characterCount =
+    content.length;
+
+  /**
+   * هیچ Minimum/Maximum Word Limit وجود ندارد.
+   *
+   * فقط Text کاملاً خالی نباید Submit شود.
+   */
+  const canSubmit =
+    content.trim().length >
+    0;
 
   const modeLabel =
-    mode === "exercise"
+    mode ===
+    "exercise"
       ? "تمرین هدف‌مند"
-      : mode === "draft"
+      : mode ===
+          "draft"
         ? "ادامه‌ی نوشته"
         : "نوشتن آزاد";
 
   const title =
-    mode === "exercise" && exercise
+    mode ===
+      "exercise" &&
+    exercise
       ? exercise.title
-      : mode === "draft" && draft
+      : mode ===
+          "draft" &&
+        draft
         ? draft.title
         : "نوشتن آزاد";
 
   const description =
-    mode === "exercise" && exercise
+    mode ===
+      "exercise" &&
+    exercise
       ? exercise.description
-      : mode === "draft" && draft
+      : mode ===
+          "draft" &&
+        draft
         ? `ادامه‌ی متن ${draft.title} با حفظ لحن و ساختار قبلی.`
-        : "در این فضا می‌توانی بدون فشار ایده‌ها و جمله‌های خودت را روی کاغذ بیاوری.";
+        : "بدون محدودیت تعداد کلمه بنویس؛ متن تو می‌تواند کوتاه، بلند، تمرینی یا یک نوشته کامل باشد.";
 
   const prompt =
-    mode === "exercise" && exercise
+    mode ===
+      "exercise" &&
+    exercise
       ? exercise.prompt
       : draft?.excerpt ??
-        "یک متن روان و قابل‌فهم درباره‌ی یک تجربه، دغدغه یا ایده‌ی امروز بنویس.";
+        "درباره یک تجربه، دغدغه، اتفاق یا ایده‌ای که امروز در ذهن داری بنویس.";
 
   const instructions =
-    mode === "exercise" && exercise
+    mode ===
+      "exercise" &&
+    exercise
       ? exercise.instructions
-      : defaultInstructions;
+      : DEFAULT_INSTRUCTIONS;
 
   const writingGoal =
-    mode === "exercise" && exercise
+    mode ===
+      "exercise" &&
+    exercise
       ? exercise.targetWritingGoal
-      : "نوشتن واضح، منظم و قابل‌فهم";
+      : "انتقال روشن ایده با ساختار و واژگان مناسب";
 
   const tips =
-    mode === "exercise" && exercise
+    mode ===
+      "exercise" &&
+    exercise
       ? exercise.instructions
-      : [
-          "از یک جمله‌ی قوی برای شروع استفاده کن.",
-          "در پایان، یک جمع‌بندی کوتاه به متن اضافه کن.",
-          "اگر نیاز داشتی، جمله‌ها را به‌تدریج بازنویسی کن.",
-        ];
+      : DEFAULT_TIPS;
 
-
-  async function handleSubmit() {
-    if (!canSubmit || isSubmitting) {
+  async function handleSubmit():
+    Promise<void> {
+    if (
+      !canSubmit ||
+      isSubmitting
+    ) {
       return;
     }
 
-    setIsSubmitting(true);
+    setSubmissionError(
+      null,
+    );
+
+    setIsSubmitting(
+      true,
+    );
+
     saveNow();
 
     try {
-      const response = await submitWritingAnalysis({
-        content,
-        exerciseId: exercise?.id,
-        mode,
-      });
+      const response =
+        await submitWritingAnalysis(
+          {
+            content,
 
-      if (response.success && response.submissionId) {
-        router.push(`/writing/submissions/${response.submissionId}`);
-      } else {
-        console.error("Submission failed:", response.error);
-        setAnalysisReady(true);
+            exerciseId:
+              exercise?.id,
+
+            mode,
+
+            context: {
+              title,
+
+              prompt,
+
+              writingGoal,
+            },
+          },
+        );
+
+      if (
+        response.success &&
+        response.submissionId
+      ) {
+        router.push(
+          `/writing/submissions/${response.submissionId}`,
+        );
+
+        return;
       }
-    } catch (error) {
-      console.error("Error submitting for analysis:", error);
-      setAnalysisReady(true);
+
+      setSubmissionError(
+        response.error ??
+        "ارسال متن برای تحلیل انجام نشد.",
+      );
+    } catch (
+      error
+    ) {
+      console.error(
+        "Writing analysis submission failed:",
+        error,
+      );
+
+      setSubmissionError(
+        error instanceof
+          Error
+          ? error.message
+          : "در زمان تحلیل متن خطای غیرمنتظره‌ای رخ داد.",
+      );
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(
+        false,
+      );
     }
   }
 
-  function handleClear() {
+  function handleClear():
+    void {
     clearDraft();
-    setAnalysisReady(false);
-    setUploadState("idle");
-    setUploadedFileName(null);
-    setUploadedFileSize(null);
-    setExtractionState("idle");
+
+    setSubmissionError(
+      null,
+    );
+
+    setUploadState(
+      "idle",
+    );
+
+    setUploadedFileName(
+      null,
+    );
+
+    setUploadedFileSize(
+      null,
+    );
+
+    setExtractionState(
+      "idle",
+    );
   }
 
-  function handleUpload(file?: File) {
-    if (!file) {
+  function handleUpload(
+    file?:
+      File,
+  ): void {
+    if (
+      !file
+    ) {
       return;
     }
 
-    setUploadState("uploading");
-    setExtractionState("extracting");
-    setUploadedFileName(file.name);
-    setUploadedFileSize(file.size);
+    setSubmissionError(
+      null,
+    );
 
-    const reader = new FileReader();
+    setUploadState(
+      "uploading",
+    );
 
-    reader.onload = () => {
-      const text = typeof reader.result === "string" ? reader.result : "";
+    setExtractionState(
+      "extracting",
+    );
 
-      setContent((previous) => {
-        const nextValue = text.trim();
+    setUploadedFileName(
+      file.name,
+    );
 
-        if (!nextValue) {
-          setExtractionState("error");
-          return previous;
+    setUploadedFileSize(
+      file.size,
+    );
+
+    const reader =
+      new FileReader();
+
+    reader.onload =
+      (): void => {
+        const text =
+          typeof reader.result ===
+          "string"
+            ? reader.result
+            : "";
+
+        const nextValue =
+          text.trim();
+
+        if (
+          !nextValue
+        ) {
+          setExtractionState(
+            "error",
+          );
+
+          setUploadState(
+            "done",
+          );
+
+          return;
         }
 
-        setExtractionState("success");
-        return previous ? `${previous}\n\n---\n\n${nextValue}` : nextValue;
-      });
+        setContent(
+          (
+            previous,
+          ) =>
+            previous.trim()
+              ? `${previous.trim()}\n\n${nextValue}`
+              : nextValue,
+        );
 
-      setUploadState("done");
-    };
+        setExtractionState(
+          "success",
+        );
 
-    reader.onerror = () => {
-      setExtractionState("error");
-      setUploadState("idle");
-    };
+        setUploadState(
+          "done",
+        );
+      };
 
-    reader.readAsText(file);
+    reader.onerror =
+      (): void => {
+        setExtractionState(
+          "error",
+        );
+
+        setUploadState(
+          "idle",
+        );
+      };
+
+    reader.readAsText(
+      file,
+    );
   }
 
-  function handleRemoveUpload() {
-    setUploadState("idle");
-    setUploadedFileName(null);
-    setUploadedFileSize(null);
-    setExtractionState("idle");
+  function handleRemoveUpload():
+    void {
+    setUploadState(
+      "idle",
+    );
+
+    setUploadedFileName(
+      null,
+    );
+
+    setUploadedFileSize(
+      null,
+    );
+
+    setExtractionState(
+      "idle",
+    );
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
-      {showHeader && (
+    <div
+      className="space-y-6"
+      dir="rtl"
+    >
+      {showHeader ? (
         <>
           <Link
             href="/writing"
-            className="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
+            className="
+              inline-flex
+              items-center
+              gap-2
+              text-sm
+              text-slate-400
+              transition
+              hover:text-white
+            "
           >
-            <ArrowRight aria-hidden="true" className="h-4 w-4" />
+            <ArrowRight
+              aria-hidden="true"
+              className="h-4 w-4"
+            />
+
             بازگشت به صفحه نوشتن
           </Link>
 
-          <section className="relative overflow-hidden rounded-3xl border border-cyan-400/15 bg-[linear-gradient(135deg,rgba(8,47,73,0.75),rgba(15,23,42,0.85))] p-6 sm:p-8">
+          <section
+            className="
+              relative
+              overflow-hidden
+              rounded-3xl
+              border
+              border-cyan-400/15
+              bg-[linear-gradient(135deg,rgba(8,47,73,0.75),rgba(15,23,42,0.85))]
+              p-6
+              sm:p-8
+            "
+          >
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-cyan-500/20 blur-3xl"
+              className="
+                pointer-events-none
+                absolute
+                -left-24
+                -top-24
+                h-64
+                w-64
+                rounded-full
+                bg-cyan-500/20
+                blur-3xl
+              "
             />
+
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -bottom-24 right-10 h-64 w-64 rounded-full bg-violet-500/15 blur-3xl"
+              className="
+                pointer-events-none
+                absolute
+                -bottom-24
+                right-10
+                h-64
+                w-64
+                rounded-full
+                bg-violet-500/15
+                blur-3xl
+              "
             />
 
             <div className="relative">
-              <div className="flex flex-wrap items-center gap-2 text-sm text-cyan-300">
-                <PenSquare aria-hidden="true" className="h-4 w-4" />
+              <div
+                className="
+                  flex
+                  flex-wrap
+                  items-center
+                  gap-2
+                  text-sm
+                  text-cyan-300
+                "
+              >
+                <PenSquare
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                />
+
                 {modeLabel}
               </div>
 
-              <h1 className="mt-4 text-3xl font-bold leading-tight text-white sm:text-4xl">
+              <h1
+                className="
+                  mt-4
+                  text-3xl
+                  font-bold
+                  leading-tight
+                  text-white
+                  sm:text-4xl
+                "
+              >
                 {title}
               </h1>
 
-              <p className="mt-4 text-sm leading-8 text-slate-300 sm:text-base">
+              <p
+                className="
+                  mt-4
+                  max-w-3xl
+                  text-sm
+                  leading-8
+                  text-slate-300
+                  sm:text-base
+                "
+              >
                 {description}
               </p>
             </div>
           </section>
         </>
-      )}
+      ) : null}
 
-      <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+      <section
+        className="
+          grid
+          gap-6
+          xl:grid-cols-[0.95fr_1.05fr]
+        "
+      >
         <div className="space-y-6">
           <WritingPromptPanel
-            title={title}
-            description={description}
-            prompt={prompt}
-            tips={tips}
-            modeLabel={modeLabel}
-            instructions={instructions}
-            writingGoal={writingGoal}
-            targetWordCount={targetWords}
-            category={category ?? exercise?.category ?? "نوشتن آزاد"}
-            difficulty={exercise?.difficulty ?? "متوسط"}
-            estimatedMinutes={exercise?.estimatedMinutes ?? 10}
+            title={
+              title
+            }
+            description={
+              description
+            }
+            prompt={
+              prompt
+            }
+            tips={
+              tips
+            }
+            modeLabel={
+              modeLabel
+            }
+            instructions={
+              instructions
+            }
+            writingGoal={
+              writingGoal
+            }
+            category={
+              category ??
+              exercise?.category ??
+              "نوشتن آزاد"
+            }
+            difficulty={
+              exercise?.difficulty ??
+              "متوسط"
+            }
+            estimatedMinutes={
+              exercise?.estimatedMinutes ??
+              10
+            }
           />
 
           <LiveWritingStats
-            wordCount={wordCount}
-            characterCount={characterCount}
-            targetWords={targetWords}
-            requiredWords={minimumWords}
+            wordCount={
+              wordCount
+            }
+            characterCount={
+              characterCount
+            }
+            sentenceCount={
+              sentenceCount
+            }
           />
 
-          <DraftStatus status={saveStatus} lastSavedAt={lastSavedAt} />
+          <DraftStatus
+            status={
+              saveStatus
+            }
+            lastSavedAt={
+              lastSavedAt
+            }
+          />
         </div>
 
         <div className="space-y-6">
           <WritingToolbar
-            onSaveNow={saveNow}
-            onClear={handleClear}
-            saveStatus={saveStatus}
+            onSaveNow={
+              saveNow
+            }
+            onClear={
+              handleClear
+            }
+            saveStatus={
+              saveStatus
+            }
           />
 
-          {uploadState === "idle" ? (
-            <DocumentDropzone onFileSelect={handleUpload} />
+          {uploadState ===
+          "idle" ? (
+            <DocumentDropzone
+              onFileSelect={
+                handleUpload
+              }
+            />
           ) : (
             <>
               <DocumentExtractionState
-                state={extractionState}
-                fileName={uploadedFileName ?? undefined}
-                onDismiss={handleRemoveUpload}
-                onRetry={() => fileInputRef.current?.click()}
+                state={
+                  extractionState
+                }
+                fileName={
+                  uploadedFileName ??
+                  undefined
+                }
+                onDismiss={
+                  handleRemoveUpload
+                }
+                onRetry={() => {
+                  fileInputRef.current?.click();
+                }}
               />
 
-              {uploadedFileName && (
+              {uploadedFileName ? (
                 <UploadedDocumentCard
-                  fileName={uploadedFileName}
-                  fileSize={uploadedFileSize ?? undefined}
-                  wordCount={wordCount}
-                  status={extractionState === "success" ? "ready" : extractionState === "error" ? "error" : "uploading"}
-                  onRemove={handleRemoveUpload}
+                  fileName={
+                    uploadedFileName
+                  }
+                  fileSize={
+                    uploadedFileSize ??
+                    undefined
+                  }
+                  wordCount={
+                    wordCount
+                  }
+                  status={
+                    extractionState ===
+                    "success"
+                      ? "ready"
+                      : extractionState ===
+                          "error"
+                        ? "error"
+                        : "uploading"
+                  }
+                  onRemove={
+                    handleRemoveUpload
+                  }
                 />
-              )}
+              ) : null}
 
               <input
-                ref={fileInputRef}
+                ref={
+                  fileInputRef
+                }
                 type="file"
                 accept=".txt,.md,.doc,.docx,.pdf"
-                onChange={(event) => {
-                  handleUpload(event.target.files?.[0]);
-                  event.target.value = "";
+                onChange={(
+                  event,
+                ) => {
+                  handleUpload(
+                    event.target
+                      .files?.[0],
+                  );
+
+                  event.target.value =
+                    "";
                 }}
                 className="sr-only"
                 aria-label="انتخاب فایل برای واردکردن متن"
@@ -333,20 +836,46 @@ export function WritingWorkspace({
           )}
 
           <WritingEditor
-            value={content}
-            onChange={setContent}
+            value={
+              content
+            }
+            onChange={(
+              value,
+            ) => {
+              setContent(
+                value,
+              );
+
+              if (
+                submissionError
+              ) {
+                setSubmissionError(
+                  null,
+                );
+              }
+            }}
             placeholder="متن خودت را اینجا شروع کن..."
           />
 
           <AnalysisSubmitBar
-            canSubmit={canSubmit}
-            onSubmit={handleSubmit}
-            onClear={handleClear}
-            analysisReady={analysisReady}
-            wordCount={wordCount}
-            targetWords={targetWords}
-            requiredWords={minimumWords}
-            isSubmitting={isSubmitting}
+            canSubmit={
+              canSubmit
+            }
+            onSubmit={() => {
+              void handleSubmit();
+            }}
+            onClear={
+              handleClear
+            }
+            wordCount={
+              wordCount
+            }
+            isSubmitting={
+              isSubmitting
+            }
+            errorMessage={
+              submissionError
+            }
           />
         </div>
       </section>

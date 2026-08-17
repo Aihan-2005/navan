@@ -1,37 +1,61 @@
-import Link from "next/link";
+import type {
+  Metadata,
+} from "next";
 
-import { getWritingSubmission } from "../../../../../features/writing/api/get-writing-submission";
-import { WritingAnalysisView } from "../../../../../features/writing/components/analysis/writing-analysis-view";
+import {
+  getWritingSubmission,
+} from "../../../../../features/writing/api/get-writing-submission";
 
-type WritingSubmissionPageProps = Readonly<{
-  params: Promise<{ submissionId: string }>;
-}>;
+import {
+  WritingSubmissionClient,
+} from "../../../../../features/writing/components/analysis/writing-submission-client";
+
+type WritingSubmissionPageProps =
+  Readonly<{
+    params:
+      Promise<{
+        submissionId:
+          string;
+      }>;
+  }>;
+
+export const metadata: Metadata = {
+  title:
+    "تحلیل Writing",
+
+  description:
+    "تحلیل کامل نوشته، مشکلات، نقاط قوت، واژگان و پیشنهادهای بهبود.",
+};
 
 export default async function WritingSubmissionPage({
   params,
 }: WritingSubmissionPageProps) {
-  const { submissionId } = await params;
-  const submission = await getWritingSubmission(submissionId);
+  const {
+    submissionId,
+  } =
+    await params;
 
-  if (!submission) {
-    return (
-      <main className="mx-auto w-full max-w-6xl space-y-6" dir="rtl">
-        <section className="rounded-3xl border border-white/10 bg-slate-950/60 p-6">
-          <h1 className="text-2xl font-bold text-white">نوشته یافت نشد</h1>
-          <p className="mt-4 text-sm leading-8 text-slate-400">
-            نوشته مورد نظر شما وجود ندارد.
-          </p>
-          <Link
-            href="/writing/history"
-            className="mt-6 inline-flex items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/15"
-          >
-            بازگشت به تاریخچه
-          </Link>
-        </section>
-      </main>
+  /**
+   * برای Submissionهای قدیمی Mock،
+   * Server همچنان fallback را فراهم می‌کند.
+   *
+   * Submissionهای جدید توسط Client از
+   * localStorage خوانده می‌شوند تا زمانی
+   * که Persistence واقعی Backend اضافه شود.
+   */
+  const fallbackSubmission =
+    await getWritingSubmission(
+      submissionId,
     );
-  }
 
-  return <WritingAnalysisView submission={submission} />;
+  return (
+    <WritingSubmissionClient
+      submissionId={
+        submissionId
+      }
+      fallbackSubmission={
+        fallbackSubmission
+      }
+    />
+  );
 }
-
