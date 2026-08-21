@@ -510,16 +510,27 @@ const authResult =
           normalizeNullableString(
             token.identifier,
           );
+session.user.role =
+  normalizeRole(
+    token.role,
+  );
 
-        session.user.role =
-          normalizeRole(
-            token.role,
-          );
+/**
+ * Only expose the short-lived backend access token that the server-side
+ * API clients need. Never copy backendRefreshToken into Session.
+ *
+ * If the refresh flow failed, do not propagate the now-stale access token.
+ */
+session.backendAccessToken =
+  token.authError ===
+  "RefreshAccessTokenError"
+    ? undefined
+    : token.backendAccessToken;
 
-          session.authError =
-          token.authError;
+session.authError =
+  token.authError;
 
-        return session;
+return session;
       },
     },
   });

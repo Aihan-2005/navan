@@ -33,7 +33,6 @@ declare module "@auth/core/types" {
   interface Session {
     user: {
       id: string;
-
       username:
         string | null;
 
@@ -43,6 +42,16 @@ declare module "@auth/core/types" {
       role:
         AppUserRole;
     } & DefaultSession["user"];
+
+    /**
+     * Short-lived backend access token.
+     *
+     * This is populated by the Auth.js session callback and is used by
+     * server-only API clients such as listening-server-client.ts.
+     * The refresh token intentionally stays out of Session.
+     */
+    backendAccessToken?:
+      string;
 
     authError?:
       AuthSessionError;
