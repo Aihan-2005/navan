@@ -1,121 +1,412 @@
-import { z } from "zod";
+import {
+  z,
+} from "zod";
 
-import {readingCefrLevelSchema,readingSectionSummarySchema,} from "./reading.schema";
+import {
+  readingCefrLevelSchema,
+  readingSectionSummarySchema,
+} from "./reading.schema";
 
-/**
+export const readingTextBlockSchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-A single paragraph or text block displayed inside
+    order: z
+      .number()
+      .int()
+      .positive(),
 
-the interactive reading workspace.*/export const readingTextBlockSchema = z.object({id: z.string().trim().min(1),
+    text: z
+      .string()
+      .trim()
+      .min(1),
 
-order: z.number().int().positive(),
+    translation: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .default(null),
 
-text: z.string().trim().min(1),
+    note: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .default(null),
 
-translation: z.string().trim().min(1).nullable().default(null),
+    /**
+     * خلاصه مفهومی AI برای همین پاراگراف.
+     *
+     * Optional است تا Mock/Backend قدیمی
+     * همچنان بدون Migration اجباری کار کند.
+     */
+    conceptSummary: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .optional(),
+  });
 
-note: z.string().trim().min(1).nullable().default(null),});
+export const readingVocabularyItemSchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-/**
+    term: z
+      .string()
+      .trim()
+      .min(1),
 
-A vocabulary item extracted from the reading section.*/export const readingVocabularyItemSchema = z.object({id: z.string().trim().min(1),
+    pronunciation: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .default(null),
 
-term: z.string().trim().min(1),
+    partOfSpeech: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .default(null),
 
-pronunciation: z.string().trim().min(1).nullable().default(null),
+    meaning: z
+      .string()
+      .trim()
+      .min(1),
 
-partOfSpeech: z.string().trim().min(1).nullable().default(null),
+    contextualMeaning: z
+      .string()
+      .trim()
+      .min(1),
 
-meaning: z.string().trim().min(1),
+    example: z
+      .string()
+      .trim()
+      .min(1),
 
-contextualMeaning: z.string().trim().min(1),
+    exampleTranslation: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .default(null),
 
-example: z.string().trim().min(1),
+    isCore:
+      z.boolean()
+        .default(false),
 
-exampleTranslation: z.string().trim().min(1).nullable().default(null),
+    /**
+     * مشخص می‌کند این واژه توسط AI
+     * از کدام پاراگراف استخراج شده است.
+     */
+    sourceBlockId: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .optional(),
+  });
 
-isCore: z.boolean().default(false),});
+export const readingGrammarExampleSchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-/**
+    source: z
+      .string()
+      .trim()
+      .min(1),
 
-An example sentence used by a grammar explanation.*/export const readingGrammarExampleSchema = z.object({id: z.string().trim().min(1),
+    translation: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .default(null),
+  });
 
-source: z.string().trim().min(1),
+export const readingGrammarPointSchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-translation: z.string().trim().min(1).nullable().default(null),});
+    title: z
+      .string()
+      .trim()
+      .min(1),
 
-/**
+    explanation: z
+      .string()
+      .trim()
+      .min(1),
 
-A grammar concept detected inside the reading text.*/export const readingGrammarPointSchema = z.object({id: z.string().trim().min(1),
+    pattern: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .default(null),
 
-title: z.string().trim().min(1),
+    examples: z
+      .array(
+        readingGrammarExampleSchema,
+      )
+      .min(1),
 
-explanation: z.string().trim().min(1),
+    sourceBlockId: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .optional(),
 
-pattern: z.string().trim().min(1).nullable().default(null),
+    masteryTip: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .optional(),
 
-examples: z.array(readingGrammarExampleSchema).min(1),});
+    commonMistake: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .optional(),
 
-/**
+    practicePrompt: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .optional(),
+  });
 
-A selectable answer inside a comprehension question.*/export const readingComprehensionOptionSchema = z.object({id: z.string().trim().min(1),
+export const readingExpressionRegisterSchema =
+  z.enum([
+    "casual",
+    "neutral",
+    "formal",
+    "literary",
+    "academic",
+  ]);
 
-label: z.string().trim().min(1),});
+export const readingExpressionItemSchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-/**
+    sourceBlockId: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .optional(),
 
-A multiple-choice reading comprehension question.
+    expression: z
+      .string()
+      .trim()
+      .min(1),
 
+    meaning: z
+      .string()
+      .trim()
+      .min(1),
 
+    usageNote: z
+      .string()
+      .trim()
+      .min(1),
 
-The refinement ensures that correctOptionId points
+    example: z
+      .string()
+      .trim()
+      .min(1),
 
-to one of the question's own options.*/export const readingComprehensionQuestionSchema = z.object({id: z.string().trim().min(1),
+    exampleTranslation: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .optional(),
 
-prompt: z.string().trim().min(1),
+    register:
+      readingExpressionRegisterSchema
+        .default("neutral"),
 
-options: z.array(readingComprehensionOptionSchema,).min(2),
+    isHighlighted:
+      z.boolean()
+        .default(false),
+  });
 
-correctOptionId: z.string().trim().min(1),
+export const readingComprehensionOptionSchema =
+  z.object({
+    id: z
+      .string()
+      .trim()
+      .min(1),
 
-explanation: z.string().trim().min(1),}).superRefine((question,context,) => {const hasCorrectOption =question.options.some((option) =>option.id ===question.correctOptionId,);
+    label: z
+      .string()
+      .trim()
+      .min(1),
+  });
 
-if (!hasCorrectOption) {context.addIssue({code: "custom",
+export const readingComprehensionQuestionSchema =
+  z
+    .object({
+      id: z
+        .string()
+        .trim()
+        .min(1),
 
-   path: [
-     "correctOptionId",
-   ],
+      prompt: z
+        .string()
+        .trim()
+        .min(1),
 
-   message:
-     "correctOptionId must reference one of the question options.",
- });
+      options: z
+        .array(
+          readingComprehensionOptionSchema,
+        )
+        .min(2),
 
-}},);
+      correctOptionId: z
+        .string()
+        .trim()
+        .min(1),
 
-/**
+      explanation: z
+        .string()
+        .trim()
+        .min(1),
+    })
+    .superRefine(
+      (
+        question,
+        context,
+      ) => {
+        const hasCorrectOption =
+          question.options.some(
+            (
+              option,
+            ) =>
+              option.id ===
+              question.correctOptionId,
+          );
 
-Complete data contract used by the interactive
+        if (
+          !hasCorrectOption
+        ) {
+          context.addIssue({
+            code:
+              "custom",
 
-reading workspace route.*/export const readingSectionDetailSchema =readingSectionSummarySchema.extend({resourceId: z.string().trim().min(1),
+            path: [
+              "correctOptionId",
+            ],
 
-resourceTitle: z.string().trim().min(1),
+            message:
+              "correctOptionId must reference one of the question options.",
+          });
+        }
+      },
+    );
 
-resourceAuthor: z.string().trim().min(1).nullable(),
+export const readingSectionDetailSchema =
+  readingSectionSummarySchema.extend({
+    resourceId: z
+      .string()
+      .trim()
+      .min(1),
 
-languageCode: z.string().trim().min(2).max(10),
+    resourceTitle: z
+      .string()
+      .trim()
+      .min(1),
 
-cefrLevel:readingCefrLevelSchema,
+    resourceAuthor: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable(),
 
-audioUrl: z.string().trim().min(1).nullable().default(null),
+    languageCode: z
+      .string()
+      .trim()
+      .min(2)
+      .max(10),
 
-previousSectionId: z.string().trim().min(1).nullable().default(null),
+    cefrLevel:
+      readingCefrLevelSchema,
 
-nextSectionId: z.string().trim().min(1).nullable().default(null),
+    audioUrl: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .default(null),
 
-content: z.array(readingTextBlockSchema,).min(1),
+    previousSectionId: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .default(null),
 
-vocabulary: z.array(readingVocabularyItemSchema,).default([]),
+    nextSectionId: z
+      .string()
+      .trim()
+      .min(1)
+      .nullable()
+      .default(null),
 
-grammarPoints: z.array(readingGrammarPointSchema,).default([]),
+    content: z
+      .array(
+        readingTextBlockSchema,
+      )
+      .min(1),
 
-comprehensionQuestions: z.array(readingComprehensionQuestionSchema,).default([]),});
+    vocabulary: z
+      .array(
+        readingVocabularyItemSchema,
+      )
+      .default([]),
+
+    grammarPoints: z
+      .array(
+        readingGrammarPointSchema,
+      )
+      .default([]),
+
+    /**
+     * Optional برای backward compatibility
+     * با Section mockهای قبلی.
+     */
+    expressions: z
+      .array(
+        readingExpressionItemSchema,
+      )
+      .optional(),
+
+    comprehensionQuestions: z
+      .array(
+        readingComprehensionQuestionSchema,
+      )
+      .default([]),
+  });

@@ -4,9 +4,7 @@ import {
   BookOpenText,
   Clock3,
   Flame,
-  Headphones,
-  TimerReset,
-  WholeWord,
+  ListChecks,
 } from "lucide-react";
 
 import type {
@@ -16,6 +14,10 @@ import type {
 import {
   ReadingLearningJourneyCard,
 } from "./reading-learning-journey-card";
+
+import {
+  ReadingNotesOverviewCard,
+} from "./reading-notes-overview-card";
 
 import {
   ReadingOverviewSidePanel,
@@ -28,6 +30,7 @@ import {
 import {
   ReadingStatCard,
 } from "./reading-stat-card";
+
 type ReadingOverviewProps =
   Readonly<{
     overview:
@@ -49,15 +52,18 @@ export function ReadingOverview({
     learningJourney,
     primaryInsight,
     recentActivities,
-  } = overview;
+  } =
+    overview;
 
   const continueHref =
-    continueReading?.currentSectionId
+    continueReading
+      ?.currentSectionId
       ? `/reading/resources/${continueReading.resourceId}/sections/${continueReading.currentSectionId}`
       : continueReading
         ? `/reading/resources/${continueReading.resourceId}`
         : "/reading";
-const detailsHref =
+
+  const detailsHref =
     continueReading
       ? `/reading/resources/${continueReading.resourceId}`
       : "/reading";
@@ -85,7 +91,8 @@ const detailsHref =
             min-h-[279px]
             overflow-hidden
             rounded-xl
-            border border-[#BCC9C6]/30
+            border
+            border-[#BCC9C6]/30
             bg-[linear-gradient(135deg,rgba(0,104,95,0.10)_0%,rgba(0,131,120,0.20)_100%)]
             p-6
             shadow-[0_4px_20px_rgba(13,148,136,0.04)]
@@ -116,7 +123,7 @@ const detailsHref =
               gap-8
               md:flex-row
               md:items-center
-md:gap-[62px]
+              md:gap-[62px]
             "
           >
             <div
@@ -145,7 +152,7 @@ md:gap-[62px]
 
               <h1
                 id="reading-page-title"
-dir="ltr"
+                dir="ltr"
                 style={{
                   fontFamily:
                     "var(--font-plus-jakarta-sans)",
@@ -174,7 +181,8 @@ dir="ltr"
                   text-[#3D4947]
                 "
               >
-                بخش{" "}{numberFormatter.format(
+                بخش{" "}
+                {numberFormatter.format(
                   continueReading.currentSectionOrder,
                 )}{" "}
                 از{" "}
@@ -204,7 +212,7 @@ dir="ltr"
                 >
                   <span
                     className="
-                    inline-flex
+                      inline-flex
                       items-center
                       gap-1.5
                       text-[#3D4947]
@@ -233,7 +241,8 @@ dir="ltr"
                         continueReading.comprehensionScore,
                       )}
                       ٪ درک متن
-                    </span>   ) : null}
+                    </span>
+                  ) : null}
                 </div>
 
                 <div
@@ -263,7 +272,8 @@ dir="ltr"
                     style={{
                       width:
                         `${continueReading.progressPercent}%`,
-                    }}/>
+                    }}
+                  />
                 </div>
               </div>
 
@@ -293,8 +303,8 @@ dir="ltr"
                     text-sm
                     font-bold
                     leading-4
-                                        tracking-[0.01em]
-text-white
+                    tracking-[0.01em]
+                    text-white
                     shadow-[0_1px_2px_rgba(0,0,0,0.05)]
                     transition
                     hover:bg-[#005A52]
@@ -323,8 +333,8 @@ text-white
                     justify-center
                     rounded-lg
                     border
-                                        border-[#6D7A77]
-bg-transparent
+                    border-[#6D7A77]
+                    bg-transparent
                     px-6
                     text-sm
                     font-bold
@@ -354,7 +364,8 @@ bg-transparent
                 shrink-0
                 -rotate-[9.9deg]
                 rounded-lg
-                border border-[#BCC9C6]/20
+                border
+                border-[#BCC9C6]/20
                 bg-[#F7F9FB]
                 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.10),0_2px_4px_-2px_rgba(0,0,0,0.10)]
                 md:block
@@ -383,7 +394,8 @@ bg-transparent
               />
 
               <div
-                className="mx-auto
+                className="
+                  mx-auto
                   mt-2
                   h-1.5
                   w-[72px]
@@ -413,19 +425,20 @@ bg-transparent
           grid
           gap-4
           sm:grid-cols-2
-          lg:grid-cols-4lg:gap-6
+          lg:grid-cols-4
+          lg:gap-6
         "
       >
         <ReadingStatCard
-          title="جلسه‌های شنیداری"
+          title="منابع خوانده‌شده"
           value={
             numberFormatter.format(
-              stats.totalSessions,
+              stats.completedResources,
             )
           }
-          description="تعداد جلسه‌های ثبت شده"
+          description="کتاب‌ها و منابعی که مطالعه‌شان کامل شده"
           icon={
-            Headphones
+            BookOpenText
           }
           tone="teal"
         />
@@ -435,38 +448,43 @@ bg-transparent
           value={`${numberFormatter.format(
             stats.weeklyMinutes,
           )} دقیقه`}
-          description="زمان مطالعه این هفته"
+          description={`${numberFormatter.format(
+            stats.activeDaysThisWeek,
+          )} روز فعال از ۷ روز`}
           icon={
-            TimerReset
+            Clock3
           }
           tone="violet"
         />
 
-        <ReadingStatCard title="واژگان تثبیت شده"
-          value={
-            numberFormatter.format(
-              stats.masteredWords,
-            )
-          }
-          description="واژگان یادگرفته شده"
-          icon={
-            WholeWord
-          }
-          tone="slate"
-        />
-
         <ReadingStatCard
-          title="تداوم تمرین"
+          title="تداوم مطالعه"
           value={`${numberFormatter.format(
             stats.currentStreakDays,
           )} روز`}
-          description="تداوم مطالعه"
+          description="تعداد روزهای مطالعه پشت‌سرهم"
           icon={
             Flame
           }
           tone="orange"
         />
+
+        <ReadingStatCard
+          title="بخش‌های تکمیل‌شده"
+          value={
+            numberFormatter.format(
+              stats.completedSections,
+            )
+          }
+          description="بخش‌هایی که مطالعه‌شان را به پایان رسانده‌ای"
+          icon={
+            ListChecks
+          }
+          tone="slate"
+        />
       </section>
+
+      <ReadingNotesOverviewCard />
 
       <section
         className="
@@ -498,7 +516,8 @@ bg-transparent
         <ReadingOverviewSidePanel
           weeklyGoal={
             weeklyGoal
-          }insight={
+          }
+          insight={
             primaryInsight
           }
         />

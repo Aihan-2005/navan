@@ -19,14 +19,20 @@ import {
 } from "../../../../../features/reading/components/analysis/reading-ai-analysis-panel";
 
 import {
+  ReadingSavedResourceNotes,
+} from "../../../../../features/reading/components/analysis/reading-saved-resource-notes";
+
+import {
   ReadingResourceDetail,
 } from "../../../../../features/reading/components/resource/reading-resource-detail";
 
 type ReadingResourcePageProps =
   Readonly<{
-    params: Promise<{
-      resourceId: string;
-    }>;
+    params:
+      Promise<{
+        resourceId:
+          string;
+      }>;
   }>;
 
 export async function generateMetadata({
@@ -34,7 +40,8 @@ export async function generateMetadata({
 }: ReadingResourcePageProps): Promise<Metadata> {
   const {
     resourceId,
-  } = await params;
+  } =
+    await params;
 
   const resource =
     await getReadingResource(
@@ -52,7 +59,8 @@ export async function generateMetadata({
   }
 
   return {
-    title: resource.title,
+    title:
+      resource.title,
 
     description:
       resource.description ??
@@ -65,36 +73,54 @@ export default async function ReadingResourcePage({
 }: ReadingResourcePageProps) {
   const {
     resourceId,
-  } = await params;
+  } =
+    await params;
 
   const [
     resource,
     analysis,
-  ] = await Promise.all([
-    getReadingResource(
-      resourceId,
-    ),
+  ] =
+    await Promise.all([
+      getReadingResource(
+        resourceId,
+      ),
 
-    getReadingAiAnalysis(
-      resourceId,
-    ),
-  ]);
+      getReadingAiAnalysis(
+        resourceId,
+      ),
+    ]);
 
   if (!resource) {
     notFound();
   }
 
   return (
-    <div className="space-y-8">
+    <div
+      className="
+        space-y-8
+      "
+    >
       <ReadingResourceDetail
-        resource={resource}
+        resource={
+          resource
+        }
       />
 
       {analysis?.status ===
       "ready" ? (
-        <ReadingAiAnalysisPanel
-          analysis={analysis}
-        />
+        <>
+          <ReadingAiAnalysisPanel
+            analysis={
+              analysis
+            }
+          />
+
+          <ReadingSavedResourceNotes
+            resourceId={
+              resource.id
+            }
+          />
+        </>
       ) : null}
     </div>
   );

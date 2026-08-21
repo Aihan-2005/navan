@@ -10,96 +10,105 @@ import type {
   ListeningContentDetail,
 } from "../types/listening.types";
 
+import {
+  parseListeningApiResponse,
+} from "./listening-api-client";
+
+import {
+  fetchListeningBackend,
+} from "./listening-server-client";
+
+
 const LISTENING_CONTENT_ENDPOINT =
   "/api/v1/listening/contents";
 
+
 function shouldUseMockData(): boolean {
-  return process.env.USE_MOCKS !== "false";
+  return (
+    process.env.USE_MOCKS !==
+    "false"
+  );
 }
 
-function getApiBaseUrl(): string {
-  const apiBaseUrl =
-    process.env.API_BASE_URL;
 
-  if (!apiBaseUrl) {
-    throw new Error(
-      "API_BASE_URL is required when USE_MOCKS is disabled.",
-    );
-  }
-
-  return apiBaseUrl;
-}
-
-function parseListeningContent(
+function parseMockContent(
   payload: unknown,
 ): ListeningContentDetail {
   const result =
-    listeningContentDetailSchema.safeParse(
-      payload,
-    );
+    listeningContentDetailSchema
+      .safeParse(payload);
 
   if (!result.success) {
     console.error(
-      "Invalid listening content payload:",
+      "Invalid listening content mock:",
       result.error.flatten(),
     );
 
     throw new Error(
-      "Listening content payload is invalid.",
+      "Listening content mock is invalid.",
     );
   }
 
   return result.data;
 }
 
+
 export async function getListeningContent(
   contentId: string,
-): Promise<ListeningContentDetail | null> {
+): Promise<
+  ListeningContentDetail | null
+> {
+  const normalizedContentId =
+    contentId.trim();
+
+  if (!normalizedContentId) {
+    return null;
+  }
+
   if (shouldUseMockData()) {
     const content =
       listeningContentsMock.find(
-        (item) => item.id === contentId,
+        (item) =>
+          item.id ===
+          normalizedContentId,
       );
 
     if (!content) {
       return null;
     }
 
-    return parseListeningContent(content);
+    return parseMockContent(
+      content,
+    );
   }
 
-  const requestUrl = new URL(
-    `${LISTENING_CONTENT_ENDPOINT}/${encodeURIComponent(
-      contentId,
-    )}`,
-    getApiBaseUrl(),
-  );
-
-  const response = await fetch(
-    requestUrl,
-    {
-      method: "GET",
-
-      headers: {
-        Accept: "application/json",
+  const response =
+    await fetchListeningBackend(
+      `${LISTENING_CONTENT_ENDPOINT}/${encodeURIComponent(
+        normalizedContentId,
+      )}`,
+      {
+        method: "GET",
+        cache: "no-store",
       },
-
-      cache: "no-store",
-    },
-  );
+      {
+        /**
+         * Optional:
+         * public content works anonymously,
+         * but authenticated users get
+         * isCompleted/progress context.
+         */
+        requireAuthentication: false,
+      },
+    );
 
   if (response.status === 404) {
     return null;
   }
 
-  if (!response.ok) {
-    throw new Error(
-      `Listening content request failed with status ${response.status}.`,
-    );
-  }
-
-  const payload: unknown =
-    await response.json();
-
-  return parseListeningContent(payload);
+  return parseListeningApiResponse(
+    response,
+    listeningContentDetailSchema,
+    "دریافت تمرین شنیداری ناموفق بود.",
+  );
 }

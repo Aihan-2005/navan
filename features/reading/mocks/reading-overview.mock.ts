@@ -14,7 +14,9 @@ function findReadingResource(
 ): ReadingResourceDetail {
   const resource =
     readingResourcesMock.find(
-      (item) =>
+      (
+        item,
+      ) =>
         item.id ===
         resourceId,
     );
@@ -57,7 +59,7 @@ function toReadingResourceSummary(
     languageCode:
       resource.languageCode,
 
-cefrLevel:
+    cefrLevel:
       resource.cefrLevel,
 
     coverImageUrl:
@@ -85,6 +87,7 @@ cefrLevel:
       resource.isFeatured,
   };
 }
+
 const sherlockHolmesResource =
   toReadingResourceSummary(
     findReadingResource(
@@ -108,15 +111,34 @@ const habitsResource =
 
 export const readingOverviewMock = {
   stats: {
-    totalSessions: 26,
+    /**
+     * تعداد کتاب‌ها/منابعی که کاربر
+     * مطالعه آن‌ها را کامل کرده است.
+     */
+    completedResources:
+      7,
 
-    weeklyMinutes: 68,
+    weeklyMinutes:
+      68,
 
-    completedSections: 27,
+    activeDaysThisWeek:
+      4,
 
- masteredWords: 146,
+    completedSections:
+      27,
 
-    currentStreakDays: 6,
+    currentStreakDays:
+      6,
+
+    /**
+     * Legacy fields.
+     * UI جدید به این دو وابسته نیست.
+     */
+    totalSessions:
+      26,
+
+    masteredWords:
+      146,
   },
 
   continueReading: {
@@ -132,29 +154,40 @@ export const readingOverviewMock = {
     currentSectionTitle:
       "بخش دوم: صاحب ناشناس",
 
-    currentSectionOrder: 2,
+    currentSectionOrder:
+      2,
 
-    completedSections: 1,
+    completedSections:
+      1,
 
-    totalSections: 5,
+    totalSections:
+      5,
 
-    progressPercent: 42,
+    progressPercent:
+      42,
 
-    remainingMinutes: 12,
+    remainingMinutes:
+      12,
 
-    comprehensionScore: 84,
+    comprehensionScore:
+      84,
 
-    updatedAt: "2026-08-13T18:30:00.000Z",
+    updatedAt:
+      "2026-08-13T18:30:00.000Z",
   },
 
   weeklyGoal: {
-    targetSections: 4,
+    targetSections:
+      4,
 
-    completedSections: 2,
+    completedSections:
+      2,
 
-    targetNewWords: 20,
+    targetNewWords:
+      20,
 
-    reviewedWords: 8,
+    reviewedWords:
+      8,
   },
 
   featuredResources: [
@@ -171,19 +204,21 @@ export const readingOverviewMock = {
       "مسیر یادگیری این متن",
 
     description:
-      "مراحل را به ترتیب برای تسلط کامل طی کنید.",
+      "مراحل را به ترتیب برای مطالعه عمیق‌تر متن طی کن.",
 
     steps: [
-      {id:
+      {
+        id:
           "reading-journey-read-listen",
 
-        order: 1,
+        order:
+          1,
 
         title:
           "خواندن و شنیدن بخش",
 
         description:
-          "متن کوتاه را بخوان و همزمان صوت طبیعی همان بخش را پخش کن.",
+          "متن کوتاه را بخوان و در صورت وجود صوت، هم‌زمان تلفظ و ریتم جمله‌ها را دنبال کن.",
 
         status:
           "completed",
@@ -193,28 +228,31 @@ export const readingOverviewMock = {
         id:
           "reading-journey-sentence-analysis",
 
-        order: 2,
+        order:
+          2,
 
         title:
-          "تحلیل جمله‌های مهم",
+          "تحلیل پاراگراف‌به‌پاراگراف",
 
         description:
-          "ساختارهای گرامری، عبارت‌های طبیعی و دلیل اهمیت جمله‌ها را بررسی کن.",
+          "معنی، مفهوم، نکته آموزشی و ساختار هر قسمت را جداگانه بررسی کن.",
 
         status:
           "active",
       },
-{
+
+      {
         id:
           "reading-journey-vocabulary",
 
-        order: 3,
+        order:
+          3,
 
         title:
-          "یادگیری واژگان کلیدی",
+          "واژگان، گرامر و عبارت‌ها",
 
         description:
-          "معنی، تلفظ، نقش کلمه و مثال‌های مرتبط با متن را یاد بگیر.",
+          "موارد مهم را بررسی کن و فقط نکته‌هایی را که برایت ارزش مرور دارند ذخیره کن.",
 
         status:
           "upcoming",
@@ -224,17 +262,19 @@ export const readingOverviewMock = {
         id:
           "reading-journey-mastery",
 
-        order: 4,
+        order:
+          4,
 
         title:
-          "تأیید تسلط",
+          "مرور و تثبیت",
 
         description:
-          "با یک مرور کوتاه، یادگیری بخش را تأیید کن تا بخش بعدی باز شود.",
+          "یادداشت‌های ذخیره‌شده را مرور کن و در صورت تمایل کوییز اختیاری را انجام بده.",
 
         status:
           "upcoming",
-      }, ],
+      },
+    ],
   },
 
   primaryInsight: {
@@ -253,10 +293,6 @@ export const readingOverviewMock = {
     actionLabel:
       "مشاهده پیشنهادها",
 
-    /**
-     * در این مرحله Library پیشنهادی
-     * را وارد جریان نمی‌کنیم.
-     */
     actionHref:
       null,
 
@@ -265,7 +301,8 @@ export const readingOverviewMock = {
   },
 
   recentActivities: [
-    {id:
+    {
+      id:
         "reading-activity-001",
 
       resourceId:
@@ -277,21 +314,25 @@ export const readingOverviewMock = {
       sectionTitle:
         "بخش اول",
 
-      durationMinutes: 16,
+      durationMinutes:
+        16,
 
-      learnedWords: 11,
+      learnedWords:
+        11,
 
-      comprehensionScore: 84,
+      comprehensionScore:
+        84,
 
       completedAt:
         "2026-08-11T18:20:00.000Z",
     },
 
     {
-      id:
+        id:
         "reading-activity-002",
 
-      resourceId: everydayCafeResource.id,
+      resourceId:
+        everydayCafeResource.id,
 
       title:
         everydayCafeResource.title,
@@ -299,11 +340,14 @@ export const readingOverviewMock = {
       sectionTitle:
         "بخش اول",
 
-      durationMinutes: 12,
+      durationMinutes:
+        12,
 
-      learnedWords: 8,
+      learnedWords:
+        8,
 
-      comprehensionScore: 91,
+      comprehensionScore:
+        91,
 
       completedAt:
         "2026-08-06T14:10:00.000Z",

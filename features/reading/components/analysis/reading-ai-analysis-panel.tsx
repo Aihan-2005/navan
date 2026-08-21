@@ -6,7 +6,6 @@ import {
   Languages,
   Lightbulb,
   ListTree,
-  ShieldCheck,
   Sparkles,
   Target,
   TriangleAlert,
@@ -37,32 +36,54 @@ type ReadingAiAnalysisPanelProps =
 
 type ScoreItem =
   Readonly<{
-    label: string;
-    value: number;
-    description: string;
+    label:
+      string;
+
+    value:
+      number;
+
+    description:
+      string;
   }>;
 
 const numberFormatter =
-  new Intl.NumberFormat("fa-IR", {
-    maximumFractionDigits: 1,
-  });
+  new Intl.NumberFormat(
+    "fa-IR",
+    {
+      maximumFractionDigits:
+        1,
+    },
+  );
 
 function getScoreLabel(
-  score: number,
+  score:
+    number,
 ): string {
-  if (score >= 85) {
+  if (
+    score >=
+    85
+  ) {
     return "بسیار بالا";
   }
 
-  if (score >= 70) {
+  if (
+    score >=
+    70
+  ) {
     return "بالا";
   }
 
-  if (score >= 50) {
+  if (
+    score >=
+    50
+  ) {
     return "متوسط";
   }
 
-  if (score >= 30) {
+  if (
+    score >=
+    30
+  ) {
     return "سبک";
   }
 
@@ -70,17 +91,27 @@ function getScoreLabel(
 }
 
 function getConfidenceLabel(
-  score: number,
+  score:
+    number,
 ): string {
-  if (score >= 90) {
+  if (
+    score >=
+    90
+  ) {
     return "اطمینان بسیار بالا";
   }
 
-  if (score >= 75) {
+  if (
+    score >=
+    75
+  ) {
     return "اطمینان بالا";
   }
 
-  if (score >= 60) {
+  if (
+    score >=
+    60
+  ) {
     return "اطمینان متوسط";
   }
 
@@ -88,12 +119,16 @@ function getConfidenceLabel(
 }
 
 function getInsightConfig(
-  insight: ReadingAiInsight,
+  insight:
+    ReadingAiInsight,
 ) {
-  switch (insight.type) {
+  switch (
+    insight.type
+  ) {
     case "strength":
       return {
-        icon: CheckCircle2,
+        icon:
+          CheckCircle2,
 
         iconClass:
           "text-emerald-300",
@@ -101,12 +136,14 @@ function getInsightConfig(
         containerClass:
           "border-emerald-400/15 bg-emerald-400/[0.04]",
 
-        label: "نقطه قوت",
+        label:
+          "نقطه قوت",
       };
 
     case "challenge":
       return {
-        icon: TriangleAlert,
+        icon:
+          TriangleAlert,
 
         iconClass:
           "text-amber-300",
@@ -114,12 +151,14 @@ function getInsightConfig(
         containerClass:
           "border-amber-400/15 bg-amber-400/[0.04]",
 
-        label: "چالش",
+        label:
+          "چالش",
       };
 
     case "recommendation":
       return {
-        icon: Lightbulb,
+        icon:
+          Lightbulb,
 
         iconClass:
           "text-cyan-300",
@@ -127,12 +166,14 @@ function getInsightConfig(
         containerClass:
           "border-cyan-400/15 bg-cyan-400/[0.04]",
 
-        label: "پیشنهاد AI",
+        label:
+          "پیشنهاد AI",
       };
 
     case "warning":
       return {
-        icon: AlertTriangle,
+        icon:
+          AlertTriangle,
 
         iconClass:
           "text-red-300",
@@ -140,7 +181,8 @@ function getInsightConfig(
         containerClass:
           "border-red-400/15 bg-red-400/[0.04]",
 
-        label: "هشدار",
+        label:
+          "هشدار",
       };
   }
 }
@@ -149,148 +191,158 @@ export function ReadingAiAnalysisPanel({
   analysis,
 }: ReadingAiAnalysisPanelProps) {
   const difficultyItems:
-    readonly ScoreItem[] = [
-    {
-      label: "سختی کلی",
+    readonly ScoreItem[] =
+    [
+      {
+        label:
+          "سختی کلی",
 
-      value:
-        analysis.difficulty.overall,
+        value:
+          analysis.difficulty.overall,
 
-      description:
-        "برآورد کلی سختی منبع",
-    },
+        description:
+          "برآورد کلی سختی منبع",
+      },
 
-    {
-      label: "واژگان",
+      {
+        label:
+          "واژگان",
 
-      value:
-        analysis.difficulty.vocabulary,
+        value:
+          analysis.difficulty.vocabulary,
 
-      description:
-        "تراکم و دشواری واژگان",
-    },
+        description:
+          "تراکم و دشواری واژگان",
+      },
 
-    {
-      label: "گرامر",
+      {
+        label:
+          "گرامر",
 
-      value:
-        analysis.difficulty.grammar,
+        value:
+          analysis.difficulty.grammar,
 
-      description:
-        "پیچیدگی ساختارهای گرامری",
-    },
+        description:
+          "پیچیدگی ساختارهای گرامری",
+      },
 
-    {
-      label: "پیچیدگی جمله",
+      {
+        label:
+          "پیچیدگی جمله",
 
-      value:
-        analysis.difficulty
-          .sentenceComplexity,
+        value:
+          analysis.difficulty
+            .sentenceComplexity,
 
-      description:
-        "طول و ساختار جمله‌ها",
-    },
+        description:
+          "طول و ساختار جمله‌ها",
+      },
 
-    {
-      label: "استنتاج",
+      {
+        label:
+          "استنتاج",
 
-      value:
-        analysis.difficulty.inference,
+        value:
+          analysis.difficulty.inference,
 
-      description:
-        "نیاز به درک غیرمستقیم",
-    },
+        description:
+          "نیاز به درک غیرمستقیم",
+      },
 
-    {
-      label: "انسجام متن",
+      {
+        label:
+          "انسجام متن",
 
-      value:
-        analysis.difficulty.cohesion,
+        value:
+          analysis.difficulty.cohesion,
 
-      description:
-        "پیوند بین جمله‌ها و ایده‌ها",
-    },
-  ];
+        description:
+          "پیوند بین جمله‌ها و ایده‌ها",
+      },
+    ];
 
-  const qualityItems:
-    readonly ScoreItem[] = [
-    {
-      label: "کیفیت استخراج",
+  const uniqueWords =
+    analysis.vocabularyProfile
+      .estimatedUniqueWords;
 
-      value:
-        analysis.quality
-          .extractionConfidence,
+  const coreWords =
+    analysis.vocabularyProfile
+      .estimatedCoreWords;
 
-      description:
-        "اطمینان AI از متن استخراج‌شده",
-    },
+  const coreCoverage =
+    uniqueWords >
+    0
+      ? Math.min(
+          100,
+          (
+            coreWords /
+            uniqueWords
+          ) *
+            100,
+        )
+      : 0;
 
-    {
-      label: "تشخیص زبان",
+  const advancedShare =
+    Math.min(
+      100,
+      analysis.vocabularyProfile
+        .academicWordPercent +
+        analysis.vocabularyProfile
+          .uncommonWordPercent,
+    );
 
-      value:
-        analysis.quality
-          .languageConfidence,
-
-      description:
-        "اطمینان از زبان شناسایی‌شده",
-    },
-
-    {
-      label: "ساختار سند",
-
-      value:
-        analysis.quality
-          .structureConfidence,
-
-      description:
-        "اطمینان از ترتیب و ساختار متن",
-    },
-
-    {
-      label: "ارزش آموزشی",
-
-      value:
-        analysis.quality
-          .educationalValue,
-
-      description:
-        "مناسب‌بودن برای یادگیری زبان",
-    },
-  ];
+  const nonCoreWords =
+    Math.max(
+      0,
+      uniqueWords -
+      coreWords,
+    );
 
   return (
     <section
       aria-labelledby="reading-ai-analysis-title"
       className="
-        mx-auto w-full
-        max-w-7xl space-y-6
+        mx-auto
+        w-full
+        max-w-7xl
+        space-y-6
       "
     >
       <Card
         className="
-          relative overflow-hidden
+          relative
+          overflow-hidden
           border-violet-400/15
           bg-violet-400/[0.035]
-          p-5 sm:p-7
+          p-5
+          sm:p-7
         "
       >
         <div
           aria-hidden="true"
           className="
             pointer-events-none
-            absolute -left-20 -top-24
-            h-60 w-60
+            absolute
+            -left-20
+            -top-24
+            h-60
+            w-60
             rounded-full
             bg-violet-500/10
             blur-3xl
           "
         />
 
-        <div className="relative">
+        <div
+          className="
+            relative
+          "
+        >
           <div
             className="
-              flex flex-col gap-5
+              flex
+              flex-col
+              gap-5
               lg:flex-row
               lg:items-start
               lg:justify-between
@@ -303,8 +355,10 @@ export function ReadingAiAnalysisPanel({
             >
               <div
                 className="
-                  flex items-center
-                  gap-2 text-violet-300
+                  flex
+                  items-center
+                  gap-2
+                  text-violet-300
                 "
               >
                 <BrainCircuit
@@ -314,7 +368,8 @@ export function ReadingAiAnalysisPanel({
 
                 <span
                   className="
-                    text-sm font-medium
+                    text-sm
+                    font-medium
                   "
                 >
                   AI Reading Analysis
@@ -324,8 +379,10 @@ export function ReadingAiAnalysisPanel({
               <h2
                 id="reading-ai-analysis-title"
                 className="
-                  mt-3 text-2xl
-                  font-bold text-white
+                  mt-3
+                  text-2xl
+                  font-bold
+                  text-white
                 "
               >
                 تحلیل هوشمند منبع
@@ -333,7 +390,8 @@ export function ReadingAiAnalysisPanel({
 
               <p
                 className="
-                  mt-3 text-sm
+                  mt-3
+                  text-sm
                   leading-8
                   text-slate-400
                 "
@@ -344,88 +402,45 @@ export function ReadingAiAnalysisPanel({
 
             <div
               className="
-                grid min-w-64
-                grid-cols-2 gap-3
+                grid
+                min-w-64
+                grid-cols-2
+                gap-3
               "
             >
-              <div
-                className="
-                  rounded-2xl
-                  border
-                  border-white/[0.07]
-                  bg-black/10
-                  p-4
-                "
-              >
-                <p
-                  className="
-                    text-xs
-                    text-slate-600
-                  "
-                >
-                  سطح تشخیص‌داده‌شده
-                </p>
+              <Metric
+                label="سطح تشخیص‌داده‌شده"
+                value={
+                  analysis.detectedCefrLevel
+                }
+              />
 
-                <p
-                  className="
-                    mt-2 text-2xl
-                    font-black
-                    text-white
-                  "
-                >
-                  {
-                    analysis.detectedCefrLevel
-                  }
-                </p>
-              </div>
-
-              <div
-                className="
-                  rounded-2xl
-                  border
-                  border-white/[0.07]
-                  bg-black/10
-                  p-4
-                "
-              >
-                <p
-                  className="
-                    text-xs
-                    text-slate-600
-                  "
-                >
-                  Confidence
-                </p>
-
-                <p
-                  className="
-                    mt-2 text-2xl
-                    font-black
-                    text-white
-                  "
-                >
-                  {numberFormatter.format(
-                    analysis.cefrConfidence,
-                  )}
-                  ٪
-                </p>
-              </div>
+              <Metric
+                label="Confidence"
+                value={`${numberFormatter.format(
+                  analysis.cefrConfidence,
+                )}٪`}
+              />
             </div>
           </div>
 
           <div
             className="
-              mt-6 flex
-              flex-wrap gap-2
+              mt-6
+              flex
+              flex-wrap
+              gap-2
             "
           >
             <span
               className="
                 inline-flex
-                items-center gap-1.5
+                items-center
+                gap-1.5
                 rounded-full
                 bg-white/[0.05]
-                px-3 py-1.5
+                px-3
+                py-1.5
                 text-xs
                 text-slate-400
               "
@@ -443,10 +458,12 @@ export function ReadingAiAnalysisPanel({
             <span
               className="
                 inline-flex
-                items-center gap-1.5
+                items-center
+                gap-1.5
                 rounded-full
                 bg-white/[0.05]
-                px-3 py-1.5
+                px-3
+                py-1.5
                 text-xs
                 text-slate-400
               "
@@ -467,16 +484,32 @@ export function ReadingAiAnalysisPanel({
               className="
                 rounded-full
                 bg-white/[0.05]
-                px-3 py-1.5
+                px-3
+                py-1.5
                 text-xs
                 text-slate-400
               "
             >
-              {
-                getConfidenceLabel(
-                  analysis.cefrConfidence,
-                )
-              }
+              {getConfidenceLabel(
+                analysis.cefrConfidence,
+              )}
+            </span>
+
+            <span
+              className="
+                rounded-full
+                bg-white/[0.05]
+                px-3
+                py-1.5
+                text-xs
+                text-slate-400
+              "
+            >
+              حدود{" "}
+              {numberFormatter.format(
+                analysis.estimatedReadingMinutes,
+              )}{" "}
+              دقیقه مطالعه
             </span>
           </div>
         </div>
@@ -484,20 +517,24 @@ export function ReadingAiAnalysisPanel({
 
       <div
         className="
-          grid gap-6
+          grid
+          gap-6
           xl:grid-cols-12
         "
       >
         <Card
           className="
-            p-5 sm:p-6
+            p-5
+            sm:p-6
             xl:col-span-7
           "
         >
           <div
             className="
-              flex items-center
-              gap-2 text-cyan-300
+              flex
+              items-center
+              gap-2
+              text-cyan-300
             "
           >
             <Gauge
@@ -507,7 +544,8 @@ export function ReadingAiAnalysisPanel({
 
             <h3
               className="
-                font-bold text-white
+                font-bold
+                text-white
               "
             >
               پروفایل سختی متن
@@ -516,17 +554,23 @@ export function ReadingAiAnalysisPanel({
 
           <div
             className="
-              mt-6 space-y-5
+              mt-6
+              space-y-5
             "
           >
             {difficultyItems.map(
-              (item) => (
+              (
+                item,
+              ) => (
                 <div
-                  key={item.label}
+                  key={
+                    item.label
+                  }
                 >
                   <div
                     className="
-                      flex items-end
+                      flex
+                      items-end
                       justify-between
                       gap-4
                     "
@@ -544,7 +588,8 @@ export function ReadingAiAnalysisPanel({
 
                       <p
                         className="
-                          mt-1 text-xs
+                          mt-1
+                          text-xs
                           text-slate-600
                         "
                       >
@@ -573,7 +618,8 @@ export function ReadingAiAnalysisPanel({
 
                       <span
                         className="
-                          mr-1 text-xs
+                          mr-1
+                          text-xs
                           text-slate-600
                         "
                       >
@@ -583,14 +629,17 @@ export function ReadingAiAnalysisPanel({
                   </div>
 
                   <Progress
-                    value={item.value}
+                    value={
+                      item.value
+                    }
                     label={`امتیاز ${item.label}`}
                     className="mt-3"
                   />
 
                   <p
                     className="
-                      mt-1 text-left
+                      mt-1
+                      text-left
                       text-[10px]
                       text-slate-700
                     "
@@ -605,172 +654,216 @@ export function ReadingAiAnalysisPanel({
           </div>
         </Card>
 
-        <div
+        <Card
           className="
-            space-y-6
+            p-5
+            sm:p-6
             xl:col-span-5
           "
         >
-          <Card className="p-5 sm:p-6">
-            <div
+          <div
+            className="
+              flex
+              items-center
+              gap-2
+              text-violet-300
+            "
+          >
+            <Sparkles
+              aria-hidden="true"
+              className="h-5 w-5"
+            />
+
+            <h3
               className="
-                flex items-center
-                gap-2
-                text-emerald-300
+                font-bold
+                text-white
               "
             >
-              <ShieldCheck
-                aria-hidden="true"
-                className="h-5 w-5"
-              />
+              پروفایل واژگان
+            </h3>
+          </div>
 
-              <h3
+          <p
+            className="
+              mt-2
+              text-xs
+              leading-6
+              text-slate-500
+            "
+          >
+            نمای کلی تنوع، سطح و ارزش آموزشی واژگان این منبع.
+          </p>
+
+          <dl
+            className="
+              mt-5
+              grid
+              grid-cols-2
+              gap-3
+            "
+          >
+            <Metric
+              label="واژه منحصربه‌فرد"
+              value={numberFormatter.format(
+                uniqueWords,
+              )}
+            />
+
+            <Metric
+              label="واژه کلیدی"
+              value={numberFormatter.format(
+                coreWords,
+              )}
+            />
+
+            <Metric
+              label="واژه غیرکلیدی"
+              value={numberFormatter.format(
+                nonCoreWords,
+              )}
+            />
+
+            <Metric
+              label="پوشش Core"
+              value={`${numberFormatter.format(
+                coreCoverage,
+              )}٪`}
+            />
+
+            <Metric
+              label="Academic"
+              value={`${numberFormatter.format(
+                analysis.vocabularyProfile
+                  .academicWordPercent,
+              )}٪`}
+            />
+
+            <Metric
+              label="کم‌کاربرد"
+              value={`${numberFormatter.format(
+                analysis.vocabularyProfile
+                  .uncommonWordPercent,
+              )}٪`}
+            />
+          </dl>
+
+          <div
+            className="
+              mt-4
+              rounded-xl
+              border
+              border-violet-400/10
+              bg-violet-400/[0.035]
+              p-4
+            "
+          >
+            <div
+              className="
+                flex
+                items-center
+                justify-between
+                gap-4
+              "
+            >
+              <span
                 className="
-                  font-bold text-white
+                  text-xs
+                  text-violet-200
                 "
               >
-                کیفیت تحلیل
-              </h3>
+                سهم واژگان پیشرفته
+              </span>
+
+              <strong
+                className="
+                  text-sm
+                  text-white
+                "
+              >
+                {numberFormatter.format(
+                  advancedShare,
+                )}
+                ٪
+              </strong>
             </div>
 
+            <Progress
+              value={
+                advancedShare
+              }
+              label="سهم واژگان پیشرفته"
+              className="mt-3"
+            />
+          </div>
+
+          {analysis.keyVocabulary.length >
+          0 ? (
             <div
               className="
-                mt-5 space-y-4
+                mt-5
               "
             >
-              {qualityItems.map(
-                (item) => (
-                  <div
-                    key={item.label}
-                    className="
-                      rounded-xl
-                      border
-                      border-white/[0.06]
-                      bg-white/[0.025]
-                      p-4
-                    "
-                  >
-                    <div
+              <p
+                className="
+                  text-xs
+                  font-medium
+                  text-slate-500
+                "
+              >
+                واژه‌های پیشنهادی برای تمرکز
+              </p>
+
+              <div
+                className="
+                  mt-3
+                  flex
+                  flex-wrap
+                  gap-2
+                "
+              >
+                {analysis.keyVocabulary.map(
+                  (
+                    word,
+                  ) => (
+                    <span
+                      key={
+                        word
+                      }
+                      dir="ltr"
                       className="
-                        flex
-                        items-center
-                        justify-between
-                        gap-3
+                        rounded-lg
+                        border
+                        border-cyan-400/10
+                        bg-cyan-400/[0.05]
+                        px-2.5
+                        py-1.5
+                        text-xs
+                        text-cyan-100
                       "
                     >
-                      <div>
-                        <p
-                          className="
-                            text-sm
-                            text-slate-300
-                          "
-                        >
-                          {item.label}
-                        </p>
-
-                        <p
-                          className="
-                            mt-1 text-[10px]
-                            text-slate-600
-                          "
-                        >
-                          {
-                            item.description
-                          }
-                        </p>
-                      </div>
-
-                      <strong
-                        className="
-                          text-lg
-                          text-white
-                        "
-                      >
-                        {numberFormatter.format(
-                          item.value,
-                        )}
-                        ٪
-                      </strong>
-                    </div>
-                  </div>
-                ),
-              )}
-            </div>
-          </Card>
-
-          <Card className="p-5 sm:p-6">
-            <div
-              className="
-                flex items-center
-                gap-2
-                text-violet-300
-              "
-            >
-              <Sparkles
-                aria-hidden="true"
-                className="h-5 w-5"
-              />
-
-              <h3
-                className="
-                  font-bold text-white
-                "
-              >
-                پروفایل واژگان
-              </h3>
-            </div>
-
-            <dl
-              className="
-                mt-5 grid
-                grid-cols-2 gap-3
-              "
-            >
-              <Metric
-                label="واژه منحصربه‌فرد"
-                value={numberFormatter.format(
-                  analysis
-                    .vocabularyProfile
-                    .estimatedUniqueWords,
+                      {word}
+                    </span>
+                  ),
                 )}
-              />
-
-              <Metric
-                label="واژه کلیدی"
-                value={numberFormatter.format(
-                  analysis
-                    .vocabularyProfile
-                    .estimatedCoreWords,
-                )}
-              />
-
-              <Metric
-                label="Academic"
-                value={`${numberFormatter.format(
-                  analysis
-                    .vocabularyProfile
-                    .academicWordPercent,
-                )}٪`}
-              />
-
-              <Metric
-                label="کم‌کاربرد"
-                value={`${numberFormatter.format(
-                  analysis
-                    .vocabularyProfile
-                    .uncommonWordPercent,
-                )}٪`}
-              />
-            </dl>
-          </Card>
-        </div>
+              </div>
+            </div>
+          ) : null}
+        </Card>
       </div>
 
-      <Card className="p-5 sm:p-6">
+      <Card
+        className="
+          p-5
+          sm:p-6
+        "
+      >
         <div
           className="
-            flex items-center
-            gap-2 text-amber-300
+            flex
+            items-center
+            gap-2
+            text-amber-300
           "
         >
           <Target
@@ -780,7 +873,8 @@ export function ReadingAiAnalysisPanel({
 
           <h3
             className="
-              font-bold text-white
+              font-bold
+              text-white
             "
           >
             اهداف پیشنهادی یادگیری
@@ -789,17 +883,26 @@ export function ReadingAiAnalysisPanel({
 
         <div
           className="
-            mt-5 grid gap-3
+            mt-5
+            grid
+            gap-3
             md:grid-cols-2
           "
         >
           {analysis.learningObjectives.map(
-            (objective, index) => (
+            (
+              objective,
+              index,
+            ) => (
               <div
-                key={objective}
+                key={
+                  objective
+                }
                 className="
-                  flex items-start
-                  gap-3 rounded-xl
+                  flex
+                  items-start
+                  gap-3
+                  rounded-xl
                   border
                   border-white/[0.06]
                   bg-white/[0.025]
@@ -808,17 +911,22 @@ export function ReadingAiAnalysisPanel({
               >
                 <span
                   className="
-                    flex h-7 w-7
-                    shrink-0 items-center
+                    flex
+                    h-7
+                    w-7
+                    shrink-0
+                    items-center
                     justify-center
                     rounded-lg
                     bg-amber-400/10
-                    text-xs font-bold
+                    text-xs
+                    font-bold
                     text-amber-300
                   "
                 >
                   {numberFormatter.format(
-                    index + 1,
+                    index +
+                      1,
                   )}
                 </span>
 
@@ -840,8 +948,10 @@ export function ReadingAiAnalysisPanel({
       <section>
         <div
           className="
-            flex items-center
-            gap-2 text-violet-300
+            flex
+            items-center
+            gap-2
+            text-violet-300
           "
         >
           <BrainCircuit
@@ -851,7 +961,8 @@ export function ReadingAiAnalysisPanel({
 
           <h3
             className="
-              text-xl font-bold
+              text-xl
+              font-bold
               text-white
             "
           >
@@ -861,12 +972,16 @@ export function ReadingAiAnalysisPanel({
 
         <div
           className="
-            mt-5 grid gap-4
+            mt-5
+            grid
+            gap-4
             lg:grid-cols-2
           "
         >
           {analysis.insights.map(
-            (insight) => {
+            (
+              insight,
+            ) => {
               const config =
                 getInsightConfig(
                   insight,
@@ -877,7 +992,9 @@ export function ReadingAiAnalysisPanel({
 
               return (
                 <Card
-                  key={insight.id}
+                  key={
+                    insight.id
+                  }
                   className={cn(
                     "p-5",
                     config.containerClass,
@@ -885,14 +1002,18 @@ export function ReadingAiAnalysisPanel({
                 >
                   <div
                     className="
-                      flex items-start
+                      flex
+                      items-start
                       gap-3
                     "
                   >
                     <span
                       className="
-                        flex h-10 w-10
-                        shrink-0 items-center
+                        flex
+                        h-10
+                        w-10
+                        shrink-0
+                        items-center
                         justify-center
                         rounded-xl
                         bg-black/10
@@ -910,8 +1031,10 @@ export function ReadingAiAnalysisPanel({
                     <div>
                       <div
                         className="
-                          flex flex-wrap
-                          items-center gap-2
+                          flex
+                          flex-wrap
+                          items-center
+                          gap-2
                         "
                       >
                         <span
@@ -930,7 +1053,8 @@ export function ReadingAiAnalysisPanel({
                             className="
                               rounded-full
                               bg-white/[0.05]
-                              px-2 py-0.5
+                              px-2
+                              py-0.5
                               text-[10px]
                               text-slate-500
                             "
@@ -942,7 +1066,8 @@ export function ReadingAiAnalysisPanel({
 
                       <h4
                         className="
-                          mt-2 font-bold
+                          mt-2
+                          font-bold
                           text-white
                         "
                       >
@@ -951,7 +1076,8 @@ export function ReadingAiAnalysisPanel({
 
                       <p
                         className="
-                          mt-2 text-sm
+                          mt-2
+                          text-sm
                           leading-7
                           text-slate-400
                         "
@@ -964,11 +1090,13 @@ export function ReadingAiAnalysisPanel({
                       {insight.evidence ? (
                         <div
                           className="
-                            mt-4 rounded-xl
+                            mt-4
+                            rounded-xl
                             border
                             border-white/[0.05]
                             bg-black/10
-                            px-3 py-2
+                            px-3
+                            py-2
                           "
                         >
                           <p
@@ -982,7 +1110,8 @@ export function ReadingAiAnalysisPanel({
 
                           <p
                             className="
-                              mt-1 text-xs
+                              mt-1
+                              text-xs
                               leading-6
                               text-slate-500
                             "
@@ -1002,67 +1131,88 @@ export function ReadingAiAnalysisPanel({
         </div>
       </section>
 
-      <Card className="p-5 sm:p-6">
-        <div
+      {analysis.topics.length >
+      0 ? (
+        <Card
           className="
-            flex items-center
-            gap-2 text-cyan-300
+            p-5
+            sm:p-6
           "
         >
-          <Sparkles
-            aria-hidden="true"
-            className="h-5 w-5"
-          />
-
-          <h3
+          <div
             className="
-              font-bold text-white
+              flex
+              items-center
+              gap-2
+              text-cyan-300
             "
           >
-            واژگان پیشنهادی AI
-          </h3>
-        </div>
+            <Sparkles
+              aria-hidden="true"
+              className="h-5 w-5"
+            />
 
-        <div
-          className="
-            mt-4 flex
-            flex-wrap gap-2
-          "
-        >
-          {analysis.keyVocabulary.map(
-            (word) => (
-              <span
-                key={word}
-                dir="ltr"
-                className="
-                  rounded-xl border
-                  border-cyan-400/10
-                  bg-cyan-400/[0.05]
-                  px-3 py-2
-                  text-sm
-                  text-cyan-100
-                "
-              >
-                {word}
-              </span>
-            ),
-          )}
-        </div>
-      </Card>
+            <h3
+              className="
+                font-bold
+                text-white
+              "
+            >
+              موضوع‌های اصلی منبع
+            </h3>
+          </div>
+
+          <div
+            className="
+              mt-4
+              flex
+              flex-wrap
+              gap-2
+            "
+          >
+            {analysis.topics.map(
+              (
+                topic,
+              ) => (
+                <span
+                  key={
+                    topic
+                  }
+                  className="
+                    rounded-xl
+                    border
+                    border-white/[0.06]
+                    bg-white/[0.025]
+                    px-3
+                    py-2
+                    text-sm
+                    text-slate-300
+                  "
+                >
+                  {topic}
+                </span>
+              ),
+            )}
+          </div>
+        </Card>
+      ) : null}
 
       <p
         className="
-          text-center text-[10px]
+          text-center
+          text-[10px]
           text-slate-700
         "
       >
         تحلیل تولیدشده توسط{" "}
         {analysis.modelVersion}
+
         {analysis.analyzedAt
           ? ` • ${new Intl.DateTimeFormat(
               "fa-IR",
               {
-                dateStyle: "medium",
+                dateStyle:
+                  "medium",
               },
             ).format(
               new Date(
@@ -1079,13 +1229,17 @@ function Metric({
   label,
   value,
 }: Readonly<{
-  label: string;
-  value: string;
+  label:
+    string;
+
+  value:
+    string;
 }>) {
   return (
     <div
       className="
-        rounded-xl border
+        rounded-xl
+        border
         border-white/[0.06]
         bg-white/[0.025]
         p-4
@@ -1102,8 +1256,10 @@ function Metric({
 
       <dd
         className="
-          mt-2 text-lg
-          font-bold text-white
+          mt-2
+          text-lg
+          font-bold
+          text-white
         "
       >
         {value}

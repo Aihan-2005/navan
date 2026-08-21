@@ -9,22 +9,22 @@ import {
 type ReadingStatCardProps =
   Readonly<{
     title:
-    string;
+      string;
 
     value:
-    string;
+      string;
 
     description:
-    string;
+      string;
 
     icon:
-    LucideIcon;
+      LucideIcon;
 
     tone?:
-    | "teal"
-    | "violet"
-    | "slate"
-    | "orange";
+      | "teal"
+      | "violet"
+      | "slate"
+      | "orange";
   }>;
 
 const toneStyles = {
@@ -59,23 +59,26 @@ const toneStyles = {
     iconWrapper:
       "bg-[#FFF7ED] text-[#F97316]",
   },
-} as const; export function ReadingStatCard({
+} as const;
+
+export function ReadingStatCard({
   title,
   value,
   description,
   icon: Icon,
-  tone = "teal",
+  tone =
+    "teal",
 }: ReadingStatCardProps) {
   const selectedTone =
     toneStyles[
-    tone
+      tone
     ];
 
   return (
     <article
       className={cn(
         "flex",
-        "min-h-[106px]",
+        "min-h-[118px]",
         "items-center",
         "gap-4",
         "rounded-[24px]",
@@ -83,21 +86,24 @@ const toneStyles = {
         "border-y-[#E2E8F0]",
         "border-x-4",
         "bg-white/80",
-        "px-5 py-5",
+        "px-5",
+        "py-5",
         "shadow-[0_1px_2px_rgba(0,0,0,0.05)]",
         "backdrop-blur-xl",
         selectedTone.border,
       )}
     >
-      <div className={cn(
-        "flex",
-        "h-12 w-12",
-        "shrink-0",
-        "items-center",
-        "justify-center",
-        "rounded-full",
-        selectedTone.iconWrapper,
-      )}
+      <div
+        className={cn(
+          "flex",
+          "h-12",
+          "w-12",
+          "shrink-0",
+          "items-center",
+          "justify-center",
+          "rounded-full",
+          selectedTone.iconWrapper,
+        )}
       >
         <Icon
           aria-hidden="true"
@@ -119,12 +125,15 @@ const toneStyles = {
             leading-5
             text-[#64748B]
           "
-        >          {title}
-        </p><p
+        >
+          {title}
+        </p>
+
+        <p
           className="
             mt-1
             whitespace-nowrap
-            text-2xl
+             text-2xl
             font-bold
             leading-8
             text-[#0F172A]
@@ -133,9 +142,16 @@ const toneStyles = {
           {value}
         </p>
 
-        <span className="sr-only">
+        <p
+          className="
+            mt-1
+            text-[11px]
+            leading-4
+            text-[#94A3B8]
+          "
+        >
           {description}
-        </span>
+        </p>
       </div>
     </article>
   );

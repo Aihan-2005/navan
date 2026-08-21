@@ -1,7 +1,10 @@
 import {
+  Bookmark,
+  BookmarkCheck,
   BookOpenText,
   Languages,
   Lightbulb,
+  Sparkles,
 } from "lucide-react";
 
 import {
@@ -22,17 +25,41 @@ import type {
 
 type ReadingContentPanelProps =
   Readonly<{
-    content: readonly ReadingTextBlock[];
+    block:
+      ReadingTextBlock;
 
-    languageCode: string;
+    blockIndex:
+      number;
 
-    showTranslations: boolean;
+    totalBlocks:
+      number;
 
-    fontSize: ReadingFontSize;
+    languageCode:
+      string;
+
+    showTranslations:
+      boolean;
+
+    fontSize:
+      ReadingFontSize;
+
+    isMeaningSaved:
+      boolean;
+
+    isNoteSaved:
+      boolean;
+
+    onToggleMeaning:
+      () => void;
+
+    onToggleNote:
+      () => void;
   }>;
 
 const numberFormatter =
-  new Intl.NumberFormat("fa-IR");
+  new Intl.NumberFormat(
+    "fa-IR",
+  );
 
 const READING_TEXT_SIZE_CLASSES = {
   compact: [
@@ -61,37 +88,66 @@ const READING_TEXT_SIZE_CLASSES = {
 >;
 
 export function ReadingContentPanel({
-  content,
+  block,
+  blockIndex,
+  totalBlocks,
   languageCode,
   showTranslations,
   fontSize,
+  isMeaningSaved,
+  isNoteSaved,
+  onToggleMeaning,
+  onToggleNote,
 }: ReadingContentPanelProps) {
-  const sortedContent = [
-    ...content,
-  ].sort(
-    (first, second) =>
-      first.order - second.order,
-  );
+  const hasMeaningSection =
+    Boolean(
+      block.conceptSummary,
+    ) ||
+    (
+      showTranslations &&
+      Boolean(
+        block.translation,
+      )
+    );
 
   return (
-    <Card className="overflow-hidden">
+    <Card
+      id={
+        block.id
+      }
+      className="
+        overflow-hidden
+      "
+    >
       <div
         className="
-          flex flex-col gap-3
+          flex
+          flex-col
+          gap-3
           border-b
           border-white/[0.06]
-          px-5 py-5
+          px-5
+          py-5
           sm:flex-row
           sm:items-center
           sm:justify-between
           sm:px-7
         "
       >
-        <div className="flex items-center gap-3">
+        <div
+          className="
+            flex
+            items-center
+            gap-3
+          "
+        >
           <span
             className="
-              flex h-10 w-10
-              items-center justify-center
+              flex
+              h-10
+              w-10
+              items-center
+              justify-center
               rounded-xl
               bg-cyan-400/10
               text-cyan-300
@@ -104,23 +160,48 @@ export function ReadingContentPanel({
           </span>
 
           <div>
-            <h2 className="font-bold text-white">
-              متن اصلی
+            <h2
+              className="
+                font-bold
+                text-white
+              "
+            >
+              پاراگراف{" "}
+              {numberFormatter.format(
+                blockIndex +
+                  1,
+              )}
             </h2>
 
-            <p className="mt-1 text-xs text-slate-500">
-              متن را با تمرکز روی مفهوم
-              کلی و جزئیات بخوان.
+            <p
+              className="
+                mt-1
+                text-xs
+                text-slate-500
+              "
+            >
+              {numberFormatter.format(
+                blockIndex +
+                  1,
+              )}{" "}
+              از{" "}
+              {numberFormatter.format(
+                totalBlocks,
+              )}
             </p>
           </div>
         </div>
 
         <div
           className={cn(
-            "inline-flex w-fit",
-            "items-center gap-2",
-            "rounded-full px-3",
-            "py-1.5 text-xs",
+            "inline-flex",
+            "w-fit",
+            "items-center",
+            "gap-2",
+            "rounded-full",
+            "px-3",
+            "py-1.5",
+            "text-xs",
 
             showTranslations
               ? [
@@ -139,173 +220,315 @@ export function ReadingContentPanel({
           />
 
           {showTranslations
-            ? "ترجمه پاراگراف‌ها فعال است"
-            : "ترجمه پاراگراف‌ها مخفی است"}
+            ? "ترجمه فعال است"
+            : "ترجمه مخفی است"}
         </div>
       </div>
 
       <article
         className="
-          divide-y
-          divide-white/[0.06]
+          px-5
+          py-7
+          sm:px-7
+          sm:py-9
         "
-        aria-label="محتوای بخش Reading"
       >
-        {sortedContent.map(
-          (block) => (
-            <section
-              key={block.id}
-              id={block.id}
+        <p
+          lang={
+            languageCode
+          }
+          dir="ltr"
+          className={cn(
+            "text-left",
+            "font-medium",
+            "tracking-[0.01em]",
+            "text-slate-100",
+
+            READING_TEXT_SIZE_CLASSES[
+              fontSize
+            ],
+          )}
+        >
+          {block.text}
+        </p>
+
+        {hasMeaningSection ? (
+          <section
+            className="
+              relative
+              mt-7
+              rounded-2xl
+              border
+              border-violet-400/15
+              bg-violet-400/[0.045]
+              p-4
+              sm:p-5
+            "
+          >
+            <div
               className="
-                scroll-mt-28
-                px-5 py-7
-                sm:px-7
-                sm:py-9
+                flex
+                items-start
+                justify-between
+                gap-4
               "
             >
               <div
                 className="
-                  mb-4 flex
-                  items-center gap-2
+                  min-w-0
+                  flex-1
                 "
               >
-                <span
-                  className="
-                    inline-flex h-7
-                    min-w-7 items-center
-                    justify-center
-                    rounded-lg
-                    bg-white/[0.045]
-                    px-2 text-xs
-                    font-bold
-                    text-slate-500
-                  "
-                >
-                  {numberFormatter.format(
-                    block.order,
-                  )}
-                </span>
-
-                <span className="text-xs text-slate-600">
-                  پاراگراف
-                </span>
-              </div>
-
-              <p
-                lang={languageCode}
-                dir="ltr"
-                className={cn(
-                  "text-left",
-                  "font-medium",
-                  "tracking-[0.01em]",
-                  "text-slate-100",
-
-                  READING_TEXT_SIZE_CLASSES[
-                    fontSize
-                  ],
-                )}
-              >
-                {block.text}
-              </p>
-
-              {showTranslations &&
-              block.translation ? (
                 <div
                   className="
-                    mt-6 rounded-2xl
-                    border
-                    border-violet-400/15
-                    bg-violet-400/[0.045]
-                    p-4 sm:p-5
+                    flex
+                    items-center
+                    gap-2
+                    text-xs
+                    font-medium
+                    text-violet-200
                   "
                 >
+                  <Sparkles
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                  />
+
+                  معنی و مفهوم
+                </div>
+
+                {block.conceptSummary ? (
                   <div
                     className="
-                      flex items-center
-                      gap-2 text-xs
-                      font-medium
-                      text-violet-200
+                      mt-4
                     "
                   >
-                    <Languages
-                      aria-hidden="true"
-                      className="h-4 w-4"
-                    />
-
-                    ترجمه
-                  </div>
-
-                  <p
-                    dir="rtl"
-                    className="
-                      mt-3 text-sm
-                      leading-8
-                      text-slate-300
-                      sm:text-base
-                    "
-                  >
-                    {block.translation}
-                  </p>
-                </div>
-              ) : null}
-
-              {block.note ? (
-                <aside
-                  className="
-                    mt-5 flex
-                    items-start gap-3
-                    rounded-2xl
-                    border
-                    border-amber-400/15
-                    bg-amber-400/[0.04]
-                    p-4
-                  "
-                >
-                  <span
-                    className="
-                      mt-0.5 flex
-                      h-8 w-8
-                      shrink-0
-                      items-center
-                      justify-center
-                      rounded-lg
-                      bg-amber-400/10
-                      text-amber-300
-                    "
-                  >
-                    <Lightbulb
-                      aria-hidden="true"
-                      className="h-4 w-4"
-                    />
-                  </span>
-
-                  <div>
                     <p
                       className="
-                        text-xs font-bold
-                        text-amber-200
+                        text-[10px]
+                        font-medium
+                        text-violet-300/70
                       "
                     >
-                      نکته آموزشی
+                      مفهوم پاراگراف
                     </p>
 
                     <p
                       className="
-                        mt-1 text-xs
-                        leading-7
-                        text-amber-100/65
-                        sm:text-sm
+                        mt-2
+                        text-sm
+                        leading-8
+                        text-slate-300
+                        sm:text-base
                       "
                     >
-                      {block.note}
+                      {
+                        block.conceptSummary
+                      }
                     </p>
                   </div>
-                </aside>
-              ) : null}
-            </section>
-          ),
-        )}
+                ) : null}
+
+                {showTranslations &&
+                block.translation ? (
+                  <div
+                    className={cn(
+                      block.conceptSummary
+                        ? [
+                            "mt-4",
+                            "border-t",
+                            "border-violet-300/10",
+                            "pt-4",
+                          ]
+                        : null,
+                    )}
+                  >
+                    <p
+                      className="
+                        text-[10px]
+                        font-medium
+                        text-violet-300/70
+                      "
+                    >
+                      ترجمه
+                    </p>
+
+                    <p
+                      dir="rtl"
+                      className="
+                        mt-2
+                        text-sm
+                        leading-8
+                        text-slate-300
+                        sm:text-base
+                      "
+                    >
+                      {
+                        block.translation
+                      }
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+
+              <SaveButton
+                isSaved={
+                  isMeaningSaved
+                }
+                label="ذخیره معنی و مفهوم"
+                onClick={
+                  onToggleMeaning
+                }
+              />
+            </div>
+          </section>
+        ) : null}
+
+        {block.note ? (
+          <aside
+            className="
+              mt-5
+              flex
+              items-start
+              gap-3
+              rounded-2xl
+              border
+              border-amber-400/15
+              bg-amber-400/[0.04]
+              p-4
+            "
+          >
+            <span
+              className="
+                mt-0.5
+                flex
+                h-8
+                w-8
+                shrink-0
+                items-center
+                justify-center
+                rounded-lg
+                bg-amber-400/10
+                text-amber-300
+              "
+            >
+              <Lightbulb
+                aria-hidden="true"
+                className="h-4 w-4"
+              />
+            </span>
+
+            <div
+              className="
+                min-w-0
+                flex-1
+              "
+            >
+              <p
+                className="
+                  text-xs
+                  font-bold
+                  text-amber-200
+                "
+              >
+                نکته آموزشی
+              </p>
+
+              <p
+                className="
+                  mt-1
+                  text-xs
+                  leading-7
+                  text-amber-100/65
+                  sm:text-sm
+                "
+              >
+                {block.note}
+              </p>
+            </div>
+
+            <SaveButton
+              isSaved={
+                isNoteSaved
+              }
+              label="ذخیره نکته آموزشی"
+              onClick={
+                onToggleNote
+              }
+            />
+          </aside>
+        ) : null}
       </article>
     </Card>
+  );
+}
+
+function SaveButton({
+  isSaved,
+  label,
+  onClick,
+}: Readonly<{
+  isSaved:
+    boolean;
+
+  label:
+    string;
+
+  onClick:
+    () => void;
+}>) {
+  return (
+    <button
+      type="button"
+      aria-pressed={
+        isSaved
+      }
+      aria-label={
+        label
+      }
+      onClick={
+        onClick
+      }
+      className={cn(
+        "inline-flex",
+        "h-10",
+        "w-10",
+        "shrink-0",
+        "items-center",
+        "justify-center",
+        "rounded-xl",
+        "border",
+        "transition",
+        "focus-visible:outline-none",
+        "focus-visible:ring-2",
+        "focus-visible:ring-cyan-300",
+
+        isSaved
+          ? [
+              "border-cyan-400/20",
+              "bg-cyan-400/10",
+              "text-cyan-200",
+            ]
+          : [
+              "border-white/[0.08]",
+              "bg-white/[0.035]",
+              "text-slate-500",
+              "hover:bg-white/[0.07]",
+              "hover:text-white",
+            ],
+      )}
+    >
+      {isSaved ? (
+        <BookmarkCheck
+          aria-hidden="true"
+          className="h-4 w-4"
+        />
+      ) : (
+        <Bookmark
+          aria-hidden="true"
+          className="h-4 w-4"
+        />
+      )}
+    </button>
   );
 }

@@ -7,6 +7,7 @@ export type ReadingWorkspaceTab =
   | "content"
   | "vocabulary"
   | "grammar"
+  | "expressions"
   | "quiz";
 
 export type ReadingPlaybackState =
@@ -22,20 +23,34 @@ export type ReadingPlaybackRate =
 
 export const READING_FONT_SIZE_OPTIONS = [
   {
-    value: "compact",
-    label: "کوچک",
+    value:
+      "compact",
+
+    label:
+      "کوچک",
   },
+
   {
-    value: "comfortable",
-    label: "متوسط",
+    value:
+      "comfortable",
+
+    label:
+      "متوسط",
   },
+
   {
-    value: "large",
-    label: "بزرگ",
+    value:
+      "large",
+
+    label:
+      "بزرگ",
   },
 ] as const satisfies readonly {
-  value: ReadingFontSize;
-  label: string;
+  value:
+    ReadingFontSize;
+
+  label:
+    string;
 }[];
 
 export const READING_PLAYBACK_RATE_OPTIONS = [

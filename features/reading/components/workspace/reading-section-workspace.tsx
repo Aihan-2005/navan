@@ -23,17 +23,38 @@ import {
   cn,
 } from "../../../../lib/utils/cn";
 
+import {
+  useReadingSavedItems,
+} from "../../hooks/use-reading-saved-items";
+
+import type {
+  ReadingSavedItemInput,
+  ReadingSavedItemKind,
+} from "../../types/reading-note.types";
+
 import type {
   ReadingSectionDetail,
 } from "../../types/reading.types";
+
+import {
+  createReadingSavedItemId,
+} from "../../utils/reading-notes.storage";
 
 import {
   ReadingAudioControls,
 } from "./reading-audio-controls";
 
 import {
+  ReadingBlockNavigator,
+} from "./reading-block-navigator";
+
+import {
   ReadingContentPanel,
 } from "./reading-content-panel";
+
+import {
+  ReadingExpressionsPanel,
+} from "./reading-expressions-panel";
 
 import {
   ReadingGrammarPanel,
@@ -67,81 +88,283 @@ import type {
 
 type ReadingSectionWorkspaceProps =
   Readonly<{
-    section: ReadingSectionDetail;
+    section:
+      ReadingSectionDetail;
   }>;
 
-const PASSING_SCORE = 70;
+const PASSING_SCORE =
+  70;
+
+const ANALYSIS_TABS:
+  readonly ReadingWorkspaceTab[] =
+  [
+    "content",
+    "vocabulary",
+    "grammar",
+    "expressions",
+  ];
 
 function calculateQuizScore(
-  section: ReadingSectionDetail,
-  answers: Readonly<
-    Record<string, string>
-  >,
+  section:
+    ReadingSectionDetail,
+
+  answers:
+    Readonly<
+      Record<
+        string,
+        string
+      >
+    >,
 ): number {
   const questions =
     section.comprehensionQuestions;
 
-  if (questions.length === 0) {
+  if (
+    questions.length ===
+    0
+  ) {
     return 100;
   }
 
   const correctAnswers =
     questions.reduce(
-      (total, question) => {
-        return (
-          total +
-          (answers[question.id] ===
+      (
+        total,
+        question,
+      ) =>
+        total +
+        (
+          answers[
+            question.id
+          ] ===
           question.correctOptionId
             ? 1
-            : 0)
-        );
-      },
+            : 0
+        ),
       0,
     );
 
   return Math.round(
-    (correctAnswers /
-      questions.length) *
+    (
+      correctAnswers /
+      questions.length
+    ) *
       100,
   );
 }
 
-function calculateWorkspaceProgress(
+function filterBySourceBlock<
+  T extends {
+    sourceBlockId?:
+      string | null;
+  },
+>(
+  items:
+    readonly T[],
+
+  blockId:
+    string,
+): readonly T[] {
+  const hasScopedItems =
+    items.some(
+      (
+        item,
+      ) =>
+        Boolean(
+          item.sourceBlockId,
+        ),
+    );
+
+  if (
+    !hasScopedItems
+  ) {
+    /**
+     * Backward compatibility:
+     * داده‌های قدیمی Section هنوز sourceBlockId ندارند.
+     */
+    return items;
+  }
+
+  return items.filter(
+    (
+      item,
+    ) =>
+      item.sourceBlockId ===
+      blockId,
+  );
+}
+
+function createSavedInput({
+  section,
+  kind,
+  sourceId,
+  blockId,
+  title,
+  content,
+  secondaryText,
+}: Readonly<{
+  section:
+    ReadingSectionDetail;
+
+  kind:
+    ReadingSavedItemKind;
+
+  sourceId:
+    string;
+
+  blockId:
+    string | null;
+
+  title:
+    string;
+
+  content:
+    string;
+
+  secondaryText:
+    string | null;
+}>): ReadingSavedItemInput {
+  const sectionHref =
+    `/reading/resources/${encodeURIComponent(
+      section.resourceId,
+    )}` +
+    `/sections/${encodeURIComponent(
+      section.id,
+    )}`;
+
+  const href =
+    blockId
+      ? `${sectionHref}#${encodeURIComponent(
+          blockId,
+        )}`
+      : sectionHref;
+
+  return {
+    id:
+      createReadingSavedItemId(
+        kind,
+        section.resourceId,
+        section.id,
+        sourceId,
+      ),
+
+    kind,
+
+    resourceId:
+      section.resourceId,
+
+    resourceTitle:
+      section.resourceTitle,
+
+    sectionId:
+      section.id,
+
+    sectionTitle:
+      section.title,
+
+    blockId,
+
+    title,
+
+    content,
+
+    secondaryText,
+
+    href,
+  };
+}
+
+function calculateProgress(
+  reviewedBlockIds:
+    readonly string[],
+
+  activeBlockId:
+    string,
+
   visitedTabs:
     readonly ReadingWorkspaceTab[],
-  quizSubmitted: boolean,
+
+  availableAnalysisTabs:
+    readonly ReadingWorkspaceTab[],
+
+  totalBlocks:
+    number,
 ): number {
-  let progress = 30;
-
   if (
-    visitedTabs.includes(
-      "vocabulary",
-    )
+    totalBlocks <=
+    0
   ) {
-    progress += 20;
+    return 0;
   }
 
-  if (
-    visitedTabs.includes(
-      "grammar",
-    )
-  ) {
-    progress += 20;
-  }
+  const fullyReviewedCount =
+    reviewedBlockIds.filter(
+      (
+        id,
+      ) =>
+        id !==
+        activeBlockId,
+    ).length;
 
-  if (quizSubmitted) {
-    progress += 30;
-  }
+  const currentAlreadyReviewed =
+    reviewedBlockIds.includes(
+      activeBlockId,
+    );
+
+  const currentProgress =
+    currentAlreadyReviewed
+      ? 1
+      : (
+          availableAnalysisTabs.filter(
+            (
+              tab,
+            ) =>
+              visitedTabs.includes(
+                tab,
+              ),
+          ).length /
+          Math.max(
+            1,
+            availableAnalysisTabs.length,
+          )
+        );
 
   return Math.min(
-    progress,
     100,
+    Math.round(
+      (
+        (
+          fullyReviewedCount +
+          currentProgress
+        ) /
+        totalBlocks
+      ) *
+        100,
+    ),
   );
 }
 
 export function ReadingSectionWorkspace({
   section,
 }: ReadingSectionWorkspaceProps) {
+  const sortedContent =
+    useMemo(
+      () =>
+        [
+          ...section.content,
+        ].sort(
+          (
+            first,
+            second,
+          ) =>
+            first.order -
+            second.order,
+        ),
+      [
+        section.content,
+      ],
+    );
+
   const [
     activeTab,
     setActiveTab,
@@ -153,14 +376,28 @@ export function ReadingSectionWorkspace({
   const [
     visitedTabs,
     setVisitedTabs,
-  ] = useState<
-    ReadingWorkspaceTab[]
-  >(["content"]);
+  ] =
+    useState<
+      ReadingWorkspaceTab[]
+    >([
+      "content",
+    ]);
+
+  const [
+    activeBlockIndex,
+    setActiveBlockIndex,
+  ] =
+    useState(
+      0,
+    );
 
   const [
     showTranslations,
     setShowTranslations,
-  ] = useState(false);
+  ] =
+    useState(
+      false,
+    );
 
   const [
     fontSize,
@@ -171,26 +408,64 @@ export function ReadingSectionWorkspace({
     );
 
   const [
-    savedVocabularyIds,
-    setSavedVocabularyIds,
-  ] = useState<string[]>([]);
+    legacySavedVocabularyIds,
+    setLegacySavedVocabularyIds,
+  ] =
+    useState<
+      string[]
+    >([]);
+
+  const [
+    masteredGrammarIds,
+    setMasteredGrammarIds,
+  ] =
+    useState<
+      string[]
+    >([]);
+
+  const [
+    reviewedBlockIds,
+    setReviewedBlockIds,
+  ] =
+    useState<
+      string[]
+    >([]);
 
   const [
     quizAnswers,
     setQuizAnswers,
-  ] = useState<
-    Record<string, string>
-  >({});
+  ] =
+    useState<
+      Record<
+        string,
+        string
+      >
+    >({});
 
   const [
     quizSubmitted,
     setQuizSubmitted,
-  ] = useState(false);
+  ] =
+    useState(
+      false,
+    );
 
   const [
     hasHydrated,
     setHasHydrated,
-  ] = useState(false);
+  ] =
+    useState(
+      false,
+    );
+
+  const {
+    isSaved,
+    toggleSavedItem,
+    ensureSavedItem,
+  } =
+    useReadingSavedItems(
+      section.resourceId,
+    );
 
   useEffect(() => {
     const storedState =
@@ -199,7 +474,12 @@ export function ReadingSectionWorkspace({
         section.id,
       );
 
-    if (storedState) {
+    let nextBlockIndex =
+      0;
+
+    if (
+      storedState
+    ) {
       setActiveTab(
         storedState.activeTab,
       );
@@ -216,8 +496,16 @@ export function ReadingSectionWorkspace({
         storedState.fontSize,
       );
 
-      setSavedVocabularyIds(
+      setLegacySavedVocabularyIds(
         storedState.savedVocabularyIds,
+      );
+
+      setMasteredGrammarIds(
+        storedState.masteredGrammarIds,
+      );
+
+      setReviewedBlockIds(
+        storedState.reviewedBlockIds,
       );
 
       setQuizAnswers(
@@ -227,16 +515,69 @@ export function ReadingSectionWorkspace({
       setQuizSubmitted(
         storedState.quizSubmitted,
       );
+
+      nextBlockIndex =
+        Math.min(
+          sortedContent.length -
+            1,
+          Math.max(
+            0,
+            storedState.activeBlockIndex,
+          ),
+        );
     }
 
-    setHasHydrated(true);
+    const hash =
+      decodeURIComponent(
+        window.location.hash
+          .replace(
+            /^#/u,
+            "",
+          ),
+      );
+
+    const hashBlockIndex =
+      sortedContent.findIndex(
+        (
+          block,
+        ) =>
+          block.id ===
+          hash,
+      );
+
+    if (
+      hashBlockIndex >=
+      0
+    ) {
+      nextBlockIndex =
+        hashBlockIndex;
+
+      setActiveTab(
+        "content",
+      );
+
+      setVisitedTabs([
+        "content",
+      ]);
+    }
+
+    setActiveBlockIndex(
+      nextBlockIndex,
+    );
+
+    setHasHydrated(
+      true,
+    );
   }, [
     section.id,
     section.resourceId,
+    sortedContent,
   ]);
 
   useEffect(() => {
-    if (!hasHydrated) {
+    if (
+      !hasHydrated
+    ) {
       return;
     }
 
@@ -245,124 +586,586 @@ export function ReadingSectionWorkspace({
       section.id,
       {
         activeTab,
+
         visitedTabs,
+
+        activeBlockIndex,
+
         showTranslations,
+
         fontSize,
-        savedVocabularyIds,
+
+        savedVocabularyIds:
+          legacySavedVocabularyIds,
+
+        masteredGrammarIds,
+
+        reviewedBlockIds,
+
         quizAnswers,
+
         quizSubmitted,
       },
     );
   }, [
+    activeBlockIndex,
     activeTab,
     fontSize,
     hasHydrated,
+    legacySavedVocabularyIds,
+    masteredGrammarIds,
     quizAnswers,
     quizSubmitted,
-    savedVocabularyIds,
+    reviewedBlockIds,
     section.id,
     section.resourceId,
     showTranslations,
     visitedTabs,
   ]);
 
-  const quizScore = useMemo(
-    () =>
-      calculateQuizScore(
-        section,
-        quizAnswers,
-      ),
-    [
-      quizAnswers,
-      section,
-    ],
-  );
+  const activeBlock =
+    sortedContent[
+      activeBlockIndex
+    ] ??
+    sortedContent[0];
 
-  const progressPercent =
-    useMemo(
-      () =>
-        calculateWorkspaceProgress(
-          visitedTabs,
-          quizSubmitted,
-        ),
-      [
-        quizSubmitted,
-        visitedTabs,
-      ],
-    );
+  /**
+   * Migration Bookmarkهای Vocabulary قدیمی
+   * به Storage مرکزی جدید.
+   */
+  useEffect(() => {
+    if (
+      !hasHydrated ||
+      !activeBlock ||
+      legacySavedVocabularyIds.length ===
+        0
+    ) {
+      return;
+    }
 
-  const isMastered =
-    quizSubmitted &&
-    quizScore >= PASSING_SCORE;
+    legacySavedVocabularyIds.forEach(
+      (
+        vocabularyId,
+      ) => {
+        const vocabularyItem =
+          section.vocabulary.find(
+            (
+              item,
+            ) =>
+              item.id ===
+              vocabularyId,
+          );
 
-  const handleTabChange = (
-    tab: ReadingWorkspaceTab,
-  ): void => {
-    setActiveTab(tab);
-
-    setVisitedTabs(
-      (currentTabs) => {
         if (
-          currentTabs.includes(tab)
+          !vocabularyItem
         ) {
-          return currentTabs;
+          return;
         }
 
-        return [
-          ...currentTabs,
-          tab,
-        ];
+        const blockId =
+          vocabularyItem.sourceBlockId ??
+          activeBlock.id;
+
+        ensureSavedItem(
+          createSavedInput({
+            section,
+
+            kind:
+              "vocabulary",
+
+            sourceId:
+              vocabularyItem.id,
+
+            blockId,
+
+            title:
+              vocabularyItem.term,
+
+            content:
+              `${vocabularyItem.meaning} — ${vocabularyItem.contextualMeaning}`,
+
+            secondaryText:
+              vocabularyItem.example,
+          }),
+        );
       },
     );
-  };
+  }, [
+    activeBlock,
+    ensureSavedItem,
+    hasHydrated,
+    legacySavedVocabularyIds,
+    section,
+  ]);
 
-  const handleToggleVocabulary = (
-    vocabularyId: string,
-  ): void => {
-    setSavedVocabularyIds(
-      (currentIds) => {
-        if (
+  if (
+    !activeBlock
+  ) {
+    return null;
+  }
+
+  const expressions =
+    section.expressions ??
+    [];
+
+  const currentVocabulary =
+    filterBySourceBlock(
+      section.vocabulary,
+      activeBlock.id,
+    );
+
+  const currentGrammar =
+    filterBySourceBlock(
+      section.grammarPoints,
+      activeBlock.id,
+    );
+
+  const currentExpressions =
+    filterBySourceBlock(
+      expressions,
+      activeBlock.id,
+    );
+
+  const availableAnalysisTabs =
+    ANALYSIS_TABS.filter(
+      (
+        tab,
+      ) => {
+        switch (
+          tab
+        ) {
+          case "content":
+            return true;
+
+          case "vocabulary":
+            return (
+              currentVocabulary.length >
+              0
+            );
+
+          case "grammar":
+            return (
+              currentGrammar.length >
+              0
+            );
+
+          case "expressions":
+            return (
+              currentExpressions.length >
+              0
+            );
+
+          case "quiz":
+            return false;
+        }
+      },
+    );
+
+  const progressPercent =
+    calculateProgress(
+      reviewedBlockIds,
+      activeBlock.id,
+      visitedTabs,
+      availableAnalysisTabs,
+      sortedContent.length,
+    );
+
+  const quizScore =
+    calculateQuizScore(
+      section,
+      quizAnswers,
+    );
+
+  const quizPassed =
+    quizSubmitted &&
+    quizScore >=
+      PASSING_SCORE;
+
+  const meaningSavedId =
+    createReadingSavedItemId(
+      "meaning",
+      section.resourceId,
+      section.id,
+      activeBlock.id,
+    );
+
+  const noteSavedId =
+    createReadingSavedItemId(
+      "educational_note",
+      section.resourceId,
+      section.id,
+      activeBlock.id,
+    );
+
+  const savedVocabularyIds =
+    currentVocabulary
+      .filter(
+        (
+          item,
+        ) =>
+          isSaved(
+            createReadingSavedItemId(
+              "vocabulary",
+              section.resourceId,
+              section.id,
+              item.id,
+            ),
+          ),
+      )
+      .map(
+        (
+          item,
+        ) =>
+          item.id,
+      );
+
+  const savedGrammarIds =
+    currentGrammar
+      .filter(
+        (
+          item,
+        ) =>
+          isSaved(
+            createReadingSavedItemId(
+              "grammar",
+              section.resourceId,
+              section.id,
+              item.id,
+            ),
+          ),
+      )
+      .map(
+        (
+          item,
+        ) =>
+          item.id,
+      );
+
+  const savedExpressionIds =
+    currentExpressions
+      .filter(
+        (
+          item,
+        ) =>
+          isSaved(
+            createReadingSavedItemId(
+              "expression",
+              section.resourceId,
+              section.id,
+              item.id,
+            ),
+          ),
+      )
+      .map(
+        (
+          item,
+        ) =>
+          item.id,
+      );
+
+  function handleTabChange(
+    tab:
+      ReadingWorkspaceTab,
+  ): void {
+    setActiveTab(
+      tab,
+    );
+
+    setVisitedTabs(
+      (
+        currentTabs,
+      ) =>
+        currentTabs.includes(
+          tab,
+        )
+          ? currentTabs
+          : [
+              ...currentTabs,
+              tab,
+            ],
+    );
+  }
+
+  function goToBlock(
+    index:
+      number,
+
+    markCurrentAsReviewed:
+      boolean,
+  ): void {
+    if (
+      index <
+        0 ||
+      index >=
+        sortedContent.length
+    ) {
+      return;
+    }
+
+    if (
+      markCurrentAsReviewed
+    ) {
+      setReviewedBlockIds(
+        (
+          currentIds,
+        ) =>
           currentIds.includes(
-            vocabularyId,
+            activeBlock.id,
           )
+            ? currentIds
+            : [
+                ...currentIds,
+                activeBlock.id,
+              ],
+      );
+    }
+
+    setActiveBlockIndex(
+      index,
+    );
+
+    setActiveTab(
+      "content",
+    );
+
+    setVisitedTabs([
+      "content",
+    ]);
+  }
+
+  function handleToggleVocabulary(
+    vocabularyId:
+      string,
+  ): void {
+    const item =
+      currentVocabulary.find(
+        (
+          vocabulary,
+        ) =>
+          vocabulary.id ===
+          vocabularyId,
+      );
+
+    if (!item) {
+      return;
+    }
+
+    const blockId =
+      item.sourceBlockId ??
+      activeBlock.id;
+
+    const savedId =
+      createReadingSavedItemId(
+        "vocabulary",
+        section.resourceId,
+        section.id,
+        item.id,
+      );
+
+    const wasSaved =
+      isSaved(
+        savedId,
+      );
+
+    toggleSavedItem(
+      createSavedInput({
+        section,
+
+        kind:
+          "vocabulary",
+
+        sourceId:
+          item.id,
+
+        blockId,
+
+        title:
+          item.term,
+
+        content:
+          `${item.meaning} — ${item.contextualMeaning}`,
+
+        secondaryText:
+          item.example,
+      }),
+    );
+
+    setLegacySavedVocabularyIds(
+      (
+        currentIds,
+      ) => {
+        if (
+          wasSaved
         ) {
           return currentIds.filter(
-            (id) =>
-              id !== vocabularyId,
+            (
+              id,
+            ) =>
+              id !==
+              item.id,
           );
         }
 
-        return [
-          ...currentIds,
-          vocabularyId,
-        ];
+        return currentIds.includes(
+          item.id,
+        )
+          ? currentIds
+          : [
+              ...currentIds,
+              item.id,
+            ];
       },
     );
-  };
+  }
 
-  const handleAnswer = (
-    questionId: string,
-    optionId: string,
-  ): void => {
-    if (quizSubmitted) {
+  function handleToggleGrammar(
+    grammarId:
+      string,
+  ): void {
+    const item =
+      currentGrammar.find(
+        (
+          grammar,
+        ) =>
+          grammar.id ===
+          grammarId,
+      );
+
+    if (!item) {
+      return;
+    }
+
+    toggleSavedItem(
+      createSavedInput({
+        section,
+
+        kind:
+          "grammar",
+
+        sourceId:
+          item.id,
+
+        blockId:
+          item.sourceBlockId ??
+          activeBlock.id,
+
+        title:
+          item.title,
+
+        content:
+          item.explanation,
+
+        secondaryText:
+          item.pattern ??
+          item.masteryTip ??
+          null,
+      }),
+    );
+  }
+
+  function handleToggleExpression(
+    expressionId:
+      string,
+  ): void {
+    const item =
+      currentExpressions.find(
+        (
+          expression,
+        ) =>
+          expression.id ===
+          expressionId,
+      );
+
+    if (!item) {
+      return;
+    }
+
+    toggleSavedItem(
+      createSavedInput({
+        section,
+
+        kind:
+          "expression",
+
+        sourceId:
+          item.id,
+
+        blockId:
+          item.sourceBlockId ??
+          activeBlock.id,
+
+        title:
+          item.expression,
+
+        content:
+          item.meaning,
+
+        secondaryText:
+          `${item.usageNote} — ${item.example}`,
+      }),
+    );
+  }
+
+  function handleToggleGrammarMastery(
+    grammarId:
+      string,
+  ): void {
+    setMasteredGrammarIds(
+      (
+        currentIds,
+      ) =>
+        currentIds.includes(
+          grammarId,
+        )
+          ? currentIds.filter(
+              (
+                id,
+              ) =>
+                id !==
+                grammarId,
+            )
+          : [
+              ...currentIds,
+              grammarId,
+            ],
+    );
+  }
+
+  function handleAnswer(
+    questionId:
+      string,
+
+    optionId:
+      string,
+  ): void {
+    if (
+      quizSubmitted
+    ) {
       return;
     }
 
     setQuizAnswers(
-      (currentAnswers) => ({
+      (
+        currentAnswers,
+      ) => ({
         ...currentAnswers,
 
         [questionId]:
           optionId,
       }),
     );
-  };
+  }
 
-  const handleQuizReset =
-    (): void => {
-      setQuizAnswers({});
-      setQuizSubmitted(false);
-  };
+  function handleQuizReset():
+    void {
+    setQuizAnswers(
+      {},
+    );
+
+    setQuizSubmitted(
+      false,
+    );
+  }
 
   const baseSectionPath =
     `/reading/resources/` +
@@ -374,22 +1177,30 @@ export function ReadingSectionWorkspace({
   return (
     <main
       className="
-        mx-auto w-full
-        max-w-7xl space-y-6
+        mx-auto
+        w-full
+        max-w-7xl
+        space-y-6
       "
     >
       <ReadingWorkspaceHeader
-        section={section}
+        section={
+          section
+        }
         progressPercent={
           progressPercent
         }
         showTranslations={
           showTranslations
         }
-        fontSize={fontSize}
+        fontSize={
+          fontSize
+        }
         onToggleTranslations={() => {
           setShowTranslations(
-            (currentValue) =>
+            (
+              currentValue,
+            ) =>
               !currentValue,
           );
         }}
@@ -399,28 +1210,38 @@ export function ReadingSectionWorkspace({
       />
 
       <ReadingAudioControls
-        title={section.title}
+        title={
+          section.title
+        }
         languageCode={
           section.languageCode
         }
         audioStatus={
           section.audioStatus
         }
-        audioUrl={section.audioUrl}
-        content={section.content}
+        audioUrl={
+          section.audioUrl
+        }
+        content={
+          section.content
+        }
       />
 
       <ReadingWorkspaceTabs
-        activeTab={activeTab}
+        activeTab={
+          activeTab
+        }
         vocabularyCount={
-          section.vocabulary.length
+          currentVocabulary.length
         }
         grammarCount={
-          section.grammarPoints.length
+          currentGrammar.length
+        }
+        expressionCount={
+          currentExpressions.length
         }
         quizCount={
-          section
-            .comprehensionQuestions
+          section.comprehensionQuestions
             .length
         }
         onTabChange={
@@ -430,13 +1251,21 @@ export function ReadingSectionWorkspace({
 
       <div
         role="tabpanel"
-        className="min-h-96"
+        className="
+          min-h-96
+        "
       >
         {activeTab ===
         "content" ? (
           <ReadingContentPanel
-            content={
-              section.content
+            block={
+              activeBlock
+            }
+            blockIndex={
+              activeBlockIndex
+            }
+            totalBlocks={
+              sortedContent.length
             }
             languageCode={
               section.languageCode
@@ -444,7 +1273,81 @@ export function ReadingSectionWorkspace({
             showTranslations={
               showTranslations
             }
-            fontSize={fontSize}
+            fontSize={
+              fontSize
+            }
+            isMeaningSaved={
+              isSaved(
+                meaningSavedId,
+              )
+            }
+            isNoteSaved={
+              isSaved(
+                noteSavedId,
+              )
+            }
+            onToggleMeaning={() => {
+              const concept =
+                activeBlock.conceptSummary ??
+                activeBlock.translation ??
+                activeBlock.text;
+
+              toggleSavedItem(
+                createSavedInput({
+                  section,
+
+                  kind:
+                    "meaning",
+
+                  sourceId:
+                    activeBlock.id,
+
+                  blockId:
+                    activeBlock.id,
+
+                  title:
+                    `معنی و مفهوم پاراگراف ${activeBlock.order}`,
+
+                  content:
+                    concept,
+
+                  secondaryText:
+                    activeBlock.translation ??
+                    null,
+                }),
+              );
+            }}
+            onToggleNote={() => {
+              if (
+                !activeBlock.note
+              ) {
+                return;
+              }
+
+              toggleSavedItem(
+                createSavedInput({
+                  section,
+
+                  kind:
+                    "educational_note",
+
+                  sourceId:
+                    activeBlock.id,
+
+                  blockId:
+                    activeBlock.id,
+
+                  title:
+                    `نکته آموزشی پاراگراف ${activeBlock.order}`,
+
+                  content:
+                    activeBlock.note,
+
+                  secondaryText:
+                    activeBlock.text,
+                }),
+              );
+            }}
           />
         ) : null}
 
@@ -452,7 +1355,7 @@ export function ReadingSectionWorkspace({
         "vocabulary" ? (
           <ReadingVocabularyPanel
             vocabulary={
-              section.vocabulary
+              currentVocabulary
             }
             savedVocabularyIds={
               savedVocabularyIds
@@ -467,7 +1370,34 @@ export function ReadingSectionWorkspace({
         "grammar" ? (
           <ReadingGrammarPanel
             grammarPoints={
-              section.grammarPoints
+              currentGrammar
+            }
+            savedGrammarIds={
+              savedGrammarIds
+            }
+            masteredGrammarIds={
+              masteredGrammarIds
+            }
+            onToggleSaved={
+              handleToggleGrammar
+            }
+            onToggleMastered={
+              handleToggleGrammarMastery
+            }
+          />
+        ) : null}
+
+        {activeTab ===
+        "expressions" ? (
+          <ReadingExpressionsPanel
+            expressions={
+              currentExpressions
+            }
+            savedExpressionIds={
+              savedExpressionIds
+            }
+            onToggleSaved={
+              handleToggleExpression
             }
           />
         ) : null}
@@ -476,8 +1406,7 @@ export function ReadingSectionWorkspace({
         "quiz" ? (
           <ReadingQuizPanel
             questions={
-              section
-                .comprehensionQuestions
+              section.comprehensionQuestions
             }
             answers={
               quizAnswers
@@ -503,12 +1432,39 @@ export function ReadingSectionWorkspace({
         ) : null}
       </div>
 
+      {activeTab !==
+      "quiz" ? (
+        <ReadingBlockNavigator
+          currentIndex={
+            activeBlockIndex
+          }
+          totalBlocks={
+            sortedContent.length
+          }
+          onPrevious={() => {
+            goToBlock(
+              activeBlockIndex -
+                1,
+              false,
+            );
+          }}
+          onNext={() => {
+            goToBlock(
+              activeBlockIndex +
+                1,
+              true,
+            );
+          }}
+        />
+      ) : null}
+
       {quizSubmitted ? (
         <Card
           className={cn(
-            "p-5 sm:p-6",
+            "p-5",
+            "sm:p-6",
 
-            isMastered
+            quizPassed
               ? [
                   "border-emerald-400/20",
                   "bg-emerald-400/[0.05]",
@@ -521,7 +1477,9 @@ export function ReadingSectionWorkspace({
         >
           <div
             className="
-              flex flex-col gap-4
+              flex
+              flex-col
+              gap-4
               md:flex-row
               md:items-center
               md:justify-between
@@ -529,17 +1487,22 @@ export function ReadingSectionWorkspace({
           >
             <div
               className="
-                flex items-start gap-3
+                flex
+                items-start
+                gap-3
               "
             >
               <span
                 className={cn(
-                  "flex h-11 w-11",
-                  "shrink-0 items-center",
+                  "flex",
+                  "h-11",
+                  "w-11",
+                  "shrink-0",
+                  "items-center",
                   "justify-center",
                   "rounded-xl",
 
-                  isMastered
+                  quizPassed
                     ? [
                         "bg-emerald-400/10",
                         "text-emerald-300",
@@ -550,7 +1513,7 @@ export function ReadingSectionWorkspace({
                       ],
                 )}
               >
-                {isMastered ? (
+                {quizPassed ? (
                   <Trophy
                     aria-hidden="true"
                     className="h-5 w-5"
@@ -570,26 +1533,27 @@ export function ReadingSectionWorkspace({
                     text-white
                   "
                 >
-                  {isMastered
-                    ? "این بخش را با موفقیت یاد گرفتی"
-                    : "آزمون ثبت شد"}
+                  {quizPassed
+                    ? "کوییز اختیاری با نتیجه خوبی ثبت شد"
+                    : "کوییز اختیاری ثبت شد"}
                 </h2>
 
                 <p
                   className="
-                    mt-1 text-sm
+                    mt-1
+                    text-sm
                     leading-7
                     text-slate-500
                   "
                 >
-                  {isMastered
-                    ? "امتیاز درک مطلب تو برای عبور از این مرحله کافی است."
-                    : `برای تسلط کامل به حداقل ${PASSING_SCORE}٪ نیاز داری. متن را مرور کن و دوباره آزمون بده.`}
+                  امتیاز تو{" "}
+                  {quizScore}
+                  ٪ است. نتیجه این کوییز برای مرور و سنجش درک مطلب است و مسیر مطالعه را قفل نمی‌کند.
                 </p>
               </div>
             </div>
 
-            {!isMastered ? (
+            {!quizPassed ? (
               <button
                 type="button"
                 onClick={() => {
@@ -598,13 +1562,16 @@ export function ReadingSectionWorkspace({
                   );
                 }}
                 className="
-                  inline-flex min-h-11
+                  inline-flex
+                  min-h-11
                   items-center
                   justify-center
                   rounded-xl
                   bg-white/[0.06]
-                  px-4 py-2.5
-                  text-sm font-medium
+                  px-4
+                  py-2.5
+                  text-sm
+                  font-medium
                   text-white
                   transition
                   hover:bg-white/[0.1]
@@ -620,7 +1587,9 @@ export function ReadingSectionWorkspace({
       <nav
         aria-label="جابجایی بین بخش‌های Reading"
         className="
-          flex flex-col gap-3
+          flex
+          flex-col
+          gap-3
           border-t
           border-white/[0.06]
           pt-6
@@ -639,13 +1608,18 @@ export function ReadingSectionWorkspace({
                 )
               }
               className="
-                inline-flex min-h-11
-                items-center gap-2
-                rounded-xl border
+                inline-flex
+                min-h-11
+                items-center
+                gap-2
+                rounded-xl
+                border
                 border-white/[0.08]
                 bg-white/[0.035]
-                px-4 py-2.5
-                text-sm text-slate-300
+                px-4
+                py-2.5
+                text-sm
+                text-slate-300
                 transition
                 hover:bg-white/[0.07]
                 hover:text-white
@@ -670,33 +1644,21 @@ export function ReadingSectionWorkspace({
                   section.nextSectionId,
                 )
               }
-              aria-disabled={
-                !isMastered
-              }
-              onClick={(event) => {
-                if (!isMastered) {
-                  event.preventDefault();
-                }
-              }}
-              className={cn(
-                "inline-flex min-h-11",
-                "items-center gap-2",
-                "rounded-xl px-4",
-                "py-2.5 text-sm",
-                "font-bold transition",
-
-                isMastered
-                  ? [
-                      "bg-cyan-400",
-                      "text-slate-950",
-                      "hover:bg-cyan-300",
-                    ]
-                  : [
-                      "cursor-not-allowed",
-                      "bg-white/[0.04]",
-                      "text-slate-600",
-                    ],
-              )}
+              className="
+                inline-flex
+                min-h-11
+                items-center
+                gap-2
+                rounded-xl
+                bg-cyan-400
+                px-4
+                py-2.5
+                text-sm
+                font-bold
+                text-slate-950
+                transition
+                hover:bg-cyan-300
+              "
             >
               بخش بعدی
 
@@ -714,12 +1676,16 @@ export function ReadingSectionWorkspace({
                 )
               }
               className="
-                inline-flex min-h-11
-                items-center gap-2
+                inline-flex
+                min-h-11
+                items-center
+                gap-2
                 rounded-xl
                 bg-white/[0.06]
-                px-4 py-2.5
-                text-sm font-medium
+                px-4
+                py-2.5
+                text-sm
+                font-medium
                 text-white
                 transition
                 hover:bg-white/[0.1]

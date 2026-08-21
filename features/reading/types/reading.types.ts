@@ -1,4 +1,6 @@
-import type { z } from "zod";
+import type {
+  z,
+} from "zod";
 
 import type {
   continueReadingSchema,
@@ -28,6 +30,8 @@ import type {
 import type {
   readingComprehensionOptionSchema,
   readingComprehensionQuestionSchema,
+  readingExpressionItemSchema,
+  readingExpressionRegisterSchema,
   readingGrammarExampleSchema,
   readingGrammarPointSchema,
   readingSectionDetailSchema,
@@ -35,129 +39,167 @@ import type {
   readingVocabularyItemSchema,
 } from "../schemas/reading-section.schema";
 
-export type ReadingCefrLevel = z.infer<
-  typeof readingCefrLevelSchema
->;
+export type ReadingCefrLevel =
+  z.infer<
+    typeof readingCefrLevelSchema
+  >;
 
-export type ReadingResourceType = z.infer<
-  typeof readingResourceTypeSchema
->;
+export type ReadingResourceType =
+  z.infer<
+    typeof readingResourceTypeSchema
+  >;
 
-export type ReadingSourceType = z.infer<
-  typeof readingSourceTypeSchema
->;
+export type ReadingSourceType =
+  z.infer<
+    typeof readingSourceTypeSchema
+  >;
 
-export type ReadingResourceStatus = z.infer<
-  typeof readingResourceStatusSchema
->;
+export type ReadingResourceStatus =
+  z.infer<
+    typeof readingResourceStatusSchema
+  >;
 
-export type ReadingInsightType = z.infer<
-  typeof readingInsightTypeSchema
->;
+export type ReadingInsightType =
+  z.infer<
+    typeof readingInsightTypeSchema
+  >;
 
-export type ReadingProcessingStatus = z.infer<
-  typeof readingProcessingStatusSchema
->;
+export type ReadingProcessingStatus =
+  z.infer<
+    typeof readingProcessingStatusSchema
+  >;
 
-export type ReadingSectionStatus = z.infer<
-  typeof readingSectionStatusSchema
->;
+export type ReadingSectionStatus =
+  z.infer<
+    typeof readingSectionStatusSchema
+  >;
 
-export type ReadingAudioStatus = z.infer<
-  typeof readingAudioStatusSchema
->;
+export type ReadingAudioStatus =
+  z.infer<
+    typeof readingAudioStatusSchema
+  >;
 
-export type ReadingSourceFileKind = z.infer<
-  typeof readingSourceFileKindSchema
->;
+export type ReadingSourceFileKind =
+  z.infer<
+    typeof readingSourceFileKindSchema
+  >;
 
-export type ReadingResourceSummary = z.infer<
-  typeof readingResourceSummarySchema
->;
+export type ReadingResourceSummary =
+  z.infer<
+    typeof readingResourceSummarySchema
+  >;
 
-export type ReadingResourceDetail = z.infer<
-  typeof readingResourceDetailSchema
->;
+export type ReadingResourceDetail =
+  z.infer<
+    typeof readingResourceDetailSchema
+  >;
 
-export type ReadingSectionSummary = z.infer<
-  typeof readingSectionSummarySchema
->;
+export type ReadingSectionSummary =
+  z.infer<
+    typeof readingSectionSummarySchema
+  >;
 
-/**
- * Complete reading workspace models.
- */
-export type ReadingTextBlock = z.infer<
-  typeof readingTextBlockSchema
->;
+export type ReadingTextBlock =
+  z.infer<
+    typeof readingTextBlockSchema
+  >;
 
-export type ReadingVocabularyItem = z.infer<
-  typeof readingVocabularyItemSchema
->;
+export type ReadingVocabularyItem =
+  z.infer<
+    typeof readingVocabularyItemSchema
+  >;
 
-export type ReadingGrammarExample = z.infer<
-  typeof readingGrammarExampleSchema
->;
+export type ReadingGrammarExample =
+  z.infer<
+    typeof readingGrammarExampleSchema
+  >;
 
-export type ReadingGrammarPoint = z.infer<
-  typeof readingGrammarPointSchema
->;
+export type ReadingGrammarPoint =
+  z.infer<
+    typeof readingGrammarPointSchema
+  >;
 
-export type ReadingComprehensionOption = z.infer<
-  typeof readingComprehensionOptionSchema
->;
+export type ReadingExpressionRegister =
+  z.infer<
+    typeof readingExpressionRegisterSchema
+  >;
 
-export type ReadingComprehensionQuestion = z.infer<
-  typeof readingComprehensionQuestionSchema
->;
+export type ReadingExpressionItem =
+  z.infer<
+    typeof readingExpressionItemSchema
+  >;
 
-export type ReadingSectionDetail = z.output<
-  typeof readingSectionDetailSchema
->;
+export type ReadingComprehensionOption =
+  z.infer<
+    typeof readingComprehensionOptionSchema
+  >;
 
-export type ReadingSectionDetailInput = z.input<
-  typeof readingSectionDetailSchema
->;
+export type ReadingComprehensionQuestion =
+  z.infer<
+    typeof readingComprehensionQuestionSchema
+  >;
 
-export type ReadingStats = z.infer<
-  typeof readingStatsSchema
->;
+export type ReadingSectionDetail =
+  z.output<
+    typeof readingSectionDetailSchema
+  >;
 
-export type ContinueReading = z.infer<
-  typeof continueReadingSchema
->;
+export type ReadingSectionDetailInput =
+  z.input<
+    typeof readingSectionDetailSchema
+  >;
 
-export type ReadingJourneyStep = z.infer<
-  typeof readingJourneyStepSchema
->;
+export type ReadingStats =
+  z.infer<
+    typeof readingStatsSchema
+  >;
 
-export type ReadingLearningJourney = z.infer<
-  typeof readingLearningJourneySchema
->;
+export type ContinueReading =
+  z.infer<
+    typeof continueReadingSchema
+  >;
 
-export type ReadingInsight = z.infer<
-  typeof readingInsightSchema
->;
+export type ReadingJourneyStep =
+  z.infer<
+    typeof readingJourneyStepSchema
+  >;
 
-export type RecentReadingActivity = z.infer<
-  typeof recentReadingActivitySchema
->;
+export type ReadingLearningJourney =
+  z.infer<
+    typeof readingLearningJourneySchema
+  >;
 
-export type ReadingOverview = z.output<
-  typeof readingOverviewSchema
->;
+export type ReadingInsight =
+  z.infer<
+    typeof readingInsightSchema
+  >;
 
-export type ReadingOverviewInput = z.input<
-  typeof readingOverviewSchema
->;
+export type RecentReadingActivity =
+  z.infer<
+    typeof recentReadingActivitySchema
+  >;
 
-export type ReadingLibrary = z.output<
-  typeof readingLibrarySchema
->;
+export type ReadingOverview =
+  z.output<
+    typeof readingOverviewSchema
+  >;
 
-export type ReadingSourceUploadMetadata = z.input<
-  typeof readingSourceUploadMetadataSchema
->;
+export type ReadingOverviewInput =
+  z.input<
+    typeof readingOverviewSchema
+  >;
 
-export type ReadingSourceUploadResult = z.infer<
-  typeof readingSourceUploadResultSchema
->;
+export type ReadingLibrary =
+  z.output<
+    typeof readingLibrarySchema
+  >;
+
+export type ReadingSourceUploadMetadata =
+  z.input<
+    typeof readingSourceUploadMetadataSchema
+  >;
+
+export type ReadingSourceUploadResult =
+  z.infer<
+    typeof readingSourceUploadResultSchema
+  >;

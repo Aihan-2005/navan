@@ -3,13 +3,15 @@ import type {
   ReadingWorkspaceTab,
 } from "./reading-workspace.types";
 
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION =
+  1;
 
 const VALID_TABS =
   new Set<ReadingWorkspaceTab>([
     "content",
     "vocabulary",
     "grammar",
+    "expressions",
     "quiz",
   ]);
 
@@ -22,7 +24,8 @@ const VALID_FONT_SIZES =
 
 export type ReadingWorkspaceStoredState =
   Readonly<{
-    version: 1;
+    version:
+      1;
 
     activeTab:
       ReadingWorkspaceTab;
@@ -30,31 +33,62 @@ export type ReadingWorkspaceStoredState =
     visitedTabs:
       ReadingWorkspaceTab[];
 
-    showTranslations: boolean;
+    activeBlockIndex:
+      number;
 
-    fontSize: ReadingFontSize;
+    showTranslations:
+      boolean;
 
-    savedVocabularyIds: string[];
+    fontSize:
+      ReadingFontSize;
+
+    /**
+     * Legacy field برای Migration
+     * Bookmarkهای قبلی Vocabulary.
+     */
+    savedVocabularyIds:
+      string[];
+
+    masteredGrammarIds:
+      string[];
+
+    reviewedBlockIds:
+      string[];
 
     quizAnswers:
-      Record<string, string>;
+      Record<
+        string,
+        string
+      >;
 
-    quizSubmitted: boolean;
+    quizSubmitted:
+      boolean;
   }>;
 
 function isRecord(
-  value: unknown,
-): value is Record<string, unknown> {
+  value:
+    unknown,
+): value is Record<
+  string,
+  unknown
+> {
   return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value)
+    typeof value ===
+      "object" &&
+    value !==
+      null &&
+    !Array.isArray(
+      value,
+    )
   );
 }
 
 function createStorageKey(
-  resourceId: string,
-  sectionId: string,
+  resourceId:
+    string,
+
+  sectionId:
+    string,
 ): string {
   return [
     "meowlingo",
@@ -62,14 +96,23 @@ function createStorageKey(
     "workspace",
     resourceId,
     sectionId,
-  ].join(":");
+  ].join(
+    ":",
+  );
 }
 
 function parseVisitedTabs(
-  value: unknown,
+  value:
+    unknown,
 ): ReadingWorkspaceTab[] {
-  if (!Array.isArray(value)) {
-    return ["content"];
+  if (
+    !Array.isArray(
+      value,
+    )
+  ) {
+    return [
+      "content",
+    ];
   }
 
   const tabs =
@@ -77,25 +120,39 @@ function parseVisitedTabs(
       (
         item,
       ): item is ReadingWorkspaceTab =>
-        typeof item === "string" &&
+        typeof item ===
+          "string" &&
         VALID_TABS.has(
           item as ReadingWorkspaceTab,
         ),
     );
 
-  if (!tabs.includes("content")) {
-    tabs.unshift("content");
+  if (
+    !tabs.includes(
+      "content",
+    )
+  ) {
+    tabs.unshift(
+      "content",
+    );
   }
 
   return Array.from(
-    new Set(tabs),
+    new Set(
+      tabs,
+    ),
   );
 }
 
 function parseStringArray(
-  value: unknown,
+  value:
+    unknown,
 ): string[] {
-  if (!Array.isArray(value)) {
+  if (
+    !Array.isArray(
+      value,
+    )
+  ) {
     return [];
   }
 
@@ -105,29 +162,46 @@ function parseStringArray(
         (
           item,
         ): item is string =>
-          typeof item === "string" &&
-          item.length > 0,
+          typeof item ===
+            "string" &&
+          item.length >
+            0,
       ),
     ),
   );
 }
 
 function parseQuizAnswers(
-  value: unknown,
-): Record<string, string> {
-  if (!isRecord(value)) {
+  value:
+    unknown,
+): Record<
+  string,
+  string
+> {
+  if (
+    !isRecord(
+      value,
+    )
+  ) {
     return {};
   }
 
   const entries =
-    Object.entries(value).filter(
+    Object.entries(
+      value,
+    ).filter(
       (
         entry,
-      ): entry is [string, string] =>
-        entry[0].length > 0 &&
+      ): entry is [
+        string,
+        string,
+      ] =>
+        entry[0].length >
+          0 &&
         typeof entry[1] ===
           "string" &&
-        entry[1].length > 0,
+        entry[1].length >
+          0,
     );
 
   return Object.fromEntries(
@@ -136,11 +210,15 @@ function parseQuizAnswers(
 }
 
 export function readReadingWorkspaceState(
-  resourceId: string,
-  sectionId: string,
+  resourceId:
+    string,
+
+  sectionId:
+    string,
 ): ReadingWorkspaceStoredState | null {
   if (
-    typeof window === "undefined"
+    typeof window ===
+    "undefined"
   ) {
     return null;
   }
@@ -158,10 +236,17 @@ export function readReadingWorkspaceState(
       return null;
     }
 
-    const parsed: unknown =
-      JSON.parse(rawValue);
+    const parsed:
+      unknown =
+      JSON.parse(
+        rawValue,
+      );
 
-    if (!isRecord(parsed)) {
+    if (
+      !isRecord(
+        parsed,
+      )
+    ) {
       return null;
     }
 
@@ -176,24 +261,34 @@ export function readReadingWorkspaceState(
       typeof parsed.activeTab ===
         "string" &&
       VALID_TABS.has(
-        parsed.activeTab as
-          ReadingWorkspaceTab,
+        parsed.activeTab as ReadingWorkspaceTab,
       )
-        ? (parsed.activeTab as ReadingWorkspaceTab)
+        ? parsed.activeTab as ReadingWorkspaceTab
         : "content";
 
     const fontSize =
       typeof parsed.fontSize ===
         "string" &&
       VALID_FONT_SIZES.has(
-        parsed.fontSize as
-          ReadingFontSize,
+        parsed.fontSize as ReadingFontSize,
       )
-        ? (parsed.fontSize as ReadingFontSize)
+        ? parsed.fontSize as ReadingFontSize
         : "comfortable";
 
+    const activeBlockIndex =
+      typeof parsed.activeBlockIndex ===
+        "number" &&
+      Number.isInteger(
+        parsed.activeBlockIndex,
+      ) &&
+      parsed.activeBlockIndex >=
+        0
+        ? parsed.activeBlockIndex
+        : 0;
+
     return {
-      version: STORAGE_VERSION,
+      version:
+        STORAGE_VERSION,
 
       activeTab,
 
@@ -201,6 +296,8 @@ export function readReadingWorkspaceState(
         parseVisitedTabs(
           parsed.visitedTabs,
         ),
+
+      activeBlockIndex,
 
       showTranslations:
         parsed.showTranslations ===
@@ -213,13 +310,24 @@ export function readReadingWorkspaceState(
           parsed.savedVocabularyIds,
         ),
 
+      masteredGrammarIds:
+        parseStringArray(
+          parsed.masteredGrammarIds,
+        ),
+
+      reviewedBlockIds:
+        parseStringArray(
+          parsed.reviewedBlockIds,
+        ),
+
       quizAnswers:
         parseQuizAnswers(
           parsed.quizAnswers,
         ),
 
       quizSubmitted:
-        parsed.quizSubmitted === true,
+        parsed.quizSubmitted ===
+        true,
     };
   } catch {
     return null;
@@ -227,24 +335,33 @@ export function readReadingWorkspaceState(
 }
 
 export function writeReadingWorkspaceState(
-  resourceId: string,
-  sectionId: string,
-  state: Omit<
-    ReadingWorkspaceStoredState,
-    "version"
-  >,
+  resourceId:
+    string,
+
+  sectionId:
+    string,
+
+  state:
+    Omit<
+      ReadingWorkspaceStoredState,
+      "version"
+    >,
 ): void {
   if (
-    typeof window === "undefined"
+    typeof window ===
+    "undefined"
   ) {
     return;
   }
 
   const payload:
-    ReadingWorkspaceStoredState = {
-    version: STORAGE_VERSION,
-    ...state,
-  };
+    ReadingWorkspaceStoredState =
+    {
+      version:
+        STORAGE_VERSION,
+
+      ...state,
+    };
 
   try {
     window.localStorage.setItem(
@@ -252,13 +369,14 @@ export function writeReadingWorkspaceState(
         resourceId,
         sectionId,
       ),
-      JSON.stringify(payload),
+      JSON.stringify(
+        payload,
+      ),
     );
   } catch {
-    /*
-     * Persistence is an enhancement.
-     * Reading must continue to work even
-     * when storage is unavailable.
+    /**
+     * Persistence یک Enhancement است.
+     * نبودن Storage نباید Reading را متوقف کند.
      */
   }
 }

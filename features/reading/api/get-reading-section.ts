@@ -1,4 +1,8 @@
 import {
+  enrichReadingSectionMock,
+} from "../mocks/reading-section-enrichment.mock";
+
+import {
   findReadingSectionMock,
 } from "../mocks/reading-sections.mock";
 
@@ -13,16 +17,19 @@ import type {
 const READING_RESOURCES_ENDPOINT =
   "/api/v1/reading/resources";
 
-function shouldUseMockData(): boolean {
+function shouldUseMockData():
+  boolean {
   return (
     process.env.USE_MOCKS !==
     "false"
   );
 }
 
-function getApiBaseUrl(): string {
+function getApiBaseUrl():
+  string {
   const apiBaseUrl =
-    process.env.API_BASE_URL?.trim();
+    process.env.API_BASE_URL
+      ?.trim();
 
   if (!apiBaseUrl) {
     throw new Error(
@@ -42,14 +49,17 @@ function getApiBaseUrl(): string {
 }
 
 function parseReadingSection(
-  payload: unknown,
+  payload:
+    unknown,
 ): ReadingSectionDetail {
   const result =
     readingSectionDetailSchema.safeParse(
       payload,
     );
 
-  if (!result.success) {
+  if (
+    !result.success
+  ) {
     console.error(
       "Invalid reading section payload:",
       result.error.flatten(),
@@ -64,8 +74,11 @@ function parseReadingSection(
 }
 
 function getMockReadingSection(
-  resourceId: string,
-  sectionId: string,
+  resourceId:
+    string,
+
+  sectionId:
+    string,
 ): ReadingSectionDetail | null {
   const section =
     findReadingSectionMock(
@@ -78,16 +91,19 @@ function getMockReadingSection(
   }
 
   return parseReadingSection(
-    section,
+    enrichReadingSectionMock(
+      section,
+    ),
   );
 }
 
 export async function getReadingSection(
-  resourceId: string,
-  sectionId: string,
-): Promise<
-  ReadingSectionDetail | null
-> {
+  resourceId:
+    string,
+
+  sectionId:
+    string,
+): Promise<ReadingSectionDetail | null> {
   const normalizedResourceId =
     resourceId.trim();
 
@@ -101,7 +117,9 @@ export async function getReadingSection(
     return null;
   }
 
-  if (shouldUseMockData()) {
+  if (
+    shouldUseMockData()
+  ) {
     return getMockReadingSection(
       normalizedResourceId,
       normalizedSectionId,
@@ -123,36 +141,46 @@ export async function getReadingSection(
     `/${encodedResourceId}` +
     `/sections/${encodedSectionId}`;
 
-  const requestUrl = new URL(
-    requestPath,
-    getApiBaseUrl(),
-  );
+  const requestUrl =
+    new URL(
+      requestPath,
+      getApiBaseUrl(),
+    );
 
-  const response = await fetch(
-    requestUrl,
-    {
-      method: "GET",
+  const response =
+    await fetch(
+      requestUrl,
+      {
+        method:
+          "GET",
 
-      headers: {
-        Accept:
-          "application/json",
+        headers: {
+          Accept:
+            "application/json",
+        },
+
+        cache:
+          "no-store",
       },
+    );
 
-      cache: "no-store",
-    },
-  );
-
-  if (response.status === 404) {
+  if (
+    response.status ===
+    404
+  ) {
     return null;
   }
 
-  if (!response.ok) {
+  if (
+    !response.ok
+  ) {
     throw new Error(
       `Reading section request failed with status ${response.status}.`,
     );
   }
 
-  let payload: unknown;
+  let payload:
+    unknown;
 
   try {
     payload =

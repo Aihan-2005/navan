@@ -27,7 +27,9 @@ export const readingSourceTypeSchema =
   z.enum([
     "platform",
     "user_upload",
-  ]);export const readingResourceStatusSchema =
+  ]);
+
+export const readingResourceStatusSchema =
   z.enum([
     "ready",
     "processing",
@@ -86,7 +88,7 @@ export const readingResourceSummarySchema =
       .min(1),
 
     title: z
-  .string()
+      .string()
       .trim()
       .min(1),
 
@@ -108,7 +110,8 @@ export const readingResourceSummarySchema =
     sourceType:
       readingSourceTypeSchema,
 
-    status:readingResourceStatusSchema,
+    status:
+      readingResourceStatusSchema,
 
     languageCode: z
       .string()
@@ -138,7 +141,7 @@ export const readingResourceSummarySchema =
     completedSections: z
       .number()
       .int()
-     .nonnegative(),
+      .nonnegative(),
 
     progressPercent: z
       .number()
@@ -247,7 +250,8 @@ export const readingResourceDetailSchema =
       .int()
       .positive()
       .nullable(),
- totalWords: z
+
+    totalWords: z
       .number()
       .int()
       .nonnegative(),
@@ -274,23 +278,34 @@ export const readingResourceDetailSchema =
       z.string().datetime(),
   });
 
+/**
+ * Global Reading statistics.
+ *
+ * totalSessions و masteredWords فعلاً برای backward
+ * compatibility نگه داشته شده‌اند، اما UI جدید دیگر
+ * مستقیماً به آن‌ها وابسته نیست.
+ */
 export const readingStatsSchema =
-  z.object({totalSessions: z
+  z.object({
+    completedResources: z
       .number()
       .int()
-      .nonnegative(),
+      .nonnegative()
+      .default(0),
 
     weeklyMinutes: z
       .number()
       .int()
       .nonnegative(),
 
-    completedSections: z
+    activeDaysThisWeek: z
       .number()
       .int()
-      .nonnegative(),
+      .min(0)
+      .max(7)
+      .default(0),
 
-    masteredWords: z
+    completedSections: z
       .number()
       .int()
       .nonnegative(),
@@ -299,13 +314,25 @@ export const readingStatsSchema =
       .number()
       .int()
       .nonnegative(),
+
+    totalSessions: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional(),
+
+    masteredWords: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional(),
   });
 
 export const continueReadingSchema =
   z.object({
     resourceId: z
       .string()
-.trim()
+      .trim()
       .min(1),
 
     title: z
@@ -335,7 +362,8 @@ export const continueReadingSchema =
       .number()
       .int()
       .nonnegative(),
-totalSections: z
+
+    totalSections: z
       .number()
       .int()
       .positive(),
@@ -365,7 +393,8 @@ totalSections: z
 export const readingWeeklyGoalSchema =
   z.object({
     targetSections: z
-      .number().int()
+      .number()
+      .int()
       .positive(),
 
     completedSections: z
@@ -424,7 +453,8 @@ export const readingLearningJourneySchema =
       .string()
       .trim()
       .min(1),
-steps: z
+
+    steps: z
       .array(
         readingJourneyStepSchema,
       )
@@ -454,7 +484,7 @@ export const readingInsightSchema =
     actionLabel: z
       .string()
       .trim()
-    .min(1)
+      .min(1)
       .nullable(),
 
     actionHref: z
@@ -510,7 +540,8 @@ export const recentReadingActivitySchema =
 
 export const readingOverviewSchema =
   z.object({
-    stats: readingStatsSchema,
+    stats:
+      readingStatsSchema,
 
     continueReading:
       continueReadingSchema
@@ -520,13 +551,17 @@ export const readingOverviewSchema =
     weeklyGoal:
       readingWeeklyGoalSchema
         .default({
-          targetSections: 4,
+          targetSections:
+            4,
 
-          completedSections: 0,
+          completedSections:
+            0,
 
-          targetNewWords: 20,
+          targetNewWords:
+            20,
 
-          reviewedWords: 0,
+          reviewedWords:
+            0,
         }),
 
     featuredResources: z
@@ -540,7 +575,8 @@ export const readingOverviewSchema =
         readingResourceSummarySchema,
       )
       .default([]),
-learningJourney:
+
+    learningJourney:
       readingLearningJourneySchema,
 
     primaryInsight:
