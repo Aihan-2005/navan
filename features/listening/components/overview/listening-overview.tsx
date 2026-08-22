@@ -199,7 +199,7 @@ export function ListeningOverview({
                     )}
                     description="تعداد کل تمرین‌های انجام‌شده"
                     icon={Headphones}
-                    tone="cyan"
+                    tone="orange"
                 />
 
                 <ListeningStatCard
@@ -209,7 +209,7 @@ export function ListeningOverview({
                     )} دقیقه`}
                     description="مجموع زمان گوش‌دادن و رونویسی"
                     icon={TimerReset}
-                    tone="violet"
+                    tone="emerald"
                 />
 
                 <ListeningStatCard
@@ -219,7 +219,7 @@ export function ListeningOverview({
                     )}٪`}
                     description="میانگین تطابق Transcriptهای اخیر"
                     icon={Target}
-                    tone="emerald"
+                    tone="violet"
                 />
 
                 <ListeningStatCard
@@ -231,7 +231,7 @@ export function ListeningOverview({
                         stats.bestAccuracyScore,
                     )}٪`}
                     icon={Flame}
-                    tone="amber"
+                    tone="gray"
                 />
             </section>
 

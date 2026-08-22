@@ -22,6 +22,8 @@ const scenarioImages: Partial<Record<string, string>> = {
   "job-interview": "/speaking/restaurant.jpeg",
   "restaurant-roleplay": "/speaking/interview.jpeg",
   "coffee-shop-shadowing": "/speaking/shadowing.jpeg",
+  "free-speaking": "/speaking/conversation.jpg",
+  
 };
 
 export function ScenarioCard({
@@ -55,11 +57,11 @@ export function ScenarioCard({
           </p>
         ) : null}
 
-        <div className="absolute inset-x-3 top-3 flex items-center justify-between gap-2 text-[10px] font-bold text-white">
-          <span className="rounded-full bg-[#007c72] px-2.5 py-1">
+        <div className="absolute inset-x-3 top-3 flex items-center justify-start gap-2 text-[10px] font-bold text-white">
+          <span className="rounded-full bg-[#007c72]/90 px-2.5 py-1">
             {SPEAKING_MODE_LABELS[scenario.mode]}
           </span>
-          <span className="rounded-full bg-[#3d4041] px-2.5 py-1">
+          <span className="rounded-full bg-[#3d4041]/80 px-2.5 py-1">
             {scenario.cefrLevel}
           </span>
         </div>
@@ -94,8 +96,8 @@ export function ScenarioCard({
               href={`/speaking/practice/${scenario.id}`}
               aria-label={`شروع تمرین ${scenario.title}`}
               className="
-                inline-flex items-center justify-center rounded-2xl bg-[#007c72]
-                px-6 py-2.5 text-base font-bold text-white transition hover:bg-[#00685f]
+                inline-flex items-center justify-center rounded-2xl bg-[#00685F]
+                px-5 py-2.5 text-base font-bold text-white transition hover:bg-[#01746b]
               "
             >
               شروع

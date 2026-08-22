@@ -10,41 +10,14 @@ type ListeningStatCardProps = Readonly<{
 
   icon: LucideIcon;
 
-  tone?: "cyan" | "violet" | "emerald" | "amber";
+  tone?: "orange" | "violet" | "emerald" | "gray";
 }>;
 
 const toneStyles = {
-  cyan: {
-    iconWrapper:
-      "bg-cyan-400/10 text-cyan-300",
-
-    glow:
-      "bg-cyan-500/10",
-  },
-
-  violet: {
-    iconWrapper:
-      "bg-violet-400/10 text-violet-300",
-
-    glow:
-      "bg-violet-500/10",
-  },
-
-  emerald: {
-    iconWrapper:
-      "bg-emerald-400/10 text-emerald-300",
-
-    glow:
-      "bg-emerald-500/10",
-  },
-
-  amber: {
-    iconWrapper:
-      "bg-amber-400/10 text-amber-300",
-
-    glow:
-      "bg-amber-500/10",
-  },
+  orange: "border-[#F97316]",
+  violet: "border-[##712AE2]",
+  emerald: "border-[#00685F]",
+  gray: "border-[#545C72]",
 } as const;
 
 export function ListeningStatCard({
@@ -52,48 +25,38 @@ export function ListeningStatCard({
   value,
   description,
   icon: Icon,
-  tone = "cyan",
+  tone = "orange",
 }: ListeningStatCardProps) {
-  const selectedTone =
-    toneStyles[tone];
+  const borderColor = toneStyles[tone];
+  const iconColorMap = {
+   orange: "border-[#F97316]",
+  violet: "border-[##712AE2]",
+  emerald: "border-[#00685F]",
+  gray: "border-[#545C72]",
+  };
 
   return (
-    <Card className="relative overflow-hidden p-5">
-      <div
-        aria-hidden="true"
-        className={cn(
-          "pointer-events-none absolute -left-14 -top-14",
-          "h-32 w-32 rounded-full blur-3xl",
-          selectedTone.glow,
-        )}
-      />
+    <Card
+      className={cn(
+        "border-l-4 bg-white px-5 py-6 shadow-[0_2px_8px_rgba(0,0,0,0.08)]",
+        borderColor,
+      )}
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div className="text-right">
+          <p className="text-sm text-[#64748b]">{title}</p>
 
-      <div className="relative flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-sm text-slate-400">
-            {title}
-          </p>
-
-          <p className="mt-3 text-2xl font-bold text-white">
-            {value}
-          </p>
-
-          <p className="mt-2 text-xs leading-6 text-slate-600">
-            {description}
-          </p>
+          <p className="mt-1 text-2xl font-bold text-[#0f172a]">{value}</p>
         </div>
 
         <div
           className={cn(
-            "flex h-11 w-11 shrink-0",
-            "items-center justify-center rounded-xl",
-            selectedTone.iconWrapper,
+            "flex h-12 w-12 shrink-0 items-center justify-center rounded-full border",
+            "bg-current/10 border-current/10",
+            iconColorMap[tone],
           )}
         >
-          <Icon
-            aria-hidden="true"
-            className="h-5 w-5"
-          />
+          <Icon aria-hidden="true" className="h-5 w-5" />
         </div>
       </div>
     </Card>

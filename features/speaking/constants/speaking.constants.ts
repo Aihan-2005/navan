@@ -7,7 +7,7 @@ import type {
 export const SPEAKING_MODE_LABELS = {
   roleplay: "نقش‌آفرینی",
   pronunciation: "آزمایشگاه تلفظ",
-  shadowing: "تمرین Shadowing",
+  shadowing: "Shadowing",
   quick_response: "پاسخ سریع",
   storytelling: "داستان‌گویی",
   debate: "مربی مناظره",

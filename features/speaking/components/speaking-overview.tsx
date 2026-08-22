@@ -63,23 +63,22 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
     ];
 
     return [...filteredScenarios].sort(
-      (left, right) =>
-        order.indexOf(left.id) - order.indexOf(right.id),
+      (left, right) => order.indexOf(left.id) - order.indexOf(right.id),
     );
   }, [filteredScenarios]);
 
   return (
     <main
-      className="-mx-4 -my-24 min-h-[calc(100dvh+8rem)] bg-[#f7f9fa] px-4 py-28 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+      className="mx-auto w-full max-w-5xl space-y-6"
       aria-labelledby="speaking-page-title"
     >
-      <div className="mx-auto w-full max-w-[936px] space-y-[54px] pb-10">
       <section
         className="
-          relative min-h-64 overflow-hidden rounded-3xl
-          bg-[linear-gradient(135deg,#0d9488_0%,#00685f_100%)]
-          px-6 py-8 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.22)]
-          sm:px-10 sm:py-10
+          relative h-64 overflow-hidden rounded-3xl
+          bg-[linear-gradient(105.3deg,#0D9488_0%,#00685F_100%)]
+          pr-9 pl-[41px] py-8
+          shadow-[0px_8px_10px_-6px_#0000001A,0px_20px_25px_-5px_#0000001A]
+          sm:py-10
         "
       >
         <div
@@ -100,11 +99,12 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
 
         <div
           className="
-            relative flex h-full flex-col justify-center gap-7
-            md:flex-row md:items-center md:justify-between
+            relative flex flex-col gap-[13px]
+            lg:flex-row lg:items-center
+            lg:justify-between
           "
         >
-          <div className="max-w-2xl text-right">
+          <div className="max-w-3xl text-right">
             <h1
               id="speaking-page-title"
               className="
@@ -124,114 +124,115 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
           <Link
             href="/speaking/free"
             aria-label="رفتن به صفحه گفت‌وگوی آزاد"
-            className="group inline-flex shrink-0 items-center justify-center self-start rounded-full bg-[#f97316] px-8 py-3 text-[22px] font-bold leading-[30px] text-white shadow-[0_10px_15px_-3px_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 hover:bg-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 md:self-auto"
+            className="group inline-flex h-[54px] w-[215px] shrink-0 items-center justify-center self-start rounded-full bg-[#F97316] px-8 py-3 text-[22px] font-bold leading-[30px] text-white shadow-[0_10px_15px_-3px_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 hover:bg-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 md:self-auto"
           >
             شروع مکالمه آزاد
           </Link>
         </div>
       </section>
 
-      <section
-        aria-label="آمار مکالمه"
-        className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
-      >
-        <SpeakingStat
-          title="جلسه‌های مکالمه"
-          value={numberFormatter.format(overview.stats.totalSessions)}
-          icon={AudioWaveform}
-          tone="slate"
-        />
+      <div className="mx-auto w-full max-w-[936px] space-y-[54px] pb-10">
+        <section
+          aria-label="آمار مکالمه"
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          <SpeakingStat
+            title="جلسه‌های مکالمه"
+            value={numberFormatter.format(overview.stats.totalSessions)}
+            icon={AudioWaveform}
+            tone="slate"
+          />
 
-        <SpeakingStat
-          title="تمرین این هفته"
-          value={`${numberFormatter.format(
-            overview.stats.weeklyMinutes,
-          )} دقیقه`}
-          icon={TimerReset}
-          tone="violet"
-        />
+          <SpeakingStat
+            title="تمرین این هفته"
+            value={`${numberFormatter.format(
+              overview.stats.weeklyMinutes,
+            )} دقیقه`}
+            icon={TimerReset}
+            tone="violet"
+          />
 
-        <SpeakingStat
-          title="روانی گفتار"
-          value={`${numberFormatter.format(
-            overview.stats.averageFluencyScore,
-          )}٪`}
-          icon={TrendingUp}
-          tone="teal"
-        />
+          <SpeakingStat
+            title="روان بودن گفتار"
+            value={`${numberFormatter.format(
+              overview.stats.averageFluencyScore,
+            )}٪`}
+            icon={TrendingUp}
+            tone="teal"
+          />
 
-        <SpeakingStat
-          title="تداوم تمرین"
-          value={`${numberFormatter.format(overview.stats.currentStreak)} روز`}
-          icon={Flame}
-          tone="orange"
-        />
-      </section>
+          <SpeakingStat
+            title="تداوم تمرین"
+            value={`${numberFormatter.format(overview.stats.currentStreak)} روز`}
+            icon={Flame}
+            tone="orange"
+          />
+        </section>
 
-      <section>
-        <div className="overflow-x-auto pb-2">
-          <div className="flex min-w-max items-center gap-3 lg:justify-start">
-            {SPEAKING_MODE_FILTERS.map((filter) => {
-              const isActive = activeMode === filter.value;
+        <section>
+          <div className="overflow-x-auto pb-2">
+            <div className="flex min-w-max items-center gap-3 lg:justify-start">
+              {SPEAKING_MODE_FILTERS.map((filter) => {
+                const isActive = activeMode === filter.value;
 
-              return (
-                <button
-                  key={filter.value}
-                  type="button"
-                  onClick={() => setActiveMode(filter.value)}
-                  className={cn(
-                    "shrink-0 rounded-full border px-5 py-2.5",
-                    "text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685f]",
-                    isActive
-                      ? "border-[#00685f] bg-[#00685f] text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.16)]"
-                      : "border-[#bcc9c6] bg-white text-[#3d4947] hover:border-[#0d9488] hover:text-[#00685f]",
-                  )}
-                >
-                  {filter.label}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    onClick={() => setActiveMode(filter.value)}
+                    className={cn(
+                      "shrink-0 rounded-full border px-5 py-2.5",
+                      "text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685f]",
+                      isActive
+                        ? "border-[#00685f] bg-[#00685f] text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.16)]"
+                        : "border-[#bcc9c6] bg-white text-[#3d4947] hover:border-[#0d9488] hover:text-[#00685f]",
+                    )}
+                  >
+                    {filter.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        <div className="mt-8 text-right">
-          <h2 className="text-2xl font-bold tracking-[-0.02em] text-[#191c1e]">
-            تمرین مناسب امروز
-          </h2>
+          <div className="mt-8 text-right">
+            <h2 className="text-2xl font-bold tracking-[-0.02em] text-[#191c1e]">
+              تمرین مناسب امروز
+            </h2>
 
-          <p className="mt-2 text-sm leading-7 text-[#3d4947] sm:text-base">
-            {activeModeDescription}
-          </p>
-        </div>
-
-        <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {activeMode === "all" ? (
-            <>
-              {orderedScenarios.slice(0, 2).map((scenario) => (
-                <ScenarioCard key={scenario.id} scenario={scenario} />
-              ))}
-
-              <FreeSpeakingCard />
-
-              {orderedScenarios.slice(2).map((scenario) => (
-                <ScenarioCard key={scenario.id} scenario={scenario} />
-              ))}
-            </>
-          ) : (
-            orderedScenarios.map((scenario) => (
-              <ScenarioCard key={scenario.id} scenario={scenario} />
-            ))
-          )}
-        </div>
-
-        {filteredScenarios.length === 0 ? (
-          <Card className="mt-6 px-6 py-12 text-center">
-            <p className="text-sm text-slate-400">
-              تمرینی برای این دسته پیدا نشد.
+            <p className="mt-2 text-sm leading-7 text-[#3d4947] sm:text-base">
+              {activeModeDescription}
             </p>
-          </Card>
-        ) : null}
-      </section>
+          </div>
+
+          <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {activeMode === "all" ? (
+              <>
+                {orderedScenarios.slice(0, 2).map((scenario) => (
+                  <ScenarioCard key={scenario.id} scenario={scenario} />
+                ))}
+
+                <FreeSpeakingCard />
+
+                {orderedScenarios.slice(2).map((scenario) => (
+                  <ScenarioCard key={scenario.id} scenario={scenario} />
+                ))}
+              </>
+            ) : (
+              orderedScenarios.map((scenario) => (
+                <ScenarioCard key={scenario.id} scenario={scenario} />
+              ))
+            )}
+          </div>
+
+          {filteredScenarios.length === 0 ? (
+            <Card className="mt-6 px-6 py-12 text-center">
+              <p className="text-sm text-slate-400">
+                تمرینی برای این دسته پیدا نشد.
+              </p>
+            </Card>
+          ) : null}
+        </section>
       </div>
     </main>
   );
@@ -244,21 +245,18 @@ type SpeakingStatProps = {
   tone: "slate" | "violet" | "teal" | "orange";
 };
 
-function SpeakingStat({
-  title,
-  value,
-  icon: Icon,
-  tone,
-}: SpeakingStatProps) {
+function SpeakingStat({ title, value, icon: Icon, tone }: SpeakingStatProps) {
   const toneClasses = {
-    slate: "border-[#545c72] bg-[#eef2f7] text-[#545c72]",
-    violet: "border-[#712ae2] bg-[#e7ddf8] text-[#712ae2]",
-    teal: "border-[#00685f] bg-[#f0fdfa] text-[#00685f]",
-    orange: "border-[#f97316] bg-[#fff7ed] text-[#f97316]",
+    slate: "border-[#545c72] bg-[#FFFFFFB2] text-[#545c72] min-h-[106px]",
+    violet: "border-[#712ae2] bg-[#FFFFFFB2] text-[#712ae2] min-h-[98px]",
+    teal: "border-[#00685f] bg-[#FFFFFFB2] text-[#00685f] min-h-[98px]",
+    orange: "border-[#f97316] bg-[#FFFFFFB2] text-[#f97316] min-h-[106px]",
   }[tone];
 
   return (
-    <Card className={cn("min-h-[106px] border-x-4 bg-white px-5 py-6 shadow-sm", toneClasses)}>
+    <Card
+      className={cn(" border-x-4 bg-white px-5 py-6 shadow-sm", toneClasses)}
+    >
       <div className="flex items-center justify-between gap-4">
         <div className="text-right">
           <p className="text-sm text-[#64748b]">{title}</p>
