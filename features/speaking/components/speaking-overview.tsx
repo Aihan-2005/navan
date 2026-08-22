@@ -69,15 +69,16 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
 
   return (
     <main
-      className="mx-auto w-full max-w-5xl space-y-6"
+      className="mx-auto w-full max-w-7xl space-y-6 bg-[#F7F9FB]"
       aria-labelledby="speaking-page-title"
     >
       <section
         className="
-          relative h-64 overflow-hidden rounded-3xl
+          relative h-auto min-h-64 overflow-hidden rounded-3xl
           bg-[linear-gradient(105.3deg,#0D9488_0%,#00685F_100%)]
           pr-9 pl-[41px] py-8
           shadow-[0px_8px_10px_-6px_#0000001A,0px_20px_25px_-5px_#0000001A]
+          sm:h-64
           sm:py-10
         "
       >
@@ -124,32 +125,23 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
           <Link
             href="/speaking/free"
             aria-label="رفتن به صفحه گفت‌وگوی آزاد"
-            className="group inline-flex h-[54px] w-[215px] shrink-0 items-center justify-center self-start rounded-full bg-[#F97316] px-8 py-3 text-[22px] font-bold leading-[30px] text-white shadow-[0_10px_15px_-3px_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 hover:bg-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 md:self-auto"
+            className="group inline-flex h-[54px] w-[215px] shrink-0 items-center justify-center lg:self-auto rounded-full bg-[#F97316] px-8 py-3 text-[22px] font-bold leading-[30px] text-white shadow-[0_10px_15px_-3px_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 hover:bg-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 md:self-center self-center"
           >
             شروع مکالمه آزاد
           </Link>
         </div>
       </section>
 
-      <div className="mx-auto w-full max-w-[936px] space-y-[54px] pb-10">
+      <div className="w-full space-y-[54px] pb-10">
         <section
           aria-label="آمار مکالمه"
           className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
         >
           <SpeakingStat
-            title="جلسه‌های مکالمه"
-            value={numberFormatter.format(overview.stats.totalSessions)}
-            icon={AudioWaveform}
-            tone="slate"
-          />
-
-          <SpeakingStat
-            title="تمرین این هفته"
-            value={`${numberFormatter.format(
-              overview.stats.weeklyMinutes,
-            )} دقیقه`}
-            icon={TimerReset}
-            tone="violet"
+            title="تداوم تمرین"
+            value={`${numberFormatter.format(overview.stats.currentStreak)} روز`}
+            icon={Flame}
+            tone="orange"
           />
 
           <SpeakingStat
@@ -162,10 +154,19 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
           />
 
           <SpeakingStat
-            title="تداوم تمرین"
-            value={`${numberFormatter.format(overview.stats.currentStreak)} روز`}
-            icon={Flame}
-            tone="orange"
+            title="تمرین این هفته"
+            value={`${numberFormatter.format(
+              overview.stats.weeklyMinutes,
+            )} دقیقه`}
+            icon={TimerReset}
+            tone="violet"
+          />
+
+          <SpeakingStat
+            title="جلسه‌های مکالمه"
+            value={numberFormatter.format(overview.stats.totalSessions)}
+            icon={AudioWaveform}
+            tone="slate"
           />
         </section>
 
@@ -181,7 +182,7 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
                     type="button"
                     onClick={() => setActiveMode(filter.value)}
                     className={cn(
-                      "shrink-0 rounded-full border px-5 py-2.5",
+                      "h-[34px] shrink-0 rounded-full border border-[#BCC9C6] px-6 py-2 justify-center text-center",
                       "text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685f]",
                       isActive
                         ? "border-[#00685f] bg-[#00685f] text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.16)]"
@@ -205,7 +206,7 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
             </p>
           </div>
 
-          <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid grid-cols-[minmax(0,1fr)] justify-center gap-6 sm:grid-cols-[repeat(auto-fit,296px)]">
             {activeMode === "all" ? (
               <>
                 {orderedScenarios.slice(0, 2).map((scenario) => (
@@ -247,30 +248,32 @@ type SpeakingStatProps = {
 
 function SpeakingStat({ title, value, icon: Icon, tone }: SpeakingStatProps) {
   const toneClasses = {
-    slate: "border-[#545c72] bg-[#FFFFFFB2] text-[#545c72] min-h-[106px]",
-    violet: "border-[#712ae2] bg-[#FFFFFFB2] text-[#712ae2] min-h-[98px]",
-    teal: "border-[#00685f] bg-[#FFFFFFB2] text-[#00685f] min-h-[98px]",
-    orange: "border-[#f97316] bg-[#FFFFFFB2] text-[#f97316] min-h-[106px]",
+    slate: "h-[106px] text-[#545C72]",
+    violet: "h-[98px] text-[#712AE2]",
+    teal: "h-[98px] text-[#00685F]",
+    orange: "h-[106px] text-[#F97316]",
   }[tone];
 
   return (
     <Card
-      className={cn(" border-x-4 bg-white px-5 py-6 shadow-sm", toneClasses)}
+      className={cn(
+        "relative flex items-center overflow-hidden rounded-[24px] border-x-0 border-y border-current bg-white px-6 py-6 shadow-none",
+        "before:pointer-events-none before:absolute before:inset-y-px before:right-0 before:w-1 before:bg-current",
+        "after:pointer-events-none after:absolute after:inset-y-px after:left-0 after:w-1 after:bg-current",
+        toneClasses,
+      )}
     >
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-right">
-          <p className="text-sm text-[#64748b]">{title}</p>
-
-          <p className="mt-1 text-2xl font-bold text-[#0f172a]">{value}</p>
+      <div className="relative z-10 flex w-full items-center justify-center gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-current/10">
+          <Icon aria-hidden="true" className="h-5 w-5" />
         </div>
 
-        <div
-          className="
-            flex h-12 w-12 items-center justify-center rounded-full
-            border border-current/10 bg-current/10
-          "
-        >
-          <Icon aria-hidden="true" className="h-5 w-5" />
+        <div className="min-w-0 text-right">
+          <p className="text-sm leading-6 text-[#64748B]">{title}</p>
+
+          <p className="mt-1 whitespace-nowrap text-2xl font-bold leading-8 text-[#0F172A]">
+            {value}
+          </p>
         </div>
       </div>
     </Card>

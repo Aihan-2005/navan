@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import Header from "../../layout/header";
 import Sidebar from "../../layout/sidebar";
@@ -23,11 +18,8 @@ type DashboardShellProps = Readonly<{
  * - Locking body scroll while the mobile sidebar is open
  * - Closing the sidebar with the Escape key
  */
-export default function DashboardShell({
-  children,
-}: DashboardShellProps) {
-  const [isSidebarOpen, setIsSidebarOpen] =
-    useState<boolean>(false);
+export default function DashboardShell({ children }: DashboardShellProps) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const closeSidebar = useCallback((): void => {
     setIsSidebarOpen(false);
@@ -47,10 +39,7 @@ export default function DashboardShell({
     document.addEventListener("keydown", handleEscapeKey);
 
     return () => {
-      document.removeEventListener(
-        "keydown",
-        handleEscapeKey,
-      );
+      document.removeEventListener("keydown", handleEscapeKey);
     };
   }, [closeSidebar, isSidebarOpen]);
 
@@ -68,10 +57,7 @@ export default function DashboardShell({
   }, [isSidebarOpen]);
 
   return (
-    <div
-      dir="rtl"
-      className="min-h-dvh bg-[#041121] text-white"
-    >
+    <div dir="rtl" className="min-h-dvh bg-[#F7F9FB] text-white">
       <Header setIsSidebarOpen={setIsSidebarOpen} />
 
       <Sidebar
@@ -83,6 +69,7 @@ export default function DashboardShell({
         id="main-content"
         className="
           min-h-dvh
+          bg-[#F7F9FB]
           px-4 pb-10 pt-24
           sm:px-6
           lg:mr-72 lg:px-8
