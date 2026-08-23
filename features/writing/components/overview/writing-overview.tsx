@@ -20,7 +20,7 @@ type WritingOverviewProps = Readonly<{
 export function WritingOverview({ overview }: WritingOverviewProps) {
   return (
     <main
-      className="mx-auto w-full max-w-7xl space-y-6"
+      className="mx-auto w-full max-w-[936px] space-y-8"
       aria-labelledby="writing-page-title"
       dir="rtl"
     >
@@ -37,15 +37,15 @@ export function WritingOverview({ overview }: WritingOverviewProps) {
       <section>
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-bold text-white">تمرین‌های نوشتاری</h2>
-            <p className="mt-2 text-sm leading-7 text-slate-500">
+            <h2 className="text-[22px] font-semibold text-[#191C1E]">تمرین‌های نوشتاری</h2>
+            <p className="mt-2 text-sm leading-7 text-[#545C72]">
               از میان تمرین‌های متنوع، مناسب‌ترین گزینه را برای هدف امروزت
               انتخاب کن.
             </p>
           </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           <Card className="flex h-full flex-col justify-between p-6" dir="rtl">
             <div>
               <div className="flex items-center gap-2 text-sm text-cyan-300">
@@ -114,7 +114,7 @@ export function WritingOverview({ overview }: WritingOverviewProps) {
         className="rounded-3xl border border-cyan-400/15 bg-slate-950/60 p-6 text-center"
         dir="rtl"
       >
-        <h2 className="text-2xl font-bold text-white">
+        <h2 className="text-[22px] font-semibold text-[#191C1E]">
           آماده‌ای برای شروع یک نوشته‌ی جدید؟
         </h2>
         <p className="mt-3 text-sm leading-8 text-slate-400">

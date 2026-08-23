@@ -14,7 +14,7 @@ export function WritingModeCard({ exercise }: WritingModeCardProps) {
   return (
     <Card
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden p-5",
+        "group relative flex h-[221px] flex-col overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)]",
         "transition duration-300",
         "hover:-translate-y-1 hover:border-cyan-400/20",
       )}
@@ -63,15 +63,15 @@ export function WritingModeCard({ exercise }: WritingModeCardProps) {
           </div>
         </div>
 
-        <p className="mt-5 text-xs font-medium text-cyan-300">
+        <p className="mt-5 text-xs font-medium text-[#0D9488]">
           {exercise.category}
         </p>
 
-        <h3 className="mt-2 text-lg font-bold leading-8 text-white">
+        <h3 className="mt-2 text-[22px] font-bold leading-8 text-[#191C1E]">
           {exercise.title}
         </h3>
 
-        <p className="mt-2 flex-1 text-sm leading-7 text-slate-400">
+        <p className="mt-2 flex-1 text-sm leading-5 text-[#3D4947]">
           {exercise.description}
         </p>
 
