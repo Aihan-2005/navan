@@ -3,18 +3,13 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import {
-  AudioWaveform,
-  Flame,
-  Mic2,
-  TimerReset,
-  TrendingUp,
-} from "lucide-react";
+import { AudioWaveform, Flame, TimerReset, TrendingUp } from "lucide-react";
 
 import { Card } from "../../../components/ui/card";
 import { cn } from "../../../lib/utils/cn";
 
 import { FreeSpeakingCard } from "./free-speaking-card";
+import { ListeningStatCard } from "../../listening/components/overview/listening-stat-card";
 import {
   SPEAKING_MODE_DESCRIPTIONS,
   SPEAKING_MODE_FILTERS,
@@ -69,7 +64,7 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
 
   return (
     <main
-      className="mx-auto w-full max-w-7xl space-y-6 bg-[#F7F9FB]"
+      className="mx-auto w-full max-w-7xl space-y-[54px] bg-[#F7F9FB]"
       aria-labelledby="speaking-page-title"
     >
       <section
@@ -137,14 +132,14 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
           aria-label="آمار مکالمه"
           className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
         >
-          <SpeakingStat
+          <ListeningStatCard
             title="تداوم تمرین"
             value={`${numberFormatter.format(overview.stats.currentStreak)} روز`}
             icon={Flame}
             tone="orange"
           />
 
-          <SpeakingStat
+          <ListeningStatCard
             title="روان بودن گفتار"
             value={`${numberFormatter.format(
               overview.stats.averageFluencyScore,
@@ -153,7 +148,7 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
             tone="teal"
           />
 
-          <SpeakingStat
+          <ListeningStatCard
             title="تمرین این هفته"
             value={`${numberFormatter.format(
               overview.stats.weeklyMinutes,
@@ -162,7 +157,7 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
             tone="violet"
           />
 
-          <SpeakingStat
+          <ListeningStatCard
             title="جلسه‌های مکالمه"
             value={numberFormatter.format(overview.stats.totalSessions)}
             icon={AudioWaveform}
@@ -236,46 +231,5 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
         </section>
       </div>
     </main>
-  );
-}
-
-type SpeakingStatProps = {
-  title: string;
-  value: string;
-  icon: typeof Mic2;
-  tone: "slate" | "violet" | "teal" | "orange";
-};
-
-function SpeakingStat({ title, value, icon: Icon, tone }: SpeakingStatProps) {
-  const toneClasses = {
-    slate: "h-[106px] text-[#545C72]",
-    violet: "h-[98px] text-[#712AE2]",
-    teal: "h-[98px] text-[#00685F]",
-    orange: "h-[106px] text-[#F97316]",
-  }[tone];
-
-  return (
-    <Card
-      className={cn(
-        "relative flex items-center overflow-hidden rounded-[24px] border-x-0 border-y border-current bg-white px-6 py-6 shadow-none",
-        "before:pointer-events-none before:absolute before:inset-y-px before:right-0 before:w-1 before:bg-current",
-        "after:pointer-events-none after:absolute after:inset-y-px after:left-0 after:w-1 after:bg-current",
-        toneClasses,
-      )}
-    >
-      <div className="relative z-10 flex w-full items-center justify-center gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-current/10">
-          <Icon aria-hidden="true" className="h-5 w-5" />
-        </div>
-
-        <div className="min-w-0 text-right">
-          <p className="text-sm leading-6 text-[#64748B]">{title}</p>
-
-          <p className="mt-1 whitespace-nowrap text-2xl font-bold leading-8 text-[#0F172A]">
-            {value}
-          </p>
-        </div>
-      </div>
-    </Card>
   );
 }
