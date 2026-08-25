@@ -146,7 +146,7 @@ export function ListeningOverview({ overview }: ListeningOverviewProps) {
           <div
             className="
               hidden h-[149px] w-[147px] shrink-0 self-center
-              sm:flex
+              lg:flex
               items-center justify-center rounded-full
               bg-[linear-gradient(to_bottom,#14B8A6_100%,#54B5A6_100%)]
               shadow-[0px_8px_10px_0px_#0000001A,0px_20px_25px_0px_#0000001A]
