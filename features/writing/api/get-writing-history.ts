@@ -1,5 +1,9 @@
 import { writingOverviewMock } from "../mocks/writing-overview.mock";
-import type { RecentWriting, WritingExercise } from "../types/writing.types";
+import type {
+  RecentWriting,
+  WritingAnalysisResult,
+  WritingExercise,
+} from "../types/writing.types";
 
 export type WritingHistoryItem = Readonly<{
   id: string;
@@ -9,26 +13,7 @@ export type WritingHistoryItem = Readonly<{
   feedback: string;
   excerpt: string;
   mode: "free" | "exercise" | "draft";
-  analysis: {
-    overallScore: number;
-    grammar: { label: string; score: number; detail: string };
-    vocabulary: { label: string; score: number; detail: string };
-    coherence: { label: string; score: number; detail: string };
-    clarity: { label: string; score: number; detail: string };
-    tone: { label: string; score: number; detail: string };
-    highlightedMistakes: readonly string[];
-    issues: readonly Array<{
-      id: string;
-      title: string;
-      description: string;
-      severity: "کم" | "متوسط" | "زیاد";
-      suggestion: string;
-    }>;
-    repeatedWords: readonly string[];
-    betterVocabulary: readonly string[];
-    rewrittenVersion: string;
-    nextPractice: string;
-  };
+  analysis: WritingAnalysisResult;
   exercise?: WritingExercise;
 }>;
 
