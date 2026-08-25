@@ -1,3 +1,3 @@
 export {
-  default as WritingDashboard,
+  WritingDashboard,
 } from "./writing-dashboard";
