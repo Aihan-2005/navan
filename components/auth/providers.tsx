@@ -1,25 +1,24 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { SessionProvider } from "next-auth/react";
-import { ThemeProvider } from "next-themes";
+import type {
+  ReactNode,
+} from "react";
 
-type ProvidersProps = {
-  children: ReactNode;
-};
+import {
+  SessionProvider,
+} from "next-auth/react";
 
-export function Providers({ children }: ProvidersProps) {
+type ProvidersProps =
+  Readonly<{
+    children: ReactNode;
+  }>;
+
+export function Providers({
+  children,
+}: ProvidersProps) {
   return (
     <SessionProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        enableSystem={false}
-        disableTransitionOnChange
-        storageKey="theme"
-      >
-        {children}
-      </ThemeProvider>
+      {children}
     </SessionProvider>
   );
 }

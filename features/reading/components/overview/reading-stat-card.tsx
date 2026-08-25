@@ -6,7 +6,7 @@ import {
   cn,
 } from "../../../../lib/utils/cn";
 
-type ReadingStatTone =
+export type ReadingStatTone =
   | "teal"
   | "violet"
   | "slate"
@@ -16,16 +16,26 @@ type ReadingStatTone =
 type ReadingStatCardProps =
   Readonly<{
     title: string;
+
     value: string;
+
     description: string;
+
     icon: LucideIcon;
+
     tone?: ReadingStatTone;
   }>;
 
-const toneStyles = {
+type ToneStyle = Readonly<{
+  border: string;
+  iconWrapper: string;
+}>;
+
+const TONE_STYLES = {
   teal: {
     border:
       "border-x-[#00685F]",
+
     iconWrapper:
       "bg-[#D6EDEB] text-[#00685F]",
   },
@@ -33,6 +43,7 @@ const toneStyles = {
   violet: {
     border:
       "border-x-[#712AE2]",
+
     iconWrapper:
       "bg-[#E7DDF8] text-[#712AE2]",
   },
@@ -40,6 +51,7 @@ const toneStyles = {
   slate: {
     border:
       "border-x-[#64748B]",
+
     iconWrapper:
       "bg-[#E2E8F0] text-[#475569]",
   },
@@ -47,6 +59,7 @@ const toneStyles = {
   orange: {
     border:
       "border-x-[#F97316]",
+
     iconWrapper:
       "bg-[#FFF7ED] text-[#EA580C]",
   },
@@ -54,15 +67,13 @@ const toneStyles = {
   emerald: {
     border:
       "border-x-[#059669]",
+
     iconWrapper:
       "bg-[#D1FAE5] text-[#047857]",
   },
 } satisfies Record<
   ReadingStatTone,
-  {
-    border: string;
-    iconWrapper: string;
-  }
+  ToneStyle
 >;
 
 export function ReadingStatCard({
@@ -72,32 +83,42 @@ export function ReadingStatCard({
   icon: Icon,
   tone = "teal",
 }: ReadingStatCardProps) {
-  const selectedTone =
-    toneStyles[tone];
+  const toneStyle =
+    TONE_STYLES[tone];
 
   return (
     <article
       className={cn(
         "flex",
-        "min-h-[106px]",
+        "min-h-[112px]",
         "items-center",
         "gap-4",
+
         "rounded-[24px]",
+
         "border",
         "border-y-[#E2E8F0]",
         "border-x-4",
+
         "bg-white",
+
         "px-5",
         "py-5",
+
         "shadow-[0_2px_8px_rgba(15,23,42,0.055)]",
+
         "transition",
         "duration-200",
+
         "hover:-translate-y-0.5",
+
         "hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)]",
-        selectedTone.border,
+
+        toneStyle.border,
       )}
+      dir="rtl"
     >
-      <div
+      <span
         className={cn(
           "flex",
           "h-12",
@@ -106,15 +127,19 @@ export function ReadingStatCard({
           "items-center",
           "justify-center",
           "rounded-full",
-          selectedTone.iconWrapper,
+
+          toneStyle.iconWrapper,
         )}
       >
         <Icon
           aria-hidden="true"
-          className="h-5 w-5"
+          className="
+            h-5
+            w-5
+          "
           strokeWidth={1.9}
         />
-      </div>
+      </span>
 
       <div
         className="
@@ -147,9 +172,16 @@ export function ReadingStatCard({
           {value}
         </p>
 
-        <span className="sr-only">
+        <p
+          className="
+            mt-1
+            text-[11px]
+            leading-4
+            text-[#94A3B8]
+          "
+        >
           {description}
-        </span>
+        </p>
       </div>
     </article>
   );

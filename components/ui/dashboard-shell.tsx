@@ -28,36 +28,64 @@ export type DashboardAppearance =
   | "light";
 
 /**
- * فقط routeهایی که واقعاً UI روشن دارند
- * باید اینجا قرار بگیرند.
+ * Returns true when pathname is either exactly the route root
+ * or one of its nested/dynamic routes.
  *
- * Reading Resource Detail و Reading Workspace
- * عمداً داخل این لیست نیستند چون UI آن‌ها dark است.
+ * Examples:
+ *
+ * /reading
+ * /reading/library
+ * /reading/resources/:resourceId
+ * /reading/resources/:resourceId/sections/:sectionId
  */
-const LIGHT_DASHBOARD_ROUTES =
-  new Set<string>([
-    "/writing",
+function isRouteWithin(
+  pathname: string,
+  rootPath: string,
+): boolean {
+  return (
+    pathname === rootPath ||
+    pathname.startsWith(
+      `${rootPath}/`,
+    )
+  );
+}
 
-    "/reading",
-    "/reading/library",
-    "/reading/resources",
-    "/reading/upload",
-  ]);
-
+/**
+ * Reading is now a completely light experience.
+ *
+ * Important:
+ * Do not maintain a list of individual Reading routes here.
+ * Reading contains dynamic resource/section routes and every
+ * nested route should receive the same light Header/Sidebar.
+ *
+ * Writing overview is currently light as well.
+ * Nested Writing pages remain unchanged until their visual
+ * system is intentionally migrated.
+ */
 function resolveDashboardAppearance(
   pathname: string,
 ): DashboardAppearance {
-  return LIGHT_DASHBOARD_ROUTES.has(
-    pathname,
-  )
-    ? "light"
-    : "dark";
+  if (
+    isRouteWithin(
+      pathname,
+      "/reading",
+    )
+  ) {
+    return "light";
+  }
+
+  if (pathname === "/writing") {
+    return "light";
+  }
+
+  return "dark";
 }
 
 export default function DashboardShell({
   children,
 }: DashboardShellProps) {
-  const pathname = usePathname();
+  const pathname =
+    usePathname();
 
   const [
     isSidebarOpen,
@@ -74,12 +102,22 @@ export default function DashboardShell({
       setIsSidebarOpen(false);
     }, []);
 
+  /**
+   * A route change must never leave the mobile drawer open.
+   */
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
+
+  /**
+   * Close mobile navigation with Escape.
+   */
   useEffect(() => {
     if (!isSidebarOpen) {
       return;
     }
 
-    function handleEscapeKey(
+    function handleKeyDown(
       event: KeyboardEvent,
     ): void {
       if (event.key === "Escape") {
@@ -89,13 +127,13 @@ export default function DashboardShell({
 
     document.addEventListener(
       "keydown",
-      handleEscapeKey,
+      handleKeyDown,
     );
 
     return () => {
       document.removeEventListener(
         "keydown",
-        handleEscapeKey,
+        handleKeyDown,
       );
     };
   }, [
@@ -103,6 +141,10 @@ export default function DashboardShell({
     isSidebarOpen,
   ]);
 
+  /**
+   * Lock background scrolling while the mobile sidebar
+   * is visible.
+   */
   useEffect(() => {
     if (!isSidebarOpen) {
       document.body.style.removeProperty(
@@ -122,6 +164,9 @@ export default function DashboardShell({
     };
   }, [isSidebarOpen]);
 
+  const isLight =
+    appearance === "light";
+
   return (
     <div
       dir="rtl"
@@ -130,7 +175,7 @@ export default function DashboardShell({
       }
       className={cn(
         "min-h-dvh",
-        appearance === "light"
+        isLight
           ? [
               "bg-[#F7F9FB]",
               "text-[#191C1E]",
@@ -162,10 +207,16 @@ export default function DashboardShell({
         id="main-content"
         className={cn(
           "min-h-dvh",
-          "px-4 pb-16",
+
+          "px-4",
+          "pb-16",
+
           "sm:px-6",
-          "lg:mr-72 lg:px-8",
-          appearance === "light"
+
+          "lg:mr-72",
+          "lg:px-8",
+
+          isLight
             ? [
                 "bg-[#F7F9FB]",
                 "pt-[104px]",

@@ -12,19 +12,24 @@ import {
 
 import "../styles/globals.css";
 
-export const metadata: Metadata = {
+export const metadata:
+  Metadata = {
   title: {
-    default: "Language Assistant",
-    template: "%s | Language Assistant",
+    default:
+      "Language Assistant",
+
+    template:
+      "%s | Language Assistant",
   },
 
   description:
     "AI powered language learning assistant",
 };
 
-type RootLayoutProps = Readonly<{
-  children: ReactNode;
-}>;
+type RootLayoutProps =
+  Readonly<{
+    children: ReactNode;
+  }>;
 
 export default function RootLayout({
   children,
@@ -33,16 +38,15 @@ export default function RootLayout({
     <html
       lang="fa"
       dir="rtl"
-      suppressHydrationWarning
-      className="min-h-full"
+      className="h-full"
     >
       <body
         className="
-          min-h-dvh
-          bg-[#F7F9FB]
-          text-[#191C1E]
+          min-h-full
+          bg-[#041121]
+          font-sans
+          text-white
           antialiased
-          [font-family:var(--font-vazirmatn)]
         "
       >
         <Providers>

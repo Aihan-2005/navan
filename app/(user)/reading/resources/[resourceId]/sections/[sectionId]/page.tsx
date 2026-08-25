@@ -11,8 +11,8 @@ import {
 } from "../../../../../../../features/reading/api/get-reading-section";
 
 import {
-  ReadingDarkSurface,
-} from "../../../../../../../features/reading/components/navigation/reading-dark-surface";
+  ReadingLightSurface,
+} from "../../../../../../../features/reading/components/navigation/reading-light-surface";
 
 import {
   ReadingSectionWorkspace,
@@ -104,7 +104,7 @@ export default async function ReadingSectionPage({
   }
 
   return (
-    <ReadingDarkSurface
+    <ReadingLightSurface
       className="
         mx-auto
         w-full
@@ -114,6 +114,6 @@ export default async function ReadingSectionPage({
       <ReadingSectionWorkspace
         section={section}
       />
-    </ReadingDarkSurface>
+    </ReadingLightSurface>
   );
 }

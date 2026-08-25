@@ -23,8 +23,8 @@ import {
 } from "../../../../../features/reading/components/analysis/reading-saved-resource-notes";
 
 import {
-  ReadingDarkSurface,
-} from "../../../../../features/reading/components/navigation/reading-dark-surface";
+  ReadingLightSurface,
+} from "../../../../../features/reading/components/navigation/reading-light-surface";
 
 import {
   ReadingResourceDetail,
@@ -52,6 +52,7 @@ export async function generateMetadata({
   if (!resource) {
     return {
       title: "منبع پیدا نشد",
+
       description:
         "منبع Reading موردنظر وجود ندارد.",
     };
@@ -59,6 +60,7 @@ export async function generateMetadata({
 
   return {
     title: resource.title,
+
     description:
       resource.description ??
       "جزئیات منبع Reading",
@@ -90,14 +92,19 @@ export default async function ReadingResourcePage({
   }
 
   return (
-    <ReadingDarkSurface
+    <ReadingLightSurface
       className="
         mx-auto
         w-full
         max-w-[1400px]
       "
     >
-      <div className="space-y-8">
+      <div
+        className="
+          space-y-8
+          pb-8
+        "
+      >
         <ReadingResourceDetail
           resource={resource}
         />
@@ -117,7 +124,6 @@ export default async function ReadingResourcePage({
           </>
         ) : null}
       </div>
-    </ReadingDarkSurface>
+    </ReadingLightSurface>
   );
 }
-

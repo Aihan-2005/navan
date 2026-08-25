@@ -1,0 +1,256 @@
+.root {
+  --reading-page-bg: #f7f9fb;
+  --reading-surface: #ffffff;
+  --reading-surface-soft: #f8fafc;
+
+  --reading-border: #e2e8f0;
+  --reading-border-strong: #cbd5e1;
+
+  --reading-title: #0f172a;
+  --reading-body: #334155;
+  --reading-muted: #64748b;
+
+  --reading-primary: #00685f;
+  --reading-primary-hover: #005a52;
+  --reading-primary-soft: #e6f2f0;
+}
+
+/*
+ * -----------------------------------------
+ * Legacy dark typography → light typography
+ * -----------------------------------------
+ */
+
+.root [class~="text-white"] {
+  color: var(--reading-title) !important;
+}
+
+.root [class~="text-slate-100"],
+.root [class~="text-slate-200"] {
+  color: #1e293b !important;
+}
+
+.root [class~="text-slate-300"] {
+  color: #334155 !important;
+}
+
+.root [class~="text-slate-400"] {
+  color: #475569 !important;
+}
+
+.root [class~="text-slate-500"],
+.root [class~="text-slate-600"],
+.root [class~="text-slate-700"] {
+  color: var(--reading-muted) !important;
+}
+
+/*
+ * -----------------------------------------
+ * Dark transparent cards → white cards
+ * -----------------------------------------
+ */
+
+.root [class~="bg-white/[0.025]"],
+.root [class~="bg-white/[0.035]"],
+.root [class~="bg-white/[0.04]"],
+.root [class~="bg-white/[0.045]"],
+.root [class~="bg-white/[0.05]"],
+.root [class~="bg-white/[0.06]"],
+.root [class~="bg-white/[0.07]"],
+.root [class~="bg-white/[0.08]"],
+.root [class~="bg-white/[0.1]"] {
+  background-color: var(--reading-surface) !important;
+}
+
+/*
+ * -----------------------------------------
+ * Legacy borders
+ * -----------------------------------------
+ */
+
+.root [class~="border-white/10"],
+.root [class~="border-white/[0.06]"],
+.root [class~="border-white/[0.08]"],
+.root [class~="border-white/[0.1]"],
+.root [class~="border-white/[0.12]"] {
+  border-color: var(--reading-border) !important;
+}
+
+/*
+ * -----------------------------------------
+ * Hover states
+ * -----------------------------------------
+ */
+
+.root [class~="hover:bg-white/[0.045]"]:hover,
+.root [class~="hover:bg-white/[0.06]"]:hover,
+.root [class~="hover:bg-white/[0.07]"]:hover,
+.root [class~="hover:bg-white/[0.1]"]:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.root [class~="hover:text-white"]:hover {
+  color: var(--reading-primary) !important;
+}
+
+/*
+ * -----------------------------------------
+ * Cyan → Navan teal
+ * -----------------------------------------
+ */
+
+.root [class~="text-cyan-200"],
+.root [class~="text-cyan-300"],
+.root [class~="text-cyan-400"] {
+  color: #0f766e !important;
+}
+
+.root [class~="border-cyan-400/10"],
+.root [class~="border-cyan-400/15"],
+.root [class~="border-cyan-400/20"] {
+  border-color: rgba(13, 148, 136, 0.22) !important;
+}
+
+.root [class~="bg-cyan-400/10"] {
+  background-color: #e6f2f0 !important;
+}
+
+.root [class~="bg-cyan-500/15"] {
+  background-color: rgba(13, 148, 136, 0.08) !important;
+}
+
+/*
+ * CTAهای اصلی
+ */
+.root [class~="bg-cyan-400"] {
+  background-color: #0d9488 !important;
+}
+
+.root
+  [class~="bg-cyan-400"][class~="text-slate-950"] {
+  color: #ffffff !important;
+}
+
+.root [class~="hover:bg-cyan-300"]:hover {
+  background-color: #0f766e !important;
+}
+
+/*
+ * -----------------------------------------
+ * Violet
+ * -----------------------------------------
+ */
+
+.root [class~="text-violet-200"],
+.root [class~="text-violet-300"] {
+  color: #6d28d9 !important;
+}
+
+.root [class~="bg-violet-400/[0.05]"],
+.root [class~="bg-violet-400/[0.08]"],
+.root [class~="bg-violet-400/10"] {
+  background-color: #f3e8ff !important;
+}
+
+.root [class~="border-violet-400/10"],
+.root [class~="border-violet-400/15"] {
+  border-color: #e9d5ff !important;
+}
+
+.root [class~="bg-violet-500/10"] {
+  background-color: rgba(113, 42, 226, 0.045) !important;
+}
+
+/*
+ * -----------------------------------------
+ * Success / warning / error
+ * -----------------------------------------
+ */
+
+.root [class~="text-emerald-300"] {
+  color: #047857 !important;
+}
+
+.root [class~="bg-emerald-400/10"],
+.root [class~="bg-emerald-400/[0.05]"] {
+  background-color: #ecfdf5 !important;
+}
+
+.root [class~="border-emerald-400/20"] {
+  border-color: #a7f3d0 !important;
+}
+
+.root [class~="text-amber-300"] {
+  color: #b45309 !important;
+}
+
+.root [class~="bg-amber-400/10"],
+.root [class~="bg-amber-400/[0.04]"] {
+  background-color: #fffbeb !important;
+}
+
+.root [class~="border-amber-400/20"] {
+  border-color: #fde68a !important;
+}
+
+.root [class~="text-red-300"] {
+  color: #b91c1c !important;
+}
+
+.root [class~="bg-red-400/10"] {
+  background-color: #fef2f2 !important;
+}
+
+/*
+ * -----------------------------------------
+ * Default Card component
+ *
+ * Card فعلی پروژه dark-first است و shadow بسیار سنگین
+ * دارد. تمام Cardهای داخل Reading را به سبک Overview
+ * نزدیک می‌کنیم.
+ * -----------------------------------------
+ */
+
+.root [class~="backdrop-blur-sm"] {
+  backdrop-filter: none !important;
+}
+
+.root
+  [class~="shadow-[0_18px_50px_rgba(0,0,0,0.18)]"] {
+  box-shadow:
+    0 4px 20px rgba(15, 23, 42, 0.05) !important;
+}
+
+/*
+ * لینک‌ها و کنترل‌های فوکوس‌پذیر
+ */
+.root a,
+.root button {
+  outline-color: var(--reading-primary);
+}
+
+/*
+ * scrollbar برای پنل‌های واژگان و تحلیل
+ */
+.root * {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.root *::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.root *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.root *::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+
+.root *::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

@@ -2,10 +2,10 @@ import Link from "next/link";
 
 import {
   BookOpenText,
+  CalendarDays,
   CheckCircle2,
   Clock3,
   TimerReset,
-  WholeWord,
 } from "lucide-react";
 
 import type {
@@ -30,11 +30,31 @@ import {
 
 type ReadingOverviewProps =
   Readonly<{
-    overview: ReadingOverviewData;
+    overview:
+      ReadingOverviewData;
   }>;
 
 const numberFormatter =
   new Intl.NumberFormat("fa-IR");
+
+function createReadingResourceHref(
+  resourceId: string,
+): string {
+  return `/reading/resources/${encodeURIComponent(
+    resourceId,
+  )}`;
+}
+
+function createReadingSectionHref(
+  resourceId: string,
+  sectionId: string,
+): string {
+  return `${createReadingResourceHref(
+    resourceId,
+  )}/sections/${encodeURIComponent(
+    sectionId,
+  )}`;
+}
 
 export function ReadingOverview({
   overview,
@@ -48,24 +68,21 @@ export function ReadingOverview({
     recentActivities,
   } = overview;
 
-  const continueHref =
-    continueReading?.currentSectionId
-      ? `/reading/resources/${encodeURIComponent(
-          continueReading.resourceId,
-        )}/sections/${encodeURIComponent(
-          continueReading.currentSectionId,
-        )}`
-      : continueReading
-        ? `/reading/resources/${encodeURIComponent(
-            continueReading.resourceId,
-          )}`
-        : "/reading/library";
-
   const detailsHref =
     continueReading
-      ? `/reading/resources/${encodeURIComponent(
+      ? createReadingResourceHref(
           continueReading.resourceId,
-        )}`
+        )
+      : "/reading/library";
+
+  const continueHref =
+    continueReading
+      ? continueReading.currentSectionId
+        ? createReadingSectionHref(
+            continueReading.resourceId,
+            continueReading.currentSectionId,
+          )
+        : detailsHref
       : "/reading/library";
 
   return (
@@ -83,6 +100,7 @@ export function ReadingOverview({
         pb-8
         text-[#191C1E]
       "
+      dir="rtl"
     >
       {continueReading ? (
         <section
@@ -135,7 +153,7 @@ export function ReadingOverview({
               <span
                 className="
                   inline-flex
-                  min-h-[24px]
+                  min-h-6
                   items-center
                   rounded-md
                   bg-[#00685F]/10
@@ -221,6 +239,7 @@ export function ReadingOverview({
                     <Clock3
                       aria-hidden="true"
                       className="h-4 w-4"
+                      strokeWidth={1.8}
                     />
 
                     حدود{" "}
@@ -316,6 +335,7 @@ export function ReadingOverview({
                   <BookOpenText
                     aria-hidden="true"
                     className="h-4 w-4"
+                    strokeWidth={1.8}
                   />
 
                   ادامه مطالعه
@@ -332,7 +352,7 @@ export function ReadingOverview({
                     rounded-lg
                     border
                     border-[#64748B]
-                    bg-white/55
+                    bg-white/70
                     px-6
                     text-sm
                     font-bold
@@ -353,70 +373,12 @@ export function ReadingOverview({
               </div>
             </div>
 
-            <div
-              aria-hidden="true"
-              className="
-                mx-auto
-                hidden
-                h-[169px]
-                w-[134px]
-                shrink-0
-                -rotate-[9.9deg]
-                rounded-xl
-                border
-                border-[#AFC7C3]
-                bg-white
-                shadow-[0_12px_30px_rgba(15,23,42,0.12)]
-                md:block
-              "
-            >
-              <div
-                className="
-                  mx-auto
-                  mt-7
-                  h-2
-                  w-16
-                  rounded-full
-                  bg-[#9ABBB6]
-                "
-              />
-
-              <div
-                className="
-                  mx-auto
-                  mt-4
-                  h-1.5
-                  w-[84px]
-                  rounded-full
-                  bg-[#CBDAD8]
-                "
-              />
-
-              <div
-                className="
-                  mx-auto
-                  mt-2
-                  h-1.5
-                  w-[72px]
-                  rounded-full
-                  bg-[#CBDAD8]
-                "
-              />
-
-              <div
-                className="
-                  mx-auto
-                  mt-2
-                  h-1.5
-                  w-20
-                  rounded-full
-                  bg-[#CBDAD8]
-                "
-              />
-            </div>
+            <ReadingBookIllustration />
           </div>
         </section>
-      ) : null}
+      ) : (
+        <EmptyContinueReadingState />
+      )}
 
       <section
         aria-label="آمار مطالعه"
@@ -429,11 +391,11 @@ export function ReadingOverview({
         "
       >
         <ReadingStatCard
-          title="جلسه‌های مطالعه"
+          title="منابع تکمیل‌شده"
           value={numberFormatter.format(
-            stats.totalSessions,
+            stats.completedResources,
           )}
-          description="تعداد جلسه‌های مطالعه ثبت‌شده"
+          description="منابعی که مطالعه آن‌ها کامل شده است"
           icon={BookOpenText}
           tone="teal"
         />
@@ -449,12 +411,12 @@ export function ReadingOverview({
         />
 
         <ReadingStatCard
-          title="واژگان تثبیت‌شده"
-          value={numberFormatter.format(
-            stats.masteredWords,
-          )}
-          description="تعداد واژگان یادگرفته‌شده"
-          icon={WholeWord}
+          title="روزهای فعال این هفته"
+          value={`${numberFormatter.format(
+            stats.activeDaysThisWeek,
+          )} روز`}
+          description="روزهایی که در این هفته مطالعه داشته‌ای"
+          icon={CalendarDays}
           tone="slate"
         />
 
@@ -463,7 +425,7 @@ export function ReadingOverview({
           value={numberFormatter.format(
             stats.completedSections,
           )}
-          description="تعداد بخش‌هایی که مطالعه آن‌ها کامل شده است"
+          description="بخش‌هایی که مطالعه آن‌ها کامل شده است"
           icon={CheckCircle2}
           tone="emerald"
         />
@@ -484,7 +446,9 @@ export function ReadingOverview({
           "
         >
           <ReadingLearningJourneyCard
-            journey={learningJourney}
+            journey={
+              learningJourney
+            }
           />
 
           <ReadingRecentActivityCard
@@ -495,10 +459,195 @@ export function ReadingOverview({
         </div>
 
         <ReadingOverviewSidePanel
-          weeklyGoal={weeklyGoal}
-          insight={primaryInsight}
+          weeklyGoal={
+            weeklyGoal
+          }
+          insight={
+            primaryInsight
+          }
         />
       </section>
     </main>
+  );
+}
+
+function ReadingBookIllustration() {
+  return (
+    <div
+      aria-hidden="true"
+      className="
+        mx-auto
+        hidden
+        h-[169px]
+        w-[134px]
+        shrink-0
+        -rotate-[9.9deg]
+        rounded-xl
+        border
+        border-[#AFC7C3]
+        bg-white
+        shadow-[0_12px_30px_rgba(15,23,42,0.12)]
+        md:block
+      "
+    >
+      <div
+        className="
+          mx-auto
+          mt-7
+          h-2
+          w-16
+          rounded-full
+          bg-[#9ABBB6]
+        "
+      />
+
+      <div
+        className="
+          mx-auto
+          mt-4
+          h-1.5
+          w-[84px]
+          rounded-full
+          bg-[#CBDAD8]
+        "
+      />
+
+      <div
+        className="
+          mx-auto
+          mt-2
+          h-1.5
+          w-[72px]
+          rounded-full
+          bg-[#CBDAD8]
+        "
+      />
+
+      <div
+        className="
+          mx-auto
+          mt-2
+          h-1.5
+          w-20
+          rounded-full
+          bg-[#CBDAD8]
+        "
+      />
+
+      <div
+        className="
+          mx-auto
+          mt-5
+          flex
+          h-10
+          w-10
+          items-center
+          justify-center
+          rounded-full
+          bg-[#D6EDEB]
+          text-[#00685F]
+        "
+      >
+        <BookOpenText
+          className="
+            h-5
+            w-5
+          "
+          strokeWidth={1.8}
+        />
+      </div>
+    </div>
+  );
+}
+
+function EmptyContinueReadingState() {
+  return (
+    <section
+      className="
+        rounded-2xl
+        border
+        border-[#DDE5E4]
+        bg-white
+        p-6
+        shadow-[0_4px_20px_rgba(15,23,42,0.04)]
+        sm:p-8
+      "
+    >
+      <div
+        className="
+          flex
+          flex-col
+          items-start
+          gap-5
+          sm:flex-row
+          sm:items-center
+          sm:justify-between
+        "
+      >
+        <div>
+          <span
+            className="
+              flex
+              h-12
+              w-12
+              items-center
+              justify-center
+              rounded-xl
+              bg-[#D6EDEB]
+              text-[#00685F]
+            "
+          >
+            <BookOpenText
+              aria-hidden="true"
+              className="h-6 w-6"
+            />
+          </span>
+
+          <h1
+            id="reading-page-title"
+            className="
+              mt-4
+              text-2xl
+              font-bold
+              text-[#0F172A]
+            "
+          >
+            مطالعه بعدی را شروع کن
+          </h1>
+
+          <p
+            className="
+              mt-2
+              text-sm
+              leading-7
+              text-[#64748B]
+            "
+          >
+            هنوز مطالعه نیمه‌تمامی وجود ندارد.
+            از کتابخانه یک منبع مناسب انتخاب کن.
+          </p>
+        </div>
+
+        <Link
+          href="/reading/library"
+          className="
+            inline-flex
+            h-11
+            items-center
+            justify-center
+            rounded-lg
+            bg-[#00685F]
+            px-6
+            text-sm
+            font-bold
+            text-white
+            transition
+            hover:bg-[#005A52]
+          "
+        >
+          رفتن به کتابخانه
+        </Link>
+      </div>
+    </section>
   );
 }

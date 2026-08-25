@@ -17,12 +17,12 @@ import {
   READING_SAVED_ITEMS_CHANGED_EVENT,
   READING_SAVED_ITEMS_STORAGE_KEY,
   readReadingSavedItems,
+  removeReadingSavedItem,
   toggleReadingSavedItem,
 } from "../utils/reading-notes.storage";
 
 export function useReadingSavedItems(
-  resourceId?:
-    string,
+  resourceId?: string,
 ) {
   const [
     allItems,
@@ -51,8 +51,7 @@ export function useReadingSavedItems(
     }
 
     function handleStorageChange(
-      event:
-        StorageEvent,
+      event: StorageEvent,
     ): void {
       if (
         event.key ===
@@ -90,9 +89,7 @@ export function useReadingSavedItems(
   const items =
     useMemo(
       () => {
-        if (
-          !resourceId
-        ) {
+        if (!resourceId) {
           return allItems;
         }
 
@@ -113,8 +110,7 @@ export function useReadingSavedItems(
   const isSaved =
     useCallback(
       (
-        itemId:
-          string,
+        itemId: string,
       ): boolean =>
         allItems.some(
           (
@@ -162,6 +158,22 @@ export function useReadingSavedItems(
       ],
     );
 
+  const removeSavedItem =
+    useCallback(
+      (
+        itemId: string,
+      ): void => {
+        removeReadingSavedItem(
+          itemId,
+        );
+
+        refresh();
+      },
+      [
+        refresh,
+      ],
+    );
+
   return {
     items,
 
@@ -172,6 +184,8 @@ export function useReadingSavedItems(
     toggleSavedItem,
 
     ensureSavedItem,
+
+    removeSavedItem,
 
     refresh,
   };
