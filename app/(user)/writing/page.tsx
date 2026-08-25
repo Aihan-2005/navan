@@ -1,7 +1,15 @@
-import { getWritingOverview, WritingOverview } from "../../../features/writing";
+import {
+  getWritingOverview,
+  WritingOverview,
+} from "../../../features/writing";
 
 export default async function WritingPage() {
-  const overview = await getWritingOverview();
+  const overview =
+    await getWritingOverview();
 
-  return <WritingOverview overview={overview} />;
+  return (
+    <WritingOverview
+      overview={overview}
+    />
+  );
 }

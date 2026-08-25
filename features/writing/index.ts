@@ -89,10 +89,15 @@ export type {
   RecentWriting,
 
   WritingActionPlanItem,
+
   WritingAiCoach,
+
   WritingAnalysisEngine,
+
   WritingAnalysisIssue,
+
   WritingAnalysisMetric,
+
   WritingAnalysisResult,
 
   WritingCefrLevel,
@@ -108,15 +113,19 @@ export type {
   WritingFeedbackPoint,
 
   WritingIssueCategory,
+
   WritingIssueSeverity,
 
   WritingMode,
 
   WritingOverview as WritingOverviewType,
+
   WritingOverviewData,
+
   WritingOverviewStats,
 
   WritingParagraphFeedback,
+
   WritingParagraphRole,
 
   WritingRewriteChange,
@@ -127,3 +136,5 @@ export type {
 
   WritingWeakPoint,
 } from "./types/writing.types";
+
+

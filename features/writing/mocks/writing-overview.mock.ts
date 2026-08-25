@@ -15,7 +15,7 @@ export const writingOverviewMock: Omit<WritingOverviewData, 'recommendedExercise
       "در این متن به‌تدریج نکات اصلی و ساختار مناسب برای نوشتن یک نامه رسمی را مرور می‌کنم...",
     wordCount: 268,
     targetWordCount: 350,
-    progressPercent: 77,
+    progressPercent: 35,
   },
   exercises: [
     {
@@ -85,7 +85,7 @@ export const writingOverviewMock: Omit<WritingOverviewData, 'recommendedExercise
         "تأثیر این خاطره بر زندگی‌ات را بیان کن.",
       ],
       targetWritingGoal: "توصیف احساسی و روایی",
-      expectedWordCount: 240,
+      expectedWordCount: 180,
     },
     {
       id: "short-article-writing",

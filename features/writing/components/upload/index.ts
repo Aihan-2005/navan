@@ -1,3 +1,11 @@
-export { DocumentDropzone } from "./document-dropzone";
-export { DocumentExtractionState } from "./document-extraction-state";
-export { UploadedDocumentCard } from "./uploaded-document-card";
+export {
+  WritingUploadBox,
+} from "./writing-upload-box";
+
+export {
+  WritingFilePreview,
+} from "./writing-file-preview";
+
+export {
+  WritingUploadProgress,
+} from "./writing-upload-progress";

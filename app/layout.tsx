@@ -2,6 +2,10 @@ import type {
   Metadata,
 } from "next";
 
+import type {
+  ReactNode,
+} from "react";
+
 import {
   Providers,
 } from "../components/auth/providers";
@@ -10,22 +14,17 @@ import "../styles/globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default:
-      "Language Assistant",
-
-    template:
-      "%s | Language Assistant",
+    default: "Language Assistant",
+    template: "%s | Language Assistant",
   },
 
   description:
     "AI powered language learning assistant",
 };
 
-type RootLayoutProps =
-  Readonly<{
-    children:
-      React.ReactNode;
-  }>;
+type RootLayoutProps = Readonly<{
+  children: ReactNode;
+}>;
 
 export default function RootLayout({
   children,
@@ -35,15 +34,15 @@ export default function RootLayout({
       lang="fa"
       dir="rtl"
       suppressHydrationWarning
-      className="h-full"
+      className="min-h-full"
     >
       <body
         className="
-          min-h-full
-          bg-[#041121]
-          font-sans
-          text-white
+          min-h-dvh
+          bg-[#F7F9FB]
+          text-[#191C1E]
           antialiased
+          [font-family:var(--font-vazirmatn)]
         "
       >
         <Providers>

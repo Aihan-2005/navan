@@ -1,128 +1,125 @@
-import {
-  recentWritingSchema,
-} from "../schemas/writing.schema";
-
 import type {
   RecentWriting,
 } from "../types/writing.types";
 
-const WRITING_SUBMISSION_STORAGE_PREFIX =
-  "navan:writing:submission";
 
-function getStorageKey(
-  submissionId:
-    string,
-): string {
-  return `${WRITING_SUBMISSION_STORAGE_PREFIX}:${submissionId}`;
-}
+
+const STORAGE_KEY =
+  "writing-submissions";
+
+
 
 export function saveWritingSubmission(
-  submission:
-    RecentWriting,
+  submission: RecentWriting,
 ): boolean {
+
   if (
-    typeof window ===
-    "undefined"
+    typeof window === "undefined"
   ) {
     return false;
   }
 
-  const parsed =
-    recentWritingSchema.safeParse(
-      submission,
-    );
-
-  if (
-    !parsed.success
-  ) {
-    console.error(
-      "Cannot persist invalid writing submission:",
-      parsed.error.flatten(),
-    );
-
-    return false;
-  }
 
   try {
-    window.localStorage.setItem(
-      getStorageKey(
-        submission.id,
-      ),
-      JSON.stringify(
-        parsed.data,
-      ),
+
+    const current =
+      readAll();
+
+
+    const updated =
+      [
+        submission,
+        ...current.filter(
+          item =>
+            item.id !== submission.id,
+        ),
+      ];
+
+
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(updated),
     );
+
 
     return true;
-  } catch (
-    error
-  ) {
-    console.error(
-      "Writing submission persistence failed:",
-      error,
-    );
+
+
+  } catch {
 
     return false;
+
   }
+
 }
 
+
+
 export function readWritingSubmission(
-  submissionId:
-    string,
+  id: string,
 ): RecentWriting | null {
+
+
+  const submissions =
+    readAll();
+
+
+
+  return (
+    submissions.find(
+      item =>
+        item.id === id,
+    )
+    ??
+    null
+  );
+
+}
+
+
+
+function readAll(): RecentWriting[] {
+
   if (
-    typeof window ===
-    "undefined"
+    typeof window === "undefined"
   ) {
-    return null;
+    return [];
   }
+
 
   try {
-    const serialized =
-      window.localStorage.getItem(
-        getStorageKey(
-          submissionId,
-        ),
+
+    const value =
+      localStorage.getItem(
+        STORAGE_KEY,
       );
 
-    if (
-      !serialized
-    ) {
-      return null;
+
+    if (!value) {
+      return [];
     }
 
-    const parsedJson:
-      unknown =
-        JSON.parse(
-          serialized,
-        );
 
-    const result =
-      recentWritingSchema.safeParse(
-        parsedJson,
-      );
+    const parsed =
+      JSON.parse(value);
+
+
 
     if (
-      !result.success
+      !Array.isArray(parsed)
     ) {
-      window.localStorage.removeItem(
-        getStorageKey(
-          submissionId,
-        ),
-      );
-
-      return null;
+      return [];
     }
 
-    return result.data;
-  } catch (
-    error
-  ) {
-    console.error(
-      "Writing submission read failed:",
-      error,
-    );
 
-    return null;
+    return parsed;
+
+
+  } catch {
+
+    return [];
+
   }
+
 }

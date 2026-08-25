@@ -11,132 +11,107 @@ import {
   saveWritingSubmission,
 } from "../utils/writing-submission-storage";
 
+
 export type SubmitWritingAnalysisRequest =
   Readonly<{
-    content:
-      string;
+    content: string;
 
-    exerciseId?:
-      string;
+    exerciseId?: string;
 
-    mode:
-      WritingMode;
+    mode: WritingMode;
 
-    context?:
-      Readonly<{
-        title?:
-          string;
+    context?: Readonly<{
+      title?: string;
 
-        prompt?:
-          string;
+      prompt?: string;
 
-        writingGoal?:
-          string;
-      }>;
+      writingGoal?: string;
+    }>;
   }>;
+
 
 export type SubmitWritingAnalysisResponse =
   Readonly<{
-    success:
-      boolean;
+    success: boolean;
 
-    submissionId?:
-      string;
+    submissionId?: string;
 
-    error?:
-      string;
+    error?: string;
   }>;
 
-function createSubmissionId():
-  string {
+
+function createSubmissionId(): string {
+
   if (
-    typeof crypto !==
-      "undefined" &&
-    typeof crypto.randomUUID ===
-      "function"
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
   ) {
     return `writing-${crypto.randomUUID()}`;
   }
 
+
   return `writing-${Date.now()}-${Math.random()
-    .toString(
-      36,
-    )
-    .slice(
-      2,
-      9,
-    )}`;
+    .toString(36)
+    .slice(2, 10)}`;
 }
 
+
+
 function createExcerpt(
-  content:
-    string,
+  text: string,
 ): string {
+
   const normalized =
-    content
+    text
       .trim()
-      .replace(
-        /\s+/gu,
-        " ",
-      );
+      .replace(/\s+/gu, " ");
+
 
   if (
-    normalized.length <=
-    220
+    normalized.length <= 220
   ) {
     return normalized;
   }
 
-  return `${normalized.slice(
-    0,
-    217,
-  )}...`;
+
+  return `${normalized.slice(0, 217)}...`;
 }
 
+
+
 export async function submitWritingAnalysis(
-  request:
-    SubmitWritingAnalysisRequest,
+  request: SubmitWritingAnalysisRequest,
 ): Promise<SubmitWritingAnalysisResponse> {
+
+
   const content =
     request.content.trim();
 
-  /**
-   * هیچ Word Count Limit نداریم.
-   *
-   * تنها چیزی که قابل تحلیل نیست،
-   * متن کاملاً خالی است.
-   */
-  if (
-    !content
-  ) {
+
+
+  if (!content) {
+
     return {
-      success:
-        false,
+      success: false,
 
       error:
-        "برای تحلیل باید حداقل مقداری متن وارد شود.",
+        "برای تحلیل باید متن وارد شود.",
     };
   }
 
-  /**
-   * Mock latency.
-   *
-   * بعداً این بخش مستقیماً با Backend API
-   * جایگزین می‌شود.
-   */
+
+
   await new Promise(
-    (
-      resolve,
-    ) => {
-      window.setTimeout(
-        resolve,
-        900,
-      );
-    },
+    (resolve) =>
+      setTimeout(resolve, 800),
   );
+
+
 
   const submissionId =
     createSubmissionId();
+
+
 
   const analysis =
     createWritingAnalysisMock(
@@ -149,71 +124,87 @@ export async function submitWritingAnalysis(
           request.context?.prompt,
 
         writingGoal:
-          request.context
-            ?.writingGoal,
+          request.context?.writingGoal,
       },
     );
 
-  const submission:
-    RecentWriting =
+
+
+  const submission: RecentWriting =
     {
+
       id:
         submissionId,
+
 
       title:
         request.context?.title ??
         (
-          request.mode ===
-          "free"
+          request.mode === "free"
             ? "نوشتن آزاد"
-            : request.mode ===
-                "draft"
-              ? "ادامه پیش‌نویس"
-              : "تمرین نوشتاری"
+            :
+          request.mode === "draft"
+            ? "ادامه پیش‌نویس"
+            :
+          "تمرین Writing"
         ),
+
 
       date:
         "همین الان",
 
+
       score:
         analysis.overallScore,
+
 
       feedback:
         analysis.aiCoach?.headline ??
         analysis.nextPractice,
 
+
       excerpt:
-        createExcerpt(
-          content,
-        ),
+        createExcerpt(content),
+
 
       mode:
         request.mode,
 
+
       analysis,
+
     };
 
-  const persisted =
+
+
+  const saved =
     saveWritingSubmission(
       submission,
     );
 
-  if (
-    !persisted
-  ) {
+
+
+  if (!saved) {
+
     return {
-      success:
-        false,
+
+      success: false,
 
       error:
-        "ذخیره نتیجه تحلیل در مرورگر انجام نشد. دوباره تلاش کن.",
+        "ذخیره نتیجه تحلیل انجام نشد.",
+
     };
+
   }
 
+
+
   return {
-    success:
-      true,
+
+    success: true,
 
     submissionId,
+
   };
+
 }

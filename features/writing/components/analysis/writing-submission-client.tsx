@@ -1,212 +1,174 @@
 "use client";
 
-import Link from "next/link";
 
-import {
-  LoaderCircle,
-} from "lucide-react";
+import Link from "next/link";
 
 import {
   useEffect,
   useState,
 } from "react";
 
+
+import {
+  LoaderCircle,
+} from "lucide-react";
+
+
 import type {
   RecentWriting,
 } from "../../types/writing.types";
+
 
 import {
   readWritingSubmission,
 } from "../../utils/writing-submission-storage";
 
+
 import {
   WritingAnalysisView,
 } from "./writing-analysis-view";
 
-type WritingSubmissionClientProps =
-  Readonly<{
-    submissionId:
-      string;
 
-    fallbackSubmission?:
-      RecentWriting;
+
+type Props =
+  Readonly<{
+    submissionId: string;
+
+    fallbackSubmission?: RecentWriting;
   }>;
+
+
 
 export function WritingSubmissionClient({
   submissionId,
+
   fallbackSubmission,
-}: WritingSubmissionClientProps) {
+}: Props) {
+
+
   const [
     submission,
     setSubmission,
   ] =
     useState<RecentWriting | null>(
-      fallbackSubmission ??
-      null,
+      fallbackSubmission ?? null,
     );
+
 
   const [
-    isReady,
-    setIsReady,
+    loading,
+    setLoading,
   ] =
-    useState(
-      Boolean(
-        fallbackSubmission,
-      ),
-    );
+    useState(true);
 
-  useEffect(() => {
-    const localSubmission =
-      readWritingSubmission(
-        submissionId,
-      );
 
-    if (
-      localSubmission
-    ) {
-      setSubmission(
-        localSubmission,
-      );
-    } else if (
-      fallbackSubmission
-    ) {
-      setSubmission(
-        fallbackSubmission,
-      );
-    } else {
-      setSubmission(
-        null,
-      );
-    }
 
-    setIsReady(
-      true,
-    );
-  }, [
-    fallbackSubmission,
-    submissionId,
-  ]);
+  useEffect(
+    () => {
 
-  if (
-    !isReady
-  ) {
+
+      const result =
+        readWritingSubmission(
+          submissionId,
+        );
+
+
+      if (result) {
+
+        setSubmission(result);
+
+      }
+
+
+      setLoading(false);
+
+
+    },
+    [
+      submissionId,
+    ],
+  );
+
+
+
+  if (loading) {
+
     return (
-      <main
-        className="
-          mx-auto
-          flex
-          min-h-[60vh]
-          w-full
-          max-w-6xl
-          items-center
-          justify-center
-        "
-      >
-        <div
-          className="
-            text-center
-          "
-        >
-          <LoaderCircle
-            aria-hidden="true"
-            className="
-              mx-auto
-              h-7
-              w-7
-              animate-spin
-              text-cyan-300
-            "
-          />
 
-          <p
-            className="
-              mt-4
-              text-sm
-              text-slate-500
-            "
-          >
-            در حال بارگذاری تحلیل...
-          </p>
-        </div>
+      <main className="flex min-h-[60vh] items-center justify-center">
+
+        <LoaderCircle
+          className="animate-spin text-cyan-400"
+        />
+
       </main>
+
     );
+
   }
 
-  if (
-    !submission
-  ) {
+
+
+  if (!submission) {
+
     return (
+
       <main
-        className="
-          mx-auto
-          w-full
-          max-w-6xl
-          space-y-6
-        "
         dir="rtl"
+        className="
+          mx-auto
+          max-w-5xl
+          rounded-3xl
+          border
+          border-white/10
+          bg-slate-950
+          p-8
+        "
       >
-        <section
+
+        <h1
           className="
-            rounded-3xl
-            border
-            border-white/10
-            bg-slate-950/60
-            p-6
+            text-2xl
+            font-bold
+            text-white
           "
         >
-          <h1
-            className="
-              text-2xl
-              font-bold
-              text-white
-            "
-          >
-            نوشته یافت نشد
-          </h1>
+          تحلیل پیدا نشد
+        </h1>
 
-          <p
-            className="
-              mt-4
-              text-sm
-              leading-8
-              text-slate-400
-            "
-          >
-            نتیجه این نوشته در مرورگر فعلی یا تاریخچه Mock پیدا نشد.
-          </p>
 
-          <Link
-            href="/writing"
-            className="
-              mt-6
-              inline-flex
-              items-center
-              justify-center
-              rounded-2xl
-              border
-              border-cyan-300/20
-              bg-cyan-400/10
-              px-4
-              py-3
-              text-sm
-              font-semibold
-              text-cyan-200
-              transition
-              hover:bg-cyan-400/15
-            "
-          >
-            بازگشت به Writing
-          </Link>
-        </section>
+        <Link
+          href="/writing"
+          className="
+            mt-6
+            inline-flex
+            rounded-xl
+            bg-cyan-500/20
+            px-5
+            py-3
+            text-cyan-300
+          "
+        >
+          بازگشت به Writing
+        </Link>
+
+
       </main>
+
     );
+
   }
+
+
 
   return (
+
     <WritingAnalysisView
       submission={
         submission
       }
     />
+
   );
+
 }

@@ -1,51 +1,93 @@
-export const WRITING_DIFFICULTY_STYLES = {
-  "مبتدی":
-    "border-emerald-400/15 bg-emerald-400/10 text-emerald-200",
-
-  "متوسط":
-    "border-amber-400/15 bg-amber-400/10 text-amber-200",
-
-  "پیشرفته":
-    "border-red-400/15 bg-red-400/10 text-red-200",
-} satisfies Record<string, string>;
-
 export const WRITING_CATEGORIES = [
   {
-    value: "all",
-    label: "همه تمرین‌ها",
-    description: "همه دسته‌بندی‌های نوشتاری",
+    id: "free-writing",
+    title: "نوشتن آزاد",
+    description:
+      "بدون محدودیت شروع به نوشتن کنید و افکار خود را ثبت کنید.",
   },
+
   {
-    value: "تحلیل",
-    label: "تحلیل",
-    description: "تحلیل موضوعات و ارائه راه‌حل",
+    id: "formal-email",
+    title: "نامه رسمی",
+    description:
+      "یک متن رسمی با ساختار مناسب و دقیق بنویسید.",
   },
+
   {
-    value: "دیدگاه",
-    label: "دیدگاه",
-    description: "بیان دیدگاه‌های شخصی",
+    id: "argument",
+    title: "استدلال و نظر",
+    description:
+      "دیدگاه خود را با دلیل و ساختار منطقی بیان کنید.",
   },
+
   {
-    value: "داستان",
-    label: "داستان",
-    description: "نوشتن داستان و روایت",
+    id: "memory",
+    title: "توصیف یک خاطره",
+    description:
+      "یک تجربه شخصی را با جزئیات توصیفی بنویسید.",
   },
+
   {
-    value: "رسمی",
-    label: "رسمی",
-    description: "نوشتن متن‌های رسمی",
-  },
-  {
-    value: "توصیف",
-    label: "توصیف",
-    description: "توصیف تجربیات و مکان‌ها",
-  },
-  {
-    value: "استدلال",
-    label: "استدلال",
-    description: "ارائه استدلال و منطق",
+    id: "daily-problem",
+    title: "تحلیل یک مشکل",
+    description:
+      "یک موضوع روزمره را بررسی و تحلیل کنید.",
   },
 ] as const;
 
-export type WritingCategoryFilter =
-  (typeof WRITING_CATEGORIES)[number]["value"];
+
+export const WRITING_DIFFICULTY_STYLES = {
+  beginner: {
+    label: "مبتدی",
+    color:
+      "#475569",
+    background:
+      "#F1F5F9",
+  },
+
+  intermediate: {
+    label: "متوسط",
+    color:
+      "#3D4947",
+    background:
+      "#ECEEF0",
+  },
+
+  advanced: {
+    label: "پیشرفته",
+    color:
+      "#93000A",
+    background:
+      "#FFDAD6",
+  },
+} as const;
+
+
+export const WRITING_LEVELS = {
+  suggested: {
+    label:
+      "پیشنهادی",
+    color:
+      "#7E22CE",
+    background:
+      "#F3E8FF",
+  },
+
+  formal: {
+    label:
+      "رسمی",
+    color:
+      "#0D9488",
+    background:
+      "#F0FDFA",
+  },
+
+  analytical: {
+    label:
+      "تحلیلی",
+    color:
+      "#131B2E",
+    background:
+      "#DAE2FD",
+  },
+} as const;

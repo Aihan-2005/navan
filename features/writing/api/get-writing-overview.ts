@@ -1,18 +1,32 @@
-import { writingOverviewMock } from "../mocks/writing-overview.mock";
-import { writingOverviewSchema } from "../schemas/writing.schema";
-import type { WritingOverviewData } from "../types/writing.types";
+import {
+  writingOverviewMock,
+} from "../mocks/writing-overview.mock";
 
-export async function getWritingOverview(): Promise<WritingOverviewData> {
-  const overview = { ...writingOverviewMock };
+import {
+  writingOverviewSchema,
+} from "../schemas/writing.schema";
 
-  // Use the first exercise as the recommended one (could be random in production)
-  const recommendedExercise = {
-    ...overview.exercises[0],
-    isFeatured: true,
-  };
+import type {
+  WritingOverviewData,
+} from "../types/writing.types";
+
+export async function getWritingOverview():
+  Promise<WritingOverviewData> {
+  const recommendedExercise =
+    writingOverviewMock.exercises[0];
+
+  if (!recommendedExercise) {
+    throw new Error(
+      "Writing overview requires at least one exercise.",
+    );
+  }
 
   return writingOverviewSchema.parse({
-    ...overview,
-    recommendedExercise,
+    ...writingOverviewMock,
+
+    recommendedExercise: {
+      ...recommendedExercise,
+      isFeatured: true,
+    },
   });
 }
