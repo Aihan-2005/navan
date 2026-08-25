@@ -2,9 +2,10 @@ import Link from "next/link";
 
 import {
   BookOpenText,
+  CheckCircle2,
   Clock3,
-  Flame,
-  ListChecks,
+  TimerReset,
+  WholeWord,
 } from "lucide-react";
 
 import type {
@@ -14,10 +15,6 @@ import type {
 import {
   ReadingLearningJourneyCard,
 } from "./reading-learning-journey-card";
-
-import {
-  ReadingNotesOverviewCard,
-} from "./reading-notes-overview-card";
 
 import {
   ReadingOverviewSidePanel,
@@ -33,14 +30,11 @@ import {
 
 type ReadingOverviewProps =
   Readonly<{
-    overview:
-      ReadingOverviewData;
+    overview: ReadingOverviewData;
   }>;
 
 const numberFormatter =
-  new Intl.NumberFormat(
-    "fa-IR",
-  );
+  new Intl.NumberFormat("fa-IR");
 
 export function ReadingOverview({
   overview,
@@ -52,21 +46,27 @@ export function ReadingOverview({
     learningJourney,
     primaryInsight,
     recentActivities,
-  } =
-    overview;
+  } = overview;
 
   const continueHref =
-    continueReading
-      ?.currentSectionId
-      ? `/reading/resources/${continueReading.resourceId}/sections/${continueReading.currentSectionId}`
+    continueReading?.currentSectionId
+      ? `/reading/resources/${encodeURIComponent(
+          continueReading.resourceId,
+        )}/sections/${encodeURIComponent(
+          continueReading.currentSectionId,
+        )}`
       : continueReading
-        ? `/reading/resources/${continueReading.resourceId}`
-        : "/reading";
+        ? `/reading/resources/${encodeURIComponent(
+            continueReading.resourceId,
+          )}`
+        : "/reading/library";
 
   const detailsHref =
     continueReading
-      ? `/reading/resources/${continueReading.resourceId}`
-      : "/reading";
+      ? `/reading/resources/${encodeURIComponent(
+          continueReading.resourceId,
+        )}`
+      : "/reading/library";
 
   return (
     <main
@@ -90,12 +90,12 @@ export function ReadingOverview({
             relative
             min-h-[279px]
             overflow-hidden
-            rounded-xl
+            rounded-2xl
             border
-            border-[#BCC9C6]/30
-            bg-[linear-gradient(135deg,rgba(0,104,95,0.10)_0%,rgba(0,131,120,0.20)_100%)]
+            border-[#A8C4C0]/45
+            bg-[linear-gradient(135deg,#F1FAF8_0%,#DCEFEB_100%)]
             p-6
-            shadow-[0_4px_20px_rgba(13,148,136,0.04)]
+            shadow-[0_8px_30px_rgba(0,104,95,0.08)]
             sm:p-8
           "
         >
@@ -104,12 +104,12 @@ export function ReadingOverview({
             className="
               pointer-events-none
               absolute
-              -bottom-20
-              right-[28%]
-              h-48
-              w-48
+              -bottom-24
+              right-[24%]
+              h-56
+              w-56
               rounded-full
-              bg-white/20
+              bg-[#0D9488]/10
               blur-3xl
             "
           />
@@ -135,15 +135,15 @@ export function ReadingOverview({
               <span
                 className="
                   inline-flex
-                  h-[22px]
+                  min-h-[24px]
                   items-center
-                  rounded
+                  rounded-md
                   bg-[#00685F]/10
-                  px-2
+                  px-2.5
                   text-xs
-                  font-normal
+                  font-medium
                   leading-[14px]
-                  tracking-[0.05em]
+                  tracking-[0.04em]
                   text-[#00685F]
                 "
               >
@@ -165,7 +165,7 @@ export function ReadingOverview({
                   font-bold
                   leading-9
                   tracking-[-0.01em]
-                  text-[#191C1E]
+                  text-[#13201E]
                   sm:text-[28px]
                 "
               >
@@ -176,9 +176,9 @@ export function ReadingOverview({
                 className="
                   mt-1
                   text-base
-                  font-normal
+                  font-medium
                   leading-6
-                  text-[#3D4947]
+                  text-[#475569]
                 "
               >
                 بخش{" "}
@@ -206,8 +206,8 @@ export function ReadingOverview({
                     justify-between
                     gap-2
                     text-sm
-                    font-bold
-                    leading-4
+                    font-medium
+                    leading-5
                   "
                 >
                   <span
@@ -215,7 +215,7 @@ export function ReadingOverview({
                       inline-flex
                       items-center
                       gap-1.5
-                      text-[#3D4947]
+                      text-[#475569]
                     "
                   >
                     <Clock3
@@ -234,6 +234,7 @@ export function ReadingOverview({
                   null ? (
                     <span
                       className="
+                        font-bold
                         text-[#00685F]
                       "
                     >
@@ -258,20 +259,20 @@ export function ReadingOverview({
                     h-2
                     overflow-hidden
                     rounded-full
-                    bg-white/70
+                    bg-white
+                    shadow-[inset_0_1px_2px_rgba(15,23,42,0.08)]
                   "
                 >
                   <div
                     className="
                       h-full
                       rounded-full
-                      bg-[#00685F]
+                      bg-[#0D9488]
                       transition-[width]
                       duration-500
                     "
                     style={{
-                      width:
-                        `${continueReading.progressPercent}%`,
+                      width: `${continueReading.progressPercent}%`,
                     }}
                   />
                 </div>
@@ -287,9 +288,7 @@ export function ReadingOverview({
                 "
               >
                 <Link
-                  href={
-                    continueHref
-                  }
+                  href={continueHref}
                   className="
                     inline-flex
                     h-11
@@ -305,12 +304,13 @@ export function ReadingOverview({
                     leading-4
                     tracking-[0.01em]
                     text-white
-                    shadow-[0_1px_2px_rgba(0,0,0,0.05)]
+                    shadow-[0_2px_6px_rgba(0,104,95,0.2)]
                     transition
                     hover:bg-[#005A52]
                     focus-visible:outline-none
                     focus-visible:ring-2
-                    focus-visible:ring-[#00685F]/25
+                    focus-visible:ring-[#00685F]/30
+                    focus-visible:ring-offset-2
                   "
                 >
                   <BookOpenText
@@ -322,9 +322,7 @@ export function ReadingOverview({
                 </Link>
 
                 <Link
-                  href={
-                    detailsHref
-                  }
+                  href={detailsHref}
                   className="
                     inline-flex
                     h-11
@@ -333,16 +331,17 @@ export function ReadingOverview({
                     justify-center
                     rounded-lg
                     border
-                    border-[#6D7A77]
-                    bg-transparent
+                    border-[#64748B]
+                    bg-white/55
                     px-6
                     text-sm
                     font-bold
                     leading-4
                     tracking-[0.01em]
-                    text-[#191C1E]
+                    text-[#1E293B]
                     transition
                     hover:border-[#00685F]
+                    hover:bg-white
                     hover:text-[#00685F]
                     focus-visible:outline-none
                     focus-visible:ring-2
@@ -363,11 +362,11 @@ export function ReadingOverview({
                 w-[134px]
                 shrink-0
                 -rotate-[9.9deg]
-                rounded-lg
+                rounded-xl
                 border
-                border-[#BCC9C6]/20
-                bg-[#F7F9FB]
-                shadow-[0_4px_6px_-1px_rgba(0,0,0,0.10),0_2px_4px_-2px_rgba(0,0,0,0.10)]
+                border-[#AFC7C3]
+                bg-white
+                shadow-[0_12px_30px_rgba(15,23,42,0.12)]
                 md:block
               "
             >
@@ -378,7 +377,7 @@ export function ReadingOverview({
                   h-2
                   w-16
                   rounded-full
-                  bg-[#DDE4E6]
+                  bg-[#9ABBB6]
                 "
               />
 
@@ -389,7 +388,7 @@ export function ReadingOverview({
                   h-1.5
                   w-[84px]
                   rounded-full
-                  bg-[#E7ECEE]
+                  bg-[#CBDAD8]
                 "
               />
 
@@ -400,7 +399,7 @@ export function ReadingOverview({
                   h-1.5
                   w-[72px]
                   rounded-full
-                  bg-[#E7ECEE]
+                  bg-[#CBDAD8]
                 "
               />
 
@@ -411,7 +410,7 @@ export function ReadingOverview({
                   h-1.5
                   w-20
                   rounded-full
-                  bg-[#E7ECEE]
+                  bg-[#CBDAD8]
                 "
               />
             </div>
@@ -430,16 +429,12 @@ export function ReadingOverview({
         "
       >
         <ReadingStatCard
-          title="منابع خوانده‌شده"
-          value={
-            numberFormatter.format(
-              stats.completedResources,
-            )
-          }
-          description="کتاب‌ها و منابعی که مطالعه‌شان کامل شده"
-          icon={
-            BookOpenText
-          }
+          title="جلسه‌های مطالعه"
+          value={numberFormatter.format(
+            stats.totalSessions,
+          )}
+          description="تعداد جلسه‌های مطالعه ثبت‌شده"
+          icon={BookOpenText}
           tone="teal"
         />
 
@@ -448,43 +443,31 @@ export function ReadingOverview({
           value={`${numberFormatter.format(
             stats.weeklyMinutes,
           )} دقیقه`}
-          description={`${numberFormatter.format(
-            stats.activeDaysThisWeek,
-          )} روز فعال از ۷ روز`}
-          icon={
-            Clock3
-          }
+          description="زمان مطالعه در هفته جاری"
+          icon={TimerReset}
           tone="violet"
         />
 
         <ReadingStatCard
-          title="تداوم مطالعه"
-          value={`${numberFormatter.format(
-            stats.currentStreakDays,
-          )} روز`}
-          description="تعداد روزهای مطالعه پشت‌سرهم"
-          icon={
-            Flame
-          }
-          tone="orange"
+          title="واژگان تثبیت‌شده"
+          value={numberFormatter.format(
+            stats.masteredWords,
+          )}
+          description="تعداد واژگان یادگرفته‌شده"
+          icon={WholeWord}
+          tone="slate"
         />
 
         <ReadingStatCard
           title="بخش‌های تکمیل‌شده"
-          value={
-            numberFormatter.format(
-              stats.completedSections,
-            )
-          }
-          description="بخش‌هایی که مطالعه‌شان را به پایان رسانده‌ای"
-          icon={
-            ListChecks
-          }
-          tone="slate"
+          value={numberFormatter.format(
+            stats.completedSections,
+          )}
+          description="تعداد بخش‌هایی که مطالعه آن‌ها کامل شده است"
+          icon={CheckCircle2}
+          tone="emerald"
         />
       </section>
-
-      <ReadingNotesOverviewCard />
 
       <section
         className="
@@ -501,9 +484,7 @@ export function ReadingOverview({
           "
         >
           <ReadingLearningJourneyCard
-            journey={
-              learningJourney
-            }
+            journey={learningJourney}
           />
 
           <ReadingRecentActivityCard
@@ -514,12 +495,8 @@ export function ReadingOverview({
         </div>
 
         <ReadingOverviewSidePanel
-          weeklyGoal={
-            weeklyGoal
-          }
-          insight={
-            primaryInsight
-          }
+          weeklyGoal={weeklyGoal}
+          insight={primaryInsight}
         />
       </section>
     </main>

@@ -23,16 +23,18 @@ import {
 } from "../../../../../features/reading/components/analysis/reading-saved-resource-notes";
 
 import {
+  ReadingDarkSurface,
+} from "../../../../../features/reading/components/navigation/reading-dark-surface";
+
+import {
   ReadingResourceDetail,
 } from "../../../../../features/reading/components/resource/reading-resource-detail";
 
 type ReadingResourcePageProps =
   Readonly<{
-    params:
-      Promise<{
-        resourceId:
-          string;
-      }>;
+    params: Promise<{
+      resourceId: string;
+    }>;
   }>;
 
 export async function generateMetadata({
@@ -40,8 +42,7 @@ export async function generateMetadata({
 }: ReadingResourcePageProps): Promise<Metadata> {
   const {
     resourceId,
-  } =
-    await params;
+  } = await params;
 
   const resource =
     await getReadingResource(
@@ -50,18 +51,14 @@ export async function generateMetadata({
 
   if (!resource) {
     return {
-      title:
-        "منبع پیدا نشد",
-
+      title: "منبع پیدا نشد",
       description:
         "منبع Reading موردنظر وجود ندارد.",
     };
   }
 
   return {
-    title:
-      resource.title,
-
+    title: resource.title,
     description:
       resource.description ??
       "جزئیات منبع Reading",
@@ -73,55 +70,54 @@ export default async function ReadingResourcePage({
 }: ReadingResourcePageProps) {
   const {
     resourceId,
-  } =
-    await params;
+  } = await params;
 
   const [
     resource,
     analysis,
-  ] =
-    await Promise.all([
-      getReadingResource(
-        resourceId,
-      ),
+  ] = await Promise.all([
+    getReadingResource(
+      resourceId,
+    ),
 
-      getReadingAiAnalysis(
-        resourceId,
-      ),
-    ]);
+    getReadingAiAnalysis(
+      resourceId,
+    ),
+  ]);
 
   if (!resource) {
     notFound();
   }
 
   return (
-    <div
+    <ReadingDarkSurface
       className="
-        space-y-8
+        mx-auto
+        w-full
+        max-w-[1400px]
       "
     >
-      <ReadingResourceDetail
-        resource={
-          resource
-        }
-      />
+      <div className="space-y-8">
+        <ReadingResourceDetail
+          resource={resource}
+        />
 
-      {analysis?.status ===
-      "ready" ? (
-        <>
-          <ReadingAiAnalysisPanel
-            analysis={
-              analysis
-            }
-          />
+        {analysis?.status ===
+        "ready" ? (
+          <>
+            <ReadingAiAnalysisPanel
+              analysis={analysis}
+            />
 
-          <ReadingSavedResourceNotes
-            resourceId={
-              resource.id
-            }
-          />
-        </>
-      ) : null}
-    </div>
+            <ReadingSavedResourceNotes
+              resourceId={
+                resource.id
+              }
+            />
+          </>
+        ) : null}
+      </div>
+    </ReadingDarkSurface>
   );
 }
+

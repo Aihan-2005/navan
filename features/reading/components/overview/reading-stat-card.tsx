@@ -6,32 +6,26 @@ import {
   cn,
 } from "../../../../lib/utils/cn";
 
+type ReadingStatTone =
+  | "teal"
+  | "violet"
+  | "slate"
+  | "orange"
+  | "emerald";
+
 type ReadingStatCardProps =
   Readonly<{
-    title:
-      string;
-
-    value:
-      string;
-
-    description:
-      string;
-
-    icon:
-      LucideIcon;
-
-    tone?:
-      | "teal"
-      | "violet"
-      | "slate"
-      | "orange";
+    title: string;
+    value: string;
+    description: string;
+    icon: LucideIcon;
+    tone?: ReadingStatTone;
   }>;
 
 const toneStyles = {
   teal: {
     border:
       "border-x-[#00685F]",
-
     iconWrapper:
       "bg-[#D6EDEB] text-[#00685F]",
   },
@@ -39,57 +33,67 @@ const toneStyles = {
   violet: {
     border:
       "border-x-[#712AE2]",
-
     iconWrapper:
       "bg-[#E7DDF8] text-[#712AE2]",
   },
 
   slate: {
     border:
-      "border-x-[#6D7A77]",
-
+      "border-x-[#64748B]",
     iconWrapper:
-      "bg-[#6C748B]/20 text-[#6C748B]",
+      "bg-[#E2E8F0] text-[#475569]",
   },
 
   orange: {
     border:
       "border-x-[#F97316]",
-
     iconWrapper:
-      "bg-[#FFF7ED] text-[#F97316]",
+      "bg-[#FFF7ED] text-[#EA580C]",
   },
-} as const;
+
+  emerald: {
+    border:
+      "border-x-[#059669]",
+    iconWrapper:
+      "bg-[#D1FAE5] text-[#047857]",
+  },
+} satisfies Record<
+  ReadingStatTone,
+  {
+    border: string;
+    iconWrapper: string;
+  }
+>;
 
 export function ReadingStatCard({
   title,
   value,
   description,
   icon: Icon,
-  tone =
-    "teal",
+  tone = "teal",
 }: ReadingStatCardProps) {
   const selectedTone =
-    toneStyles[
-      tone
-    ];
+    toneStyles[tone];
 
   return (
     <article
       className={cn(
         "flex",
-        "min-h-[118px]",
+        "min-h-[106px]",
         "items-center",
         "gap-4",
         "rounded-[24px]",
         "border",
         "border-y-[#E2E8F0]",
         "border-x-4",
-        "bg-white/80",
+        "bg-white",
         "px-5",
         "py-5",
-        "shadow-[0_1px_2px_rgba(0,0,0,0.05)]",
-        "backdrop-blur-xl",
+        "shadow-[0_2px_8px_rgba(15,23,42,0.055)]",
+        "transition",
+        "duration-200",
+        "hover:-translate-y-0.5",
+        "hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)]",
         selectedTone.border,
       )}
     >
@@ -108,6 +112,7 @@ export function ReadingStatCard({
         <Icon
           aria-hidden="true"
           className="h-5 w-5"
+          strokeWidth={1.9}
         />
       </div>
 
@@ -121,9 +126,9 @@ export function ReadingStatCard({
           className="
             whitespace-nowrap
             text-sm
-            font-normal
+            font-medium
             leading-5
-            text-[#64748B]
+            text-[#475569]
           "
         >
           {title}
@@ -133,7 +138,7 @@ export function ReadingStatCard({
           className="
             mt-1
             whitespace-nowrap
-             text-2xl
+            text-2xl
             font-bold
             leading-8
             text-[#0F172A]
@@ -142,16 +147,9 @@ export function ReadingStatCard({
           {value}
         </p>
 
-        <p
-          className="
-            mt-1
-            text-[11px]
-            leading-4
-            text-[#94A3B8]
-          "
-        >
+        <span className="sr-only">
           {description}
-        </p>
+        </span>
       </div>
     </article>
   );

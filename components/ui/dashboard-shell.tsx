@@ -1,6 +1,8 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import {
+  usePathname,
+} from "next/navigation";
 
 import {
   useCallback,
@@ -12,56 +14,60 @@ import {
 import Header from "../../layout/header";
 import Sidebar from "../../layout/sidebar";
 
-import { cn } from "../../lib/utils/cn";
+import {
+  cn,
+} from "../../lib/utils/cn";
 
-type DashboardShellProps = Readonly<{
-  children: ReactNode;
-}>;
+type DashboardShellProps =
+  Readonly<{
+    children: ReactNode;
+  }>;
 
 export type DashboardAppearance =
   | "dark"
   | "light";
 
+/**
+ * فقط routeهایی که واقعاً UI روشن دارند
+ * باید اینجا قرار بگیرند.
+ *
+ * Reading Resource Detail و Reading Workspace
+ * عمداً داخل این لیست نیستند چون UI آن‌ها dark است.
+ */
+const LIGHT_DASHBOARD_ROUTES =
+  new Set<string>([
+    "/writing",
 
+    "/reading",
+    "/reading/library",
+    "/reading/resources",
+    "/reading/upload",
+  ]);
 
-  
-function shouldUseLightShell(
+function resolveDashboardAppearance(
   pathname: string,
-): boolean {
-  const isReadingRoute =
-    pathname === "/reading" ||
-    pathname.startsWith(
-      "/reading/",
-    );
-
-  const isWritingRoute =
-    pathname === "/writing" ||
-    pathname.startsWith(
-      "/writing/",
-    );
-
-  return (
-    isReadingRoute ||
-    isWritingRoute
-  );
+): DashboardAppearance {
+  return LIGHT_DASHBOARD_ROUTES.has(
+    pathname,
+  )
+    ? "light"
+    : "dark";
 }
 
 export default function DashboardShell({
   children,
 }: DashboardShellProps) {
-  const pathname =
-    usePathname();
+  const pathname = usePathname();
 
   const [
     isSidebarOpen,
     setIsSidebarOpen,
   ] = useState(false);
 
-  const appearance:
-    DashboardAppearance =
-    shouldUseLightShell(pathname)
-      ? "light"
-      : "dark";
+  const appearance =
+    resolveDashboardAppearance(
+      pathname,
+    );
 
   const closeSidebar =
     useCallback((): void => {
@@ -76,10 +82,7 @@ export default function DashboardShell({
     function handleEscapeKey(
       event: KeyboardEvent,
     ): void {
-      if (
-        event.key ===
-        "Escape"
-      ) {
+      if (event.key === "Escape") {
         closeSidebar();
       }
     }
@@ -127,7 +130,6 @@ export default function DashboardShell({
       }
       className={cn(
         "min-h-dvh",
-
         appearance === "light"
           ? [
               "bg-[#F7F9FB]",
@@ -163,7 +165,6 @@ export default function DashboardShell({
           "px-4 pb-16",
           "sm:px-6",
           "lg:mr-72 lg:px-8",
-
           appearance === "light"
             ? [
                 "bg-[#F7F9FB]",

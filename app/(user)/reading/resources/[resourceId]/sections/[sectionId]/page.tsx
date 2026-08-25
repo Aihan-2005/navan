@@ -11,6 +11,10 @@ import {
 } from "../../../../../../../features/reading/api/get-reading-section";
 
 import {
+  ReadingDarkSurface,
+} from "../../../../../../../features/reading/components/navigation/reading-dark-surface";
+
+import {
   ReadingSectionWorkspace,
 } from "../../../../../../../features/reading/components/workspace/reading-section-workspace";
 
@@ -100,8 +104,16 @@ export default async function ReadingSectionPage({
   }
 
   return (
-    <ReadingSectionWorkspace
-      section={section}
-    />
+    <ReadingDarkSurface
+      className="
+        mx-auto
+        w-full
+        max-w-[1440px]
+      "
+    >
+      <ReadingSectionWorkspace
+        section={section}
+      />
+    </ReadingDarkSurface>
   );
 }
