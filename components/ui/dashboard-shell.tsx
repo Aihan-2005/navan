@@ -27,6 +27,21 @@ export type DashboardAppearance =
   | "dark"
   | "light";
 
+/**
+ * Route namespaces that use Navan's light application shell.
+ *
+ * Important:
+ * Keep namespaces here instead of individual pages.
+ * Features such as Reading, Speaking and Listening contain
+ * dynamic/nested routes and all of them must inherit the
+ * same Header/Sidebar appearance.
+ */
+const LIGHT_SHELL_NAMESPACES = [
+  "/reading",
+  "/speaking",
+  "/listening",
+] as const;
+
 function isRouteWithin(
   pathname: string,
   rootPath: string,
@@ -42,29 +57,24 @@ function isRouteWithin(
 function resolveDashboardAppearance(
   pathname: string,
 ): DashboardAppearance {
-  /*
-   * تمام صفحات Reading باید Light باشند:
-   *
-   * /reading
-   * /reading/library
-   * /reading/resources/...
-   * /reading/resources/.../sections/...
-   */
-  if (
-    isRouteWithin(
-      pathname,
-      "/reading",
-    )
-  ) {
+  const belongsToLightNamespace =
+    LIGHT_SHELL_NAMESPACES.some(
+      (rootPath) =>
+        isRouteWithin(
+          pathname,
+          rootPath,
+        ),
+    );
+
+  if (belongsToLightNamespace) {
     return "light";
   }
 
-  /*
-   * فعلاً فقط Overview بخش Writing
-   * مطابق Figma تم روشن دارد.
+  /**
+   * Writing overview currently uses the light Figma design.
    *
-   * صفحات داخلی Writing تا زمانی که
-   * طراحی‌شان migrate نشده، Dark می‌مانند.
+   * Nested Writing pages still use their existing dark
+   * visual system, so only the overview route is included.
    */
   if (pathname === "/writing") {
     return "light";
@@ -97,16 +107,16 @@ export default function DashboardShell({
       setIsSidebarOpen(false);
     }, []);
 
-  /*
-   * بعد از تغییر route، منوی موبایل
-   * نباید باز باقی بماند.
+  /**
+   * The mobile navigation drawer must not survive
+   * a route transition.
    */
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [pathname]);
 
-  /*
-   * بستن Sidebar با Escape.
+  /**
+   * Allow the mobile Sidebar to be closed with Escape.
    */
   useEffect(() => {
     if (!isSidebarOpen) {
@@ -137,9 +147,9 @@ export default function DashboardShell({
     isSidebarOpen,
   ]);
 
-  /*
-   * هنگام باز بودن Sidebar موبایل،
-   * scroll صفحه اصلی قفل می‌شود.
+  /**
+   * Prevent the page behind the mobile Sidebar
+   * from scrolling while the drawer is open.
    */
   useEffect(() => {
     if (!isSidebarOpen) {
@@ -150,10 +160,20 @@ export default function DashboardShell({
       return;
     }
 
+    const previousOverflow =
+      document.body.style.overflow;
+
     document.body.style.overflow =
       "hidden";
 
     return () => {
+      if (previousOverflow) {
+        document.body.style.overflow =
+          previousOverflow;
+
+        return;
+      }
+
       document.body.style.removeProperty(
         "overflow",
       );
