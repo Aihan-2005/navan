@@ -1,3 +1,4 @@
+
 function Skeleton({
   className = "",
 }: Readonly<{
@@ -87,3 +88,4 @@ export default function WritingHistoryLoading() {
     </main>
   );
 }
+

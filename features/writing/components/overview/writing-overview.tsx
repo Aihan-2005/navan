@@ -63,25 +63,15 @@ export function WritingOverview({
   ] = useState(false);
 
   const closeDailyTip =
-    useCallback(() => {
+    useCallback((): void => {
       setIsDailyTipOpen(false);
     }, []);
 
-  /*
-   * Figma در بخش Exercise:
-   *
-   * Free writing + یک کارت
-   * در ردیف اول،
-   * سه کارت در ردیف دوم.
-   *
-   * بنابراین فقط چهار Exercise
-   * در Overview نمایش داده می‌شود.
-   *
-   * بقیه همچنان از API/صفحات دیگر
-   * قابل دسترسی می‌مانند.
-   */
   const catalogExercises =
-    overview.exercises.slice(0, 4);
+    overview.exercises.slice(
+      0,
+      4,
+    );
 
   const firstExercise =
     catalogExercises[0];
@@ -121,13 +111,11 @@ export function WritingOverview({
             lg:grid-cols-3
           "
         >
-          <div
-            className="
-              lg:col-span-2
-            "
-          >
+          <div className="lg:col-span-2">
             <ContinueDraftCard
-              draft={overview.currentDraft}
+              draft={
+                overview.currentDraft
+              }
             />
           </div>
 
@@ -175,8 +163,8 @@ export function WritingOverview({
                   sm:text-lg
                 "
               >
-                برای هدف امروز خود، مناسب‌ترین گزینه را از
-                میان تمرین‌های متنوع انتخاب کنید.
+                برای هدف امروز خود، مناسب‌ترین گزینه را
+                از میان تمرین‌های متنوع انتخاب کنید.
               </p>
             </div>
 
@@ -185,7 +173,9 @@ export function WritingOverview({
               aria-label="نمایش نکته روزانه"
               aria-haspopup="dialog"
               onClick={() => {
-                setIsDailyTipOpen(true);
+                setIsDailyTipOpen(
+                  true,
+                );
               }}
               className="
                 flex
@@ -223,7 +213,9 @@ export function WritingOverview({
 
             {firstExercise ? (
               <WritingModeCard
-                exercise={firstExercise}
+                exercise={
+                  firstExercise
+                }
                 className="
                   lg:col-span-4
                   lg:min-h-[302px]
@@ -235,7 +227,9 @@ export function WritingOverview({
               (exercise) => (
                 <WritingModeCard
                   key={exercise.id}
-                  exercise={exercise}
+                  exercise={
+                    exercise
+                  }
                   className="
                     lg:col-span-4
                   "
@@ -283,11 +277,7 @@ export function WritingOverview({
               lg:grid-cols-12
             "
           >
-            <div
-              className="
-                lg:col-span-7
-              "
-            >
+            <div className="lg:col-span-7">
               <RecentWritingList
                 writings={
                   overview.recentWritings
@@ -320,8 +310,8 @@ function FreeWritingCard() {
     <article
       className="
         flex
-        min-h-[292px]
         h-full
+        min-h-[292px]
         flex-col
         rounded-2xl
         border
@@ -488,7 +478,10 @@ function DailyTipDialog({
       document.body.style.overflow =
         previousOverflow;
     };
-  }, [open, onClose]);
+  }, [
+    open,
+    onClose,
+  ]);
 
   return (
     <AnimatePresence>

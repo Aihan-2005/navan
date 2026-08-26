@@ -27,17 +27,6 @@ export type DashboardAppearance =
   | "dark"
   | "light";
 
-/**
- * Returns true when pathname is either exactly the route root
- * or one of its nested/dynamic routes.
- *
- * Examples:
- *
- * /reading
- * /reading/library
- * /reading/resources/:resourceId
- * /reading/resources/:resourceId/sections/:sectionId
- */
 function isRouteWithin(
   pathname: string,
   rootPath: string,
@@ -50,21 +39,17 @@ function isRouteWithin(
   );
 }
 
-/**
- * Reading is now a completely light experience.
- *
- * Important:
- * Do not maintain a list of individual Reading routes here.
- * Reading contains dynamic resource/section routes and every
- * nested route should receive the same light Header/Sidebar.
- *
- * Writing overview is currently light as well.
- * Nested Writing pages remain unchanged until their visual
- * system is intentionally migrated.
- */
 function resolveDashboardAppearance(
   pathname: string,
 ): DashboardAppearance {
+  /*
+   * تمام صفحات Reading باید Light باشند:
+   *
+   * /reading
+   * /reading/library
+   * /reading/resources/...
+   * /reading/resources/.../sections/...
+   */
   if (
     isRouteWithin(
       pathname,
@@ -74,6 +59,13 @@ function resolveDashboardAppearance(
     return "light";
   }
 
+  /*
+   * فعلاً فقط Overview بخش Writing
+   * مطابق Figma تم روشن دارد.
+   *
+   * صفحات داخلی Writing تا زمانی که
+   * طراحی‌شان migrate نشده، Dark می‌مانند.
+   */
   if (pathname === "/writing") {
     return "light";
   }
@@ -97,20 +89,24 @@ export default function DashboardShell({
       pathname,
     );
 
+  const isLight =
+    appearance === "light";
+
   const closeSidebar =
     useCallback((): void => {
       setIsSidebarOpen(false);
     }, []);
 
-  /**
-   * A route change must never leave the mobile drawer open.
+  /*
+   * بعد از تغییر route، منوی موبایل
+   * نباید باز باقی بماند.
    */
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [pathname]);
 
-  /**
-   * Close mobile navigation with Escape.
+  /*
+   * بستن Sidebar با Escape.
    */
   useEffect(() => {
     if (!isSidebarOpen) {
@@ -141,9 +137,9 @@ export default function DashboardShell({
     isSidebarOpen,
   ]);
 
-  /**
-   * Lock background scrolling while the mobile sidebar
-   * is visible.
+  /*
+   * هنگام باز بودن Sidebar موبایل،
+   * scroll صفحه اصلی قفل می‌شود.
    */
   useEffect(() => {
     if (!isSidebarOpen) {
@@ -163,9 +159,6 @@ export default function DashboardShell({
       );
     };
   }, [isSidebarOpen]);
-
-  const isLight =
-    appearance === "light";
 
   return (
     <div

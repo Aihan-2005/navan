@@ -3,23 +3,16 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import {
-  AudioWaveform,
-  Flame,
-  Mic2,
-  Sparkles,
-  TimerReset,
-  TrendingUp,
-} from "lucide-react";
+import { AudioWaveform, Flame, TimerReset, TrendingUp } from "lucide-react";
 
 import { Card } from "../../../components/ui/card";
 import { cn } from "../../../lib/utils/cn";
 
 import { FreeSpeakingCard } from "./free-speaking-card";
+import { ListeningStatCard } from "../../listening/components/overview/listening-stat-card";
 import {
   SPEAKING_MODE_DESCRIPTIONS,
   SPEAKING_MODE_FILTERS,
-  SPEAKING_MODE_LABELS,
   type SpeakingModeFilter,
 } from "../constants/speaking.constants";
 
@@ -54,230 +47,189 @@ export function SpeakingOverview({ overview }: SpeakingOverviewProps) {
       ? "از میان تمرین‌های متنوع، مناسب‌ترین گزینه را برای هدف امروزت انتخاب کن."
       : SPEAKING_MODE_DESCRIPTIONS[activeMode as SpeakingMode];
 
+  const orderedScenarios = useMemo(() => {
+    const order = [
+      "job-interview",
+      "restaurant-roleplay",
+      "sixty-second-story",
+      "coffee-shop-shadowing",
+      "th-sound-pronunciation",
+      "social-media-debate",
+    ];
+
+    return [...filteredScenarios].sort(
+      (left, right) => order.indexOf(left.id) - order.indexOf(right.id),
+    );
+  }, [filteredScenarios]);
+
   return (
     <main
-      className="mx-auto w-full max-w-7xl space-y-6"
+      className="mx-auto w-full max-w-7xl space-y-[54px] bg-[#F7F9FB]"
       aria-labelledby="speaking-page-title"
     >
       <section
         className="
-          relative overflow-hidden rounded-3xl
-          border border-cyan-400/15
-          bg-[linear-gradient(135deg,rgba(8,47,73,0.75),rgba(15,23,42,0.85))]
-          px-6 py-8 shadow-2xl
-          sm:px-8 sm:py-10
+          relative h-auto min-h-64 overflow-hidden rounded-3xl
+          bg-[linear-gradient(105.3deg,#0D9488_0%,#00685F_100%)]
+          pr-9 pl-[41px] py-8
+          shadow-[0px_8px_10px_-6px_#0000001A,0px_20px_25px_-5px_#0000001A]
+          sm:h-64
+          sm:py-10
         "
       >
         <div
           aria-hidden="true"
           className="
-            pointer-events-none absolute -left-24 -top-24
-            h-72 w-72 rounded-full
-            bg-cyan-500/20 blur-3xl
+            pointer-events-none absolute -left-20 -top-24 h-64 w-64
+            rounded-full bg-teal-300/20 blur-3xl
           "
         />
 
         <div
           aria-hidden="true"
           className="
-            pointer-events-none absolute -bottom-28 right-12
-            h-72 w-72 rounded-full
-            bg-violet-500/15 blur-3xl
+            pointer-events-none absolute -bottom-24 right-1/3 h-56 w-56
+            rounded-full bg-cyan-300/10 blur-3xl
           "
         />
 
         <div
           className="
-            relative flex flex-col gap-8
+            relative flex flex-col gap-[13px]
             lg:flex-row lg:items-center
             lg:justify-between
           "
         >
-          <div className="max-w-3xl">
-            <div className="flex items-center gap-2 text-sm text-cyan-300">
-              <Sparkles aria-hidden="true" className="h-4 w-4" />
-              مربی هوشمند مکالمه
-            </div>
-
+          <div className="max-w-3xl text-right">
             <h1
               id="speaking-page-title"
               className="
-                mt-4 text-3xl font-bold leading-tight text-white
+                text-3xl font-bold leading-[1.3] tracking-[-0.03em] text-white
                 sm:text-4xl
               "
             >
-              انگلیسی را فقط یاد نگیر؛
-              <span className="text-cyan-300"> واقعاً صحبت کن</span>
+              انگلیسی را فقط یاد نگیر؛ واقعاً صحبت کن
             </h1>
 
-            <p className="mt-4 max-w-2xl text-sm leading-8 text-slate-300 sm:text-base">
+            <p className="mt-4 max-w-2xl text-base leading-8 text-white/90 sm:text-lg">
               صدایت را ضبط کن، وارد موقعیت‌های واقعی شو و درباره تلفظ، روانی،
-              گرامر، واژگان و اعتمادبه‌نفس بازخورد شخصی دریافت کن.
+              گرامر و واژگان بازخورد شخصی دریافت کن.
             </p>
           </div>
 
           <Link
             href="/speaking/free"
             aria-label="رفتن به صفحه گفت‌وگوی آزاد"
-            className="group flex h-32 w-32 shrink-0 items-center justify-center self-center rounded-full border border-cyan-300/20 bg-cyan-400/10 shadow-[0_0_60px_rgba(34,211,238,0.18)] transition hover:-translate-y-1 hover:border-cyan-300/40 hover:bg-cyan-300/15"
+            className="group inline-flex h-[54px] w-[215px] shrink-0 items-center justify-center lg:self-auto rounded-full bg-[#F97316] px-8 py-3 text-[22px] font-bold leading-[30px] text-white shadow-[0_10px_15px_-3px_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 hover:bg-[#ea580c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 md:self-center self-center"
           >
-            <div
-              className="
-                flex h-20 w-20 items-center
-                justify-center rounded-full
-                bg-cyan-300 text-slate-950
-                transition duration-300
-                group-hover:scale-105
-              "
-            >
-              <Mic2 aria-hidden="true" className="h-9 w-9" />
-            </div>
+            شروع مکالمه آزاد
           </Link>
         </div>
       </section>
 
-      <section
-        aria-label="آمار مکالمه"
-        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
-      >
-        <SpeakingStat
-          title="جلسه‌های مکالمه"
-          value={numberFormatter.format(overview.stats.totalSessions)}
-          description="تعداد کل تمرین‌ها"
-          icon={AudioWaveform}
-        />
-
-        <SpeakingStat
-          title="تمرین این هفته"
-          value={`${numberFormatter.format(
-            overview.stats.weeklyMinutes,
-          )} دقیقه`}
-          description="زمان مکالمه فعال"
-          icon={TimerReset}
-        />
-
-        <SpeakingStat
-          title="روانی گفتار"
-          value={`${numberFormatter.format(
-            overview.stats.averageFluencyScore,
-          )}٪`}
-          description="میانگین ارزیابی‌های اخیر"
-          icon={TrendingUp}
-        />
-
-        <SpeakingStat
-          title="تداوم تمرین"
-          value={`${numberFormatter.format(overview.stats.currentStreak)} روز`}
-          description="روزهای متوالی"
-          icon={Flame}
-        />
-      </section>
-
-      <section>
-        <div
-          className="
-            flex flex-col gap-4
-            lg:flex-row lg:items-end
-            lg:justify-between
-          "
+      <div className="w-full space-y-[54px] pb-10">
+        <section
+          aria-label="آمار مکالمه"
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
         >
-          <div>
-            <h2 className="text-2xl font-bold text-white">تمرین مناسب امروز</h2>
+          <ListeningStatCard
+            title="تداوم تمرین"
+            value={`${numberFormatter.format(overview.stats.currentStreak)} روز`}
+            icon={Flame}
+            tone="orange"
+          />
 
-            <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-500">
+          <ListeningStatCard
+            title="روان بودن گفتار"
+            value={`${numberFormatter.format(
+              overview.stats.averageFluencyScore,
+            )}٪`}
+            icon={TrendingUp}
+            tone="teal"
+          />
+
+          <ListeningStatCard
+            title="تمرین این هفته"
+            value={`${numberFormatter.format(
+              overview.stats.weeklyMinutes,
+            )} دقیقه`}
+            icon={TimerReset}
+            tone="violet"
+          />
+
+          <ListeningStatCard
+            title="جلسه‌های مکالمه"
+            value={numberFormatter.format(overview.stats.totalSessions)}
+            icon={AudioWaveform}
+            tone="slate"
+          />
+        </section>
+
+        <section>
+          <div className="overflow-x-auto pb-2">
+            <div className="flex min-w-max items-center gap-3 lg:justify-start">
+              {SPEAKING_MODE_FILTERS.map((filter) => {
+                const isActive = activeMode === filter.value;
+
+                return (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    onClick={() => setActiveMode(filter.value)}
+                    className={cn(
+                      "h-[34px] shrink-0 rounded-full border border-[#BCC9C6] px-6 py-2 justify-center text-center",
+                      "text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00685f]",
+                      isActive
+                        ? "border-[#00685f] bg-[#00685f] text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.16)]"
+                        : "border-[#bcc9c6] bg-white text-[#3d4947] hover:border-[#0d9488] hover:text-[#00685f]",
+                    )}
+                  >
+                    {filter.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-8 text-right">
+            <h2 className="text-2xl font-bold tracking-[-0.02em] text-[#191c1e]">
+              تمرین مناسب امروز
+            </h2>
+
+            <p className="mt-2 text-sm leading-7 text-[#3d4947] sm:text-base">
               {activeModeDescription}
             </p>
           </div>
 
-          <div
-            className="
-              flex max-w-full gap-2 overflow-x-auto
-              pb-2 lg:justify-end
-            "
-          >
-            {SPEAKING_MODE_FILTERS.map((filter) => {
-              const isActive = activeMode === filter.value;
+          <div className="mt-6 grid grid-cols-[minmax(0,1fr)] justify-center gap-6 sm:grid-cols-[repeat(auto-fit,296px)]">
+            {activeMode === "all" ? (
+              <>
+                {orderedScenarios.slice(0, 2).map((scenario) => (
+                  <ScenarioCard key={scenario.id} scenario={scenario} />
+                ))}
 
-              return (
-                <button
-                  key={filter.value}
-                  type="button"
-                  onClick={() => setActiveMode(filter.value)}
-                  className={cn(
-                    "shrink-0 rounded-xl border px-4 py-2",
-                    "text-xs font-medium transition",
-                    isActive
-                      ? "border-cyan-300/30 bg-cyan-400/15 text-cyan-200"
-                      : "border-white/6 bg-white/2 text-slate-500 hover:bg-white/5 hover:text-slate-300",
-                  )}
-                >
-                  {filter.label}
-                </button>
-              );
-            })}
+                <FreeSpeakingCard />
+
+                {orderedScenarios.slice(2).map((scenario) => (
+                  <ScenarioCard key={scenario.id} scenario={scenario} />
+                ))}
+              </>
+            ) : (
+              orderedScenarios.map((scenario) => (
+                <ScenarioCard key={scenario.id} scenario={scenario} />
+              ))
+            )}
           </div>
-        </div>
 
-        <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          <FreeSpeakingCard
-            estimatedMinutes={10}
-            cefrLevel="همه ی سطح ها"
-            coachStyle="supportive"
-            focusAreas={["موضوع آزاد", "روان صحبت کردن", "استفاده از مهارت های مکالمه"]}
-            isFeatured={false}
-            isAvailable={true}
-          />
-
-          {filteredScenarios.map((scenario) => (
-            <ScenarioCard key={scenario.id} scenario={scenario} />
-          ))}
-        </div>
-
-        {filteredScenarios.length === 0 ? (
-          <Card className="mt-6 px-6 py-12 text-center">
-            <p className="text-sm text-slate-400">
-              تمرینی برای این دسته پیدا نشد.
-            </p>
-          </Card>
-        ) : null}
-      </section>
-    </main>
-  );
-}
-
-type SpeakingStatProps = {
-  title: string;
-  value: string;
-  description: string;
-  icon: typeof Mic2;
-};
-
-function SpeakingStat({
-  title,
-  value,
-  description,
-  icon: Icon,
-}: SpeakingStatProps) {
-  return (
-    <Card className="p-5">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm text-slate-400">{title}</p>
-
-          <p className="mt-3 text-2xl font-bold text-white">{value}</p>
-
-          <p className="mt-2 text-xs text-slate-600">{description}</p>
-        </div>
-
-        <div
-          className="
-            flex h-11 w-11 items-center justify-center
-            rounded-xl bg-cyan-400/10 text-cyan-300
-          "
-        >
-          <Icon aria-hidden="true" className="h-5 w-5" />
-        </div>
+          {filteredScenarios.length === 0 ? (
+            <Card className="mt-6 px-6 py-12 text-center">
+              <p className="text-sm text-slate-400">
+                تمرینی برای این دسته پیدا نشد.
+              </p>
+            </Card>
+          ) : null}
+        </section>
       </div>
-    </Card>
+    </main>
   );
 }

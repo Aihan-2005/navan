@@ -6,94 +6,45 @@ import { cn } from "../../../../lib/utils/cn";
 type ListeningStatCardProps = Readonly<{
   title: string;
   value: string;
-  description: string;
-
   icon: LucideIcon;
-
-  tone?: "cyan" | "violet" | "emerald" | "amber";
+  tone?: "slate" | "violet" | "teal" | "orange";
 }>;
 
 const toneStyles = {
-  cyan: {
-    iconWrapper:
-      "bg-cyan-400/10 text-cyan-300",
-
-    glow:
-      "bg-cyan-500/10",
-  },
-
-  violet: {
-    iconWrapper:
-      "bg-violet-400/10 text-violet-300",
-
-    glow:
-      "bg-violet-500/10",
-  },
-
-  emerald: {
-    iconWrapper:
-      "bg-emerald-400/10 text-emerald-300",
-
-    glow:
-      "bg-emerald-500/10",
-  },
-
-  amber: {
-    iconWrapper:
-      "bg-amber-400/10 text-amber-300",
-
-    glow:
-      "bg-amber-500/10",
-  },
+  slate: "h-[106px] text-[#545C72]",
+  violet: "h-[98px] text-[#712AE2]",
+  teal: "h-[98px] text-[#00685F]",
+  orange: "h-[106px] text-[#F97316]",
 } as const;
 
 export function ListeningStatCard({
   title,
   value,
-  description,
   icon: Icon,
-  tone = "cyan",
+  tone = "orange",
 }: ListeningStatCardProps) {
-  const selectedTone =
-    toneStyles[tone];
-
   return (
-    <Card className="relative overflow-hidden p-5">
-      <div
-        aria-hidden="true"
-        className={cn(
-          "pointer-events-none absolute -left-14 -top-14",
-          "h-32 w-32 rounded-full blur-3xl",
-          selectedTone.glow,
-        )}
-      />
+    <Card
+      className={cn(
+        "relative flex items-center overflow-hidden rounded-[24px] border-0 bg-white/70 px-6 py-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] backdrop-blur-[6px]",
+        toneStyles[tone],
+      )}
+    >
+      <span className="absolute inset-x-3 top-0 h-px rounded-full bg-current" aria-hidden="true" />
+      <span className="absolute inset-x-3 bottom-0 h-px rounded-full bg-current" aria-hidden="true" />
+      <span className="absolute inset-y-3 right-0 w-1 rounded-full bg-current" aria-hidden="true" />
+      <span className="absolute inset-y-3 left-0 w-1 rounded-full bg-current" aria-hidden="true" />
 
-      <div className="relative flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-sm text-slate-400">
-            {title}
-          </p>
-
-          <p className="mt-3 text-2xl font-bold text-white">
-            {value}
-          </p>
-
-          <p className="mt-2 text-xs leading-6 text-slate-600">
-            {description}
-          </p>
+      <div className="relative z-10 flex w-full items-center justify-center gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-current/10">
+          <Icon aria-hidden="true" className="h-5 w-5" />
         </div>
 
-        <div
-          className={cn(
-            "flex h-11 w-11 shrink-0",
-            "items-center justify-center rounded-xl",
-            selectedTone.iconWrapper,
-          )}
-        >
-          <Icon
-            aria-hidden="true"
-            className="h-5 w-5"
-          />
+        <div className="min-w-0 text-right">
+          <p className="text-sm leading-6 text-[#64748B]">{title}</p>
+          <p className="mt-1 whitespace-nowrap text-2xl font-bold leading-8 text-[#0F172A]">
+            {value}
+          </p>
         </div>
       </div>
     </Card>

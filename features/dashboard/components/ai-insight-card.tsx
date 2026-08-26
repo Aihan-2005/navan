@@ -18,10 +18,7 @@ import {
   DASHBOARD_SKILL_LABELS,
 } from "../constants/dashboard.constants";
 
-import type {
-  AIInsight,
-  InsightType,
-} from "../types/dashboard.types";
+import type { AIInsight, InsightType } from "../types/dashboard.types";
 
 type AIInsightCardProps = {
   insight: AIInsight | null;
@@ -66,9 +63,7 @@ const insightStyles = {
   }
 >;
 
-export function AIInsightCard({
-  insight,
-}: AIInsightCardProps) {
+export function AIInsightCard({ insight }: AIInsightCardProps) {
   if (!insight) {
     return (
       <Card className="h-full p-5 sm:p-6">
@@ -88,8 +83,7 @@ export function AIInsightCard({
           </h2>
 
           <p className="mt-2 text-xs leading-6 text-slate-600">
-            بعد از انجام چند تمرین، معلم هوشمند پیشنهادهای شخصی ارائه
-            می‌کند.
+            بعد از انجام چند تمرین، معلم هوشمند پیشنهادهای شخصی ارائه می‌کند.
           </p>
         </div>
       </Card>
@@ -120,10 +114,7 @@ export function AIInsightCard({
           >
             <InsightIcon
               aria-hidden="true"
-              className={cn(
-                "h-5 w-5",
-                insightStyle.iconClassName,
-              )}
+              className={cn("h-5 w-5", insightStyle.iconClassName)}
             />
           </div>
 
@@ -168,10 +159,7 @@ export function AIInsightCard({
           >
             {insight.actionLabel}
 
-            <ArrowLeft
-              aria-hidden="true"
-              className="h-4 w-4"
-            />
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" />
           </Link>
         ) : null}
       </div>

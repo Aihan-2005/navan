@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   BookOpenText,
   BriefcaseBusiness,
+  ChartNoAxesColumn,
   Clock3,
   Headphones,
   MessagesSquare,
@@ -10,6 +11,7 @@ import {
   Podcast,
   Radio,
   Sparkles,
+  UserRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -40,70 +42,71 @@ const contentTypeIcons = {
   lecture: Radio,
   exam: Headphones,
   custom: Headphones,
-} satisfies Record<
-  ListeningContentType,
-  LucideIcon
->;
+} satisfies Record<ListeningContentType, LucideIcon>;
+
+const contentTypeIconColors = {
+  podcast: "text-[#EA580C] bg-[#EA580C]/10",
+  conversation: "text-[#0D9488] bg-[#0D9488]/10",
+  story: "text-[#2563EB] bg-[#2563EB]/10",
+  news: "text-[#2563EB] bg-[#2563EB]/10",
+  interview: "text-[#0D9488] bg-[#0D9488]/10",
+  lecture: "text-[#2563EB] bg-[#2563EB]/10",
+  exam: "text-[#0D9488] bg-[#0D9488]/10",
+  custom: "text-[#0D9488] bg-[#0D9488]/10",
+} satisfies Record<ListeningContentType, string>;
+
+const contentTypeTextColors = {
+  podcast: "text-[#EA580C]",
+  conversation: "text-[#0D9488]",
+  story: "text-[#2563EB]",
+  news: "text-[#2563EB]",
+  interview: "text-[#0D9488]",
+  lecture: "text-[#2563EB]",
+  exam: "text-[#0D9488]",
+  custom: "text-[#0D9488]",
+} satisfies Record<ListeningContentType, string>;
 
 const statusStyles = {
-  ready:
-    "border-emerald-400/15 bg-emerald-400/10 text-emerald-200",
+  ready: "border-transparent bg-[#F3F4F6] text-[#4B5563]",
 
-  processing:
-    "border-amber-400/15 bg-amber-400/10 text-amber-200",
+  processing: "border-transparent bg-[#F3F4F6] text-[#4B5563]",
 
-  coming_soon:
-    "border-white/[0.07] bg-white/[0.04] text-slate-500",
+  coming_soon: "border-transparent bg-[#F3F4F6] text-[#4B5563]",
 } as const;
 
-const numberFormatter =
-  new Intl.NumberFormat("fa-IR");
+const numberFormatter = new Intl.NumberFormat("fa-IR");
 
-function formatDuration(
-  durationSeconds: number,
-): string {
-  const minutes = Math.floor(
-    durationSeconds / 60,
-  );
+function formatDuration(durationSeconds: number): string {
+  const minutes = Math.floor(durationSeconds / 60);
 
-  const seconds =
-    durationSeconds % 60;
+  const seconds = durationSeconds % 60;
 
   if (seconds === 0) {
-    return `${numberFormatter.format(
-      minutes,
-    )} دقیقه`;
+    return `${numberFormatter.format(minutes)} دقیقه`;
   }
 
-  return `${numberFormatter.format(
-    minutes,
-  )}:${numberFormatter
+  return `${numberFormatter.format(minutes)}:${numberFormatter
     .format(seconds)
     .padStart(2, "۰")}`;
 }
 
-export function ListeningContentCard({
-  content,
-}: ListeningContentCardProps) {
-  const ContentIcon =
-    contentTypeIcons[content.contentType];
+export function ListeningContentCard({ content }: ListeningContentCardProps) {
+  const ContentIcon = contentTypeIcons[content.contentType];
 
-  const practiceHref =
-    `/listening/practice/${content.id}`;
+  const practiceHref = `/listening/practice/${content.id}`;
 
-  const isReady =
-    content.status === "ready";
+  const isReady = content.status === "ready";
 
   const cardContent = (
     <Card
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden p-5",
+        "group relative flex w-full max-w-none justify-self-stretch self-stretch flex-col overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-none",
         "transition duration-300",
 
         isReady && [
           "hover:-translate-y-1",
-          "hover:border-cyan-400/20",
-          "hover:bg-cyan-400/[0.035]",
+          "hover:border-[#0D9488]/30",
+          "hover:bg-[#F8FFFE]",
         ],
 
         !isReady && "opacity-70",
@@ -113,141 +116,93 @@ export function ListeningContentCard({
         aria-hidden="true"
         className="
           pointer-events-none absolute -left-20 -top-20
-          h-44 w-44 rounded-full bg-cyan-500/10
+          h-44 w-44 rounded-full bg-[#0D9488]/10
           opacity-0 blur-3xl transition
           group-hover:opacity-100
         "
       />
 
-      <div className="relative flex h-full flex-col">
-        <div className="flex items-start justify-between gap-4">
+      <div className="relative flex flex-col">
+        <div className="relative -top-2 flex h-12 items-start justify-between gap-4">
           <div
-            className="
-              flex h-12 w-12 items-center justify-center
-              rounded-2xl bg-cyan-400/10 text-cyan-300
-            "
+            className={cn(
+              "absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full",
+              contentTypeIconColors[content.contentType],
+            )}
           >
-            <ContentIcon
-              aria-hidden="true"
-              className="h-6 w-6"
-            />
+            <ContentIcon aria-hidden="true" className="h-6 w-6" />
           </div>
 
-          <div className="flex flex-wrap justify-end gap-2">
+          <div className="absolute right-0 top-0 flex flex-wrap justify-end gap-1">
             {content.isFeatured ? (
               <span
                 className="
-                  inline-flex items-center gap-1
-                  rounded-full border
-                  border-violet-400/15
-                  bg-violet-400/10 px-2.5 py-1
-                  text-[10px] font-medium text-violet-200
+                  inline-flex h-6 items-center gap-1
+                  rounded-2xl bg-[#F3E8FF] px-2.5 py-1
+                  font-[Vazirmatn] text-xs font-medium text-[#7E22CE]
                 "
               >
-                <Sparkles
-                  aria-hidden="true"
-                  className="h-3 w-3"
-                />
-
+                <Sparkles aria-hidden="true" className="h-3 w-3" />
                 پیشنهادی
               </span>
             ) : null}
 
             <span
               className={cn(
-                "rounded-full border px-2.5 py-1",
-                "text-[10px] font-medium",
+                "inline-flex h-6 items-center rounded-2xl border px-2.5 py-1",
+                "font-[Vazirmatn] text-xs font-medium",
                 statusStyles[content.status],
               )}
             >
-              {
-                LISTENING_CONTENT_STATUS_LABELS[
-                  content.status
-                ]
-              }
+              {LISTENING_CONTENT_STATUS_LABELS[content.status]}
             </span>
           </div>
         </div>
 
-        <p className="mt-5 text-xs font-medium text-cyan-300">
-          {
-            LISTENING_CONTENT_TYPE_LABELS[
-              content.contentType
-            ]
-          }
+        <p
+          className={cn(
+            "mt-1 font-[Vazirmatn] text-xs font-medium",
+            contentTypeTextColors[content.contentType],
+          )}
+        >
+          {LISTENING_CONTENT_TYPE_LABELS[content.contentType]}
         </p>
 
-        <h3 className="mt-2 text-lg font-bold leading-8 text-white">
+        <h3 className="mt-2 font-[Vazirmatn] text-[18px] font-bold leading-7 text-[#0F172A]">
           {content.title}
         </h3>
 
-        {content.description ? (
-          <p className="mt-2 flex-1 text-sm leading-7 text-slate-400">
-            {content.description}
-          </p>
-        ) : null}
-
-        <div className="mt-5 flex flex-wrap gap-2">
-          {content.topics
-            .slice(0, 3)
-            .map((topic) => (
-              <span
-                key={topic}
-                className="
-                  rounded-lg bg-white/[0.04]
-                  px-2.5 py-1
-                  text-[10px] text-slate-500
-                "
-              >
-                {topic}
-              </span>
-            ))}
-        </div>
-
         <div
           className="
-            mt-5 flex flex-wrap items-center gap-4
-            border-t border-white/[0.06] pt-4
-            text-xs text-slate-500
+            mt-4 flex flex-wrap items-center gap-4
+            text-sm text-[#64748B]
           "
         >
           <span className="flex items-center gap-1.5">
-            <Clock3
-              aria-hidden="true"
-              className="h-3.5 w-3.5"
-            />
+            <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
 
-            {formatDuration(
-              content.durationSeconds,
-            )}
+            {formatDuration(content.durationSeconds)}
           </span>
 
-          <span>
+          <span className="flex items-center gap-1.5">
+            <ChartNoAxesColumn aria-hidden="true" className="h-3.5 w-3.5" />
             سطح {content.cefrLevel}
           </span>
 
-          <span>
-            {
-              LISTENING_ACCENT_LABELS[
-                content.accent
-              ]
-            }
+          <span className="flex items-center gap-1.5">
+            <UserRound aria-hidden="true" className="h-3.5 w-3.5" />
+            {LISTENING_ACCENT_LABELS[content.accent]}
           </span>
         </div>
 
-        <div className="mt-5 flex items-center justify-between gap-3">
+        <div className="mt-6 flex items-center justify-between gap-3">
           {content.bestAccuracyScore !== null ? (
-            <p className="text-xs text-slate-500">
+            <p className="font-[Vazirmatn] text-[14px] font-medium leading-5 text-[#0D9488]">
               بهترین دقت:{" "}
-              <span className="font-semibold text-emerald-300">
-                {numberFormatter.format(
-                  content.bestAccuracyScore,
-                )}
-                ٪
-              </span>
+              <span>{numberFormatter.format(content.bestAccuracyScore)}٪</span>
             </p>
           ) : (
-            <p className="text-xs text-slate-600">
+            <p className="font-[Vazirmatn] text-[14px] font-normal leading-5 text-[#9CA3AF]">
               هنوز انجام نشده
             </p>
           )}
@@ -256,15 +211,11 @@ export function ListeningContentCard({
             <span
               className="
                 inline-flex h-10 w-10 items-center
-                justify-center rounded-xl
-                bg-white text-slate-950
-                transition group-hover:bg-cyan-300
+                justify-center rounded-full bg-[#F3F4F6] text-[#0F172A]
+                transition group-hover:bg-[#00A89622]
               "
             >
-              <ArrowLeft
-                aria-hidden="true"
-                className="h-4 w-4"
-              />
+              <ArrowLeft aria-hidden="true" className="h-4 w-4" />
             </span>
           ) : null}
         </div>
@@ -281,7 +232,7 @@ export function ListeningContentCard({
       href={practiceHref}
       aria-label={`شروع تمرین ${content.title}`}
       className="
-        block h-full rounded-2xl
+        flex w-full rounded-2xl
         focus-visible:outline-none
         focus-visible:ring-2
         focus-visible:ring-cyan-300/60
