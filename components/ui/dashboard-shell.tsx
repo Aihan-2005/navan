@@ -27,16 +27,9 @@ export type DashboardAppearance =
   | "dark"
   | "light";
 
-/**
- * Route namespaces that use Navan's light application shell.
- *
- * Important:
- * Keep namespaces here instead of individual pages.
- * Features such as Reading, Speaking and Listening contain
- * dynamic/nested routes and all of them must inherit the
- * same Header/Sidebar appearance.
- */
+
 const LIGHT_SHELL_NAMESPACES = [
+  "/daily-practice",
   "/reading",
   "/speaking",
   "/listening",
@@ -66,17 +59,16 @@ function resolveDashboardAppearance(
         ),
     );
 
-  if (belongsToLightNamespace) {
+  if (
+    belongsToLightNamespace
+  ) {
     return "light";
   }
 
-  /**
-   * Writing overview currently uses the light Figma design.
-   *
-   * Nested Writing pages still use their existing dark
-   * visual system, so only the overview route is included.
-   */
-  if (pathname === "/writing") {
+
+  if (
+    pathname === "/writing"
+  ) {
     return "light";
   }
 
@@ -107,17 +99,10 @@ export default function DashboardShell({
       setIsSidebarOpen(false);
     }, []);
 
-  /**
-   * The mobile navigation drawer must not survive
-   * a route transition.
-   */
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [pathname]);
 
-  /**
-   * Allow the mobile Sidebar to be closed with Escape.
-   */
   useEffect(() => {
     if (!isSidebarOpen) {
       return;
@@ -126,7 +111,10 @@ export default function DashboardShell({
     function handleKeyDown(
       event: KeyboardEvent,
     ): void {
-      if (event.key === "Escape") {
+      if (
+        event.key ===
+        "Escape"
+      ) {
         closeSidebar();
       }
     }
@@ -147,10 +135,6 @@ export default function DashboardShell({
     isSidebarOpen,
   ]);
 
-  /**
-   * Prevent the page behind the mobile Sidebar
-   * from scrolling while the drawer is open.
-   */
   useEffect(() => {
     if (!isSidebarOpen) {
       document.body.style.removeProperty(
@@ -167,7 +151,9 @@ export default function DashboardShell({
       "hidden";
 
     return () => {
-      if (previousOverflow) {
+      if (
+        previousOverflow
+      ) {
         document.body.style.overflow =
           previousOverflow;
 
@@ -188,6 +174,7 @@ export default function DashboardShell({
       }
       className={cn(
         "min-h-dvh",
+
         isLight
           ? [
               "bg-[#F7F9FB]",
@@ -200,14 +187,18 @@ export default function DashboardShell({
       )}
     >
       <Header
-        appearance={appearance}
+        appearance={
+          appearance
+        }
         setIsSidebarOpen={
           setIsSidebarOpen
         }
       />
 
       <Sidebar
-        appearance={appearance}
+        appearance={
+          appearance
+        }
         isSidebarOpen={
           isSidebarOpen
         }

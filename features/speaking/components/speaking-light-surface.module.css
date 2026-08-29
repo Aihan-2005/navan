@@ -1,0 +1,260 @@
+.root {
+  --speaking-page-bg: #f7f9fb;
+  --speaking-surface: #ffffff;
+  --speaking-surface-soft: #f8fafc;
+
+  --speaking-border: #e2e8f0;
+  --speaking-border-strong: #cbd5e1;
+
+  --speaking-title: #0f172a;
+  --speaking-body: #334155;
+  --speaking-muted: #64748b;
+
+  --speaking-primary: #00685f;
+  --speaking-primary-hover: #005a52;
+  --speaking-primary-soft: #e6f2f0;
+}
+
+/*
+ * Legacy dark typography
+ */
+.root [class~="text-white"] {
+  color: var(--speaking-title) !important;
+}
+
+.root [class~="text-slate-100"],
+.root [class~="text-slate-200"] {
+  color: #1e293b !important;
+}
+
+.root [class~="text-slate-300"] {
+  color: #334155 !important;
+}
+
+.root [class~="text-slate-400"] {
+  color: #475569 !important;
+}
+
+.root [class~="text-slate-500"],
+.root [class~="text-slate-600"],
+.root [class~="text-slate-700"] {
+  color: var(--speaking-muted) !important;
+}
+
+/*
+ * Dark surfaces -> white surfaces
+ */
+.root [class~="bg-slate-950/80"],
+.root [class~="bg-slate-950/90"],
+.root [class~="bg-slate-950/70"],
+.root [class~="bg-slate-950/60"],
+.root [class~="bg-white/5"],
+.root [class~="bg-white/[0.025]"],
+.root [class~="bg-white/[0.03]"],
+.root [class~="bg-white/[0.035]"],
+.root [class~="bg-white/[0.04]"],
+.root [class~="bg-white/[0.05]"],
+.root [class~="bg-white/[0.06]"] {
+  background-color: var(--speaking-surface) !important;
+}
+
+.root [class~="bg-black/10"],
+.root [class~="bg-black/15"] {
+  background-color: var(--speaking-surface-soft) !important;
+}
+
+/*
+ * Borders
+ */
+.root [class~="border-white/10"],
+.root [class~="border-white/[0.06]"],
+.root [class~="border-white/[0.08]"],
+.root [class~="border-white/[0.1]"] {
+  border-color: var(--speaking-border) !important;
+}
+
+.root [class~="hover:bg-white/10"]:hover,
+.root [class~="hover:bg-white/[0.06]"]:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.root [class~="hover:text-white"]:hover {
+  color: var(--speaking-primary) !important;
+}
+
+/*
+ * Cyan -> Navan teal
+ */
+.root [class~="text-cyan-100"],
+.root [class~="text-cyan-200"],
+.root [class~="text-cyan-300"] {
+  color: #0f766e !important;
+}
+
+.root [class~="border-cyan-400/10"],
+.root [class~="border-cyan-400/15"],
+.root [class~="border-cyan-400/20"] {
+  border-color: rgba(13, 148, 136, 0.22) !important;
+}
+
+.root [class~="bg-cyan-400/10"],
+.root [class~="bg-cyan-400/[0.04]"],
+.root [class~="bg-cyan-400/[0.05]"] {
+  background-color: #e6f2f0 !important;
+}
+
+.root [class~="bg-cyan-500/10"],
+.root [class~="bg-cyan-500/15"] {
+  background-color: rgba(13, 148, 136, 0.07) !important;
+}
+
+.root [class~="bg-cyan-400"] {
+  background-color: #0d9488 !important;
+}
+
+.root [class~="hover:bg-cyan-300"]:hover {
+  background-color: #0f766e !important;
+}
+
+/*
+ * Violet
+ */
+.root [class~="text-violet-200"],
+.root [class~="text-violet-300"] {
+  color: #6d28d9 !important;
+}
+
+.root [class~="bg-violet-400/10"],
+.root [class~="bg-violet-400/[0.05]"] {
+  background-color: #f3e8ff !important;
+}
+
+.root [class~="border-violet-400/15"] {
+  border-color: #e9d5ff !important;
+}
+
+.root [class~="bg-violet-400"] {
+  background-color: #7c3aed !important;
+}
+
+.root [class~="hover:bg-violet-300"]:hover {
+  background-color: #6d28d9 !important;
+}
+
+/*
+ * Success
+ */
+.root [class~="text-emerald-200"],
+.root [class~="text-emerald-300"] {
+  color: #047857 !important;
+}
+
+.root [class~="bg-emerald-400/[0.035]"],
+.root [class~="bg-emerald-400/[0.05]"] {
+  background-color: #ecfdf5 !important;
+}
+
+.root [class~="border-emerald-400/10"],
+.root [class~="border-emerald-400/15"] {
+  border-color: #a7f3d0 !important;
+}
+
+/*
+ * Warning
+ */
+.root [class~="text-amber-200"],
+.root [class~="text-amber-300"] {
+  color: #b45309 !important;
+}
+
+.root [class~="bg-amber-400/[0.05]"] {
+  background-color: #fffbeb !important;
+}
+
+.root [class~="border-amber-400/15"] {
+  border-color: #fde68a !important;
+}
+
+/*
+ * Error
+ */
+.root [class~="text-red-200"],
+.root [class~="text-red-300"] {
+  color: #b91c1c !important;
+}
+
+.root [class~="bg-red-400/10"],
+.root [class~="bg-red-400/[0.035]"],
+.root [class~="bg-red-400/[0.05]"],
+.root [class~="bg-red-400/[0.06]"] {
+  background-color: #fef2f2 !important;
+}
+
+.root [class~="border-red-400/10"],
+.root [class~="border-red-400/15"],
+.root [class~="border-red-400/20"] {
+  border-color: #fecaca !important;
+}
+
+.root [class~="text-fuchsia-300"] {
+  color: #a21caf !important;
+}
+
+/*
+ * Solid CTA foregrounds.
+ *
+ * text-white در بالا برای legacy cards به رنگ تیره تبدیل شد،
+ * بنابراین CTAهای رنگی را صریحاً دوباره سفید می‌کنیم.
+ */
+.root
+  [class~="bg-cyan-400"][class~="text-slate-950"],
+.root
+  [class~="bg-violet-400"][class~="text-slate-950"],
+.root
+  [class~="bg-red-400"][class~="text-white"] {
+  color: #ffffff !important;
+}
+
+/*
+ * Shared Card component is dark-first.
+ */
+.root [class~="backdrop-blur-sm"] {
+  backdrop-filter: none !important;
+}
+
+.root
+  [class~="shadow-[0_18px_50px_rgba(0,0,0,0.18)]"] {
+  box-shadow:
+    0 4px 20px rgba(15, 23, 42, 0.05) !important;
+}
+
+.root a,
+.root button {
+  outline-color: var(--speaking-primary);
+}
+
+/*
+ * Scrollable panels
+ */
+.root * {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.root *::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.root *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.root *::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+
+.root *::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

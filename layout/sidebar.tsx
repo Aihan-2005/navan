@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+
 import {
   Bot,
   BookOpenText,
+  CalendarDays,
   ClipboardCheck,
   Crown,
   Headphones,
@@ -15,34 +17,51 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+
+import {
+  usePathname,
+} from "next/navigation";
+
+import {
+  useState,
+} from "react";
 
 import {
   PricingModal,
   subscriptionPlans,
 } from "../features/subscription";
-import { cn } from "../lib/utils/cn";
-import { SupportCard } from "../components/ui/support-card";
+
+import {
+  cn,
+} from "../lib/utils/cn";
+
+import {
+  SupportCard,
+} from "../components/ui/support-card";
 
 type SidebarAppearance =
   | "dark"
   | "light";
 
-type NavigationItem = Readonly<{
-  label: string;
-  href: string;
-  icon: LucideIcon;
-  exact?: boolean;
-}>;
+type NavigationItem =
+  Readonly<{
+    label: string;
+    href: string;
+    icon: LucideIcon;
+    exact?: boolean;
+  }>;
 
-type SidebarProps = Readonly<{
-  isSidebarOpen: boolean;
-  setIsSidebarOpen: (
-    open: boolean,
-  ) => void;
-  appearance?: SidebarAppearance;
-}>;
+type SidebarProps =
+  Readonly<{
+    isSidebarOpen: boolean;
+
+    setIsSidebarOpen: (
+      open: boolean,
+    ) => void;
+
+    appearance?:
+      SidebarAppearance;
+  }>;
 
 const PRIMARY_NAVIGATION_ITEMS = [
   {
@@ -51,31 +70,43 @@ const PRIMARY_NAVIGATION_ITEMS = [
     icon: LayoutDashboard,
     exact: true,
   },
+
+  {
+    label: "تمرین روزانه",
+    href: "/daily-practice",
+    icon: CalendarDays,
+  },
+
   {
     label: "مکالمه",
     href: "/speaking",
     icon: Mic2,
   },
+
   {
     label: "شنیداری",
     href: "/listening",
     icon: Headphones,
   },
+
   {
     label: "خواندن",
     href: "/reading",
     icon: BookOpenText,
   },
+
   {
     label: "نوشتن",
     href: "/writing",
     icon: PenLine,
   },
+
   {
     label: "ارزیابی‌ها",
     href: "/assessment",
     icon: ClipboardCheck,
   },
+
   {
     label: "کلاس",
     href: "/classroom",
@@ -96,7 +127,10 @@ function isNavigationItemActive(
   item: NavigationItem,
 ): boolean {
   if (item.exact) {
-    return pathname === item.href;
+    return (
+      pathname ===
+      item.href
+    );
   }
 
   return (
@@ -111,27 +145,40 @@ function BrandLogo({
   appearance,
   onNavigate,
 }: {
-  appearance: SidebarAppearance;
-  onNavigate: () => void;
+  appearance:
+    SidebarAppearance;
+
+  onNavigate:
+    () => void;
 }) {
-  if (appearance === "light") {
+  if (
+    appearance === "light"
+  ) {
     return (
       <Link
         href="/dashboard"
-        onClick={onNavigate}
+        onClick={
+          onNavigate
+        }
         aria-label="رفتن به داشبورد Navan AI"
         className="
-          flex items-center
-          gap-2 rounded-xl
-          px-2 py-1
+          flex
+          items-center
+          gap-2
+          rounded-xl
+          px-2
+          py-1
           transition
           hover:bg-[#E4E9EA]
         "
       >
         <span
           className="
-            flex h-9 w-9
-            items-center justify-center
+            flex
+            h-9
+            w-9
+            items-center
+            justify-center
             rounded-lg
             bg-[#009688]
             text-white
@@ -139,27 +186,33 @@ function BrandLogo({
         >
           <BookOpenText
             aria-hidden="true"
-            className="h-5 w-5"
+            className="
+              h-5
+              w-5
+            "
           />
         </span>
 
         <span className="min-w-0">
           <span
+            dir="ltr"
             className="
-              block whitespace-nowrap
-              text-[27px] font-bold
+              block
+              whitespace-nowrap
+              text-[27px]
+              font-bold
               leading-8
               tracking-[-0.04em]
               text-[#00796F]
             "
-            dir="ltr"
           >
             Navan AI
           </span>
 
           <span
             className="
-              block text-right
+              block
+              text-right
               text-[10px]
               font-medium
               text-[#00897F]
@@ -175,21 +228,29 @@ function BrandLogo({
   return (
     <Link
       href="/dashboard"
-      onClick={onNavigate}
+      onClick={
+        onNavigate
+      }
       aria-label="رفتن به داشبورد MeowLingo AI"
       className="
-        flex min-w-0
-        items-center gap-3
+        flex
+        min-w-0
+        items-center
+        gap-3
         rounded-2xl
-        px-3 py-2
+        px-3
+        py-2
         transition
         hover:bg-white/[0.04]
       "
     >
       <span
         className="
-          flex h-11 w-11
-          shrink-0 items-center
+          flex
+          h-11
+          w-11
+          shrink-0
+          items-center
           justify-center
           rounded-2xl
           bg-gradient-to-br
@@ -202,19 +263,24 @@ function BrandLogo({
       >
         <Languages
           aria-hidden="true"
-          className="h-6 w-6"
+          className="
+            h-6
+            w-6
+          "
         />
       </span>
 
       <span className="min-w-0">
         <span
           className="
-            block truncate
+            block
+            truncate
             bg-gradient-to-l
             from-cyan-300
             to-blue-400
             bg-clip-text
-            text-lg font-bold
+            text-lg
+            font-bold
             text-transparent
           "
         >
@@ -223,7 +289,8 @@ function BrandLogo({
 
         <span
           className="
-            block truncate
+            block
+            truncate
             text-[11px]
             text-slate-500
           "
@@ -242,9 +309,14 @@ function NavigationLink({
   onNavigate,
 }: {
   item: NavigationItem;
+
   pathname: string;
-  appearance: SidebarAppearance;
-  onNavigate: () => void;
+
+  appearance:
+    SidebarAppearance;
+
+  onNavigate:
+    () => void;
 }) {
   const active =
     isNavigationItemActive(
@@ -252,26 +324,42 @@ function NavigationLink({
       item,
     );
 
-  const Icon = item.icon;
+  const Icon =
+    item.icon;
 
-  if (appearance === "light") {
+  if (
+    appearance === "light"
+  ) {
     return (
       <Link
         href={item.href}
-        onClick={onNavigate}
+        onClick={
+          onNavigate
+        }
         aria-current={
-          active ? "page" : undefined
+          active
+            ? "page"
+            : undefined
         }
         className={cn(
           "group relative flex",
+
           "min-h-11 items-center",
+
           "gap-3 rounded-lg",
+
           "px-3 py-2",
+
           "text-sm font-medium",
+
           "transition",
+
           "focus-visible:outline-none",
+
           "focus-visible:ring-2",
+
           "focus-visible:ring-[#00897F]/30",
+
           active
             ? [
                 "bg-[#D7ECEA]",
@@ -288,8 +376,10 @@ function NavigationLink({
           <span
             aria-hidden="true"
             className="
-              absolute bottom-0
-              right-0 top-0
+              absolute
+              bottom-0
+              right-0
+              top-0
               w-[3px]
               rounded-l-full
               bg-[#15B8A9]
@@ -299,21 +389,28 @@ function NavigationLink({
 
         <span
           className="
-            flex h-8 w-8
-            shrink-0 items-center
+            flex
+            h-8
+            w-8
+            shrink-0
+            items-center
             justify-center
           "
         >
           <Icon
             aria-hidden="true"
             strokeWidth={1.8}
-            className="h-5 w-5"
+            className="
+              h-5
+              w-5
+            "
           />
         </span>
 
         <span
           className="
-            min-w-0 flex-1
+            min-w-0
+            flex-1
             truncate
           "
         >
@@ -326,20 +423,33 @@ function NavigationLink({
   return (
     <Link
       href={item.href}
-      onClick={onNavigate}
+      onClick={
+        onNavigate
+      }
       aria-current={
-        active ? "page" : undefined
+        active
+          ? "page"
+          : undefined
       }
       className={cn(
         "group relative flex",
+
         "min-h-12 items-center",
+
         "gap-3 rounded-xl",
+
         "px-3 py-2.5",
+
         "text-sm font-medium",
+
         "transition duration-200",
+
         "focus-visible:outline-none",
+
         "focus-visible:ring-2",
+
         "focus-visible:ring-cyan-300/60",
+
         active
           ? [
               "bg-cyan-400/[0.1]",
@@ -358,8 +468,10 @@ function NavigationLink({
         <span
           aria-hidden="true"
           className="
-            absolute bottom-2
-            right-0 top-2
+            absolute
+            bottom-2
+            right-0
+            top-2
             w-[3px]
             rounded-l-full
             bg-cyan-300
@@ -370,9 +482,13 @@ function NavigationLink({
       <span
         className={cn(
           "flex h-9 w-9",
+
           "shrink-0 items-center",
+
           "justify-center rounded-xl",
+
           "transition duration-200",
+
           active
             ? [
                 "bg-cyan-400/10",
@@ -388,13 +504,17 @@ function NavigationLink({
       >
         <Icon
           aria-hidden="true"
-          className="h-5 w-5"
+          className="
+            h-5
+            w-5
+          "
         />
       </span>
 
       <span
         className="
-          min-w-0 flex-1
+          min-w-0
+          flex-1
           truncate
         "
       >
@@ -409,16 +529,25 @@ function UpgradeToProCard({
   onNavigate,
   onOpenPlans,
 }: {
-  appearance: SidebarAppearance;
-  onNavigate: () => void;
-  onOpenPlans: () => void;
+  appearance:
+    SidebarAppearance;
+
+  onNavigate:
+    () => void;
+
+  onOpenPlans:
+    () => void;
 }) {
-  if (appearance === "light") {
+  if (
+    appearance === "light"
+  ) {
     return (
       <div
         className="
-          mt-auto px-3
-          pb-4 pt-6
+          mt-auto
+          px-3
+          pb-4
+          pt-6
         "
       >
         <div
@@ -428,24 +557,30 @@ function UpgradeToProCard({
             bg-gradient-to-br
             from-[#079B90]
             to-[#15B9AE]
-            p-4 text-white
+            p-4
+            text-white
             shadow-[0_8px_20px_rgba(0,104,95,0.18)]
           "
         >
           <div
             className="
-              flex items-center
+              flex
+              items-center
               gap-2
             "
           >
             <Crown
               aria-hidden="true"
-              className="h-5 w-5"
+              className="
+                h-5
+                w-5
+              "
             />
 
             <h2
               className="
-                text-sm font-bold
+                text-sm
+                font-bold
               "
             >
               نسخه حرفه‌ای
@@ -454,7 +589,8 @@ function UpgradeToProCard({
 
           <p
             className="
-              mt-2 text-[11px]
+              mt-2
+              text-[11px]
               leading-5
               text-white/90
             "
@@ -470,13 +606,17 @@ function UpgradeToProCard({
               onOpenPlans();
             }}
             className="
-              mt-3 flex h-8
-              w-full items-center
+              mt-3
+              flex
+              h-8
+              w-full
+              items-center
               justify-center
               rounded-md
               bg-white
               px-3
-              text-xs font-bold
+              text-xs
+              font-bold
               text-[#00796F]
               transition
               hover:bg-[#F2FFFD]
@@ -492,15 +632,19 @@ function UpgradeToProCard({
   return (
     <div
       className="
-        mt-auto px-3
-        pb-4 pt-6
+        mt-auto
+        px-3
+        pb-4
+        pt-6
       "
     >
       <div
         className="
-          relative overflow-hidden
+          relative
+          overflow-hidden
           rounded-2xl
-          border border-violet-300/15
+          border
+          border-violet-300/15
           bg-gradient-to-br
           from-violet-600/90
           to-blue-700/90
@@ -513,23 +657,30 @@ function UpgradeToProCard({
           aria-hidden="true"
           className="
             pointer-events-none
-            absolute -left-12
-            -top-12 h-32 w-32
+            absolute
+            -left-12
+            -top-12
+            h-32
+            w-32
             rounded-full
-            bg-white/10 blur-2xl
+            bg-white/10
+            blur-2xl
           "
         />
 
         <div className="relative">
           <div
             className="
-              flex items-center
+              flex
+              items-center
               gap-2
             "
           >
             <span
               className="
-                flex h-9 w-9
+                flex
+                h-9
+                w-9
                 items-center
                 justify-center
                 rounded-xl
@@ -539,13 +690,17 @@ function UpgradeToProCard({
             >
               <Crown
                 aria-hidden="true"
-                className="h-5 w-5"
+                className="
+                  h-5
+                  w-5
+                "
               />
             </span>
 
             <h2
               className="
-                text-sm font-bold
+                text-sm
+                font-bold
                 text-white
               "
             >
@@ -555,7 +710,8 @@ function UpgradeToProCard({
 
           <p
             className="
-              mt-3 text-xs
+              mt-3
+              text-xs
               leading-6
               text-violet-100/80
             "
@@ -572,14 +728,19 @@ function UpgradeToProCard({
               onOpenPlans();
             }}
             className="
-              mt-4 inline-flex
-              w-full items-center
+              mt-4
+              inline-flex
+              w-full
+              items-center
               justify-center
               rounded-xl
-              border border-white/15
+              border
+              border-white/15
               bg-white/15
-              px-3 py-2.5
-              text-xs font-bold
+              px-3
+              py-2.5
+              text-xs
+              font-bold
               text-white
               transition
               hover:bg-white/25
@@ -598,23 +759,34 @@ export default function Sidebar({
   setIsSidebarOpen,
   appearance = "dark",
 }: SidebarProps) {
-  const pathname = usePathname();
+  const pathname =
+    usePathname();
 
   const [
     isPricingModalOpen,
     setIsPricingModalOpen,
-  ] = useState(false);
+  ] =
+    useState(false);
 
-  function closeSidebar(): void {
-    setIsSidebarOpen(false);
+  function closeSidebar():
+    void {
+    setIsSidebarOpen(
+      false,
+    );
   }
 
-  function openPricingModal(): void {
-    setIsPricingModalOpen(true);
+  function openPricingModal():
+    void {
+    setIsPricingModalOpen(
+      true,
+    );
   }
 
-  function closePricingModal(): void {
-    setIsPricingModalOpen(false);
+  function closePricingModal():
+    void {
+    setIsPricingModalOpen(
+      false,
+    );
   }
 
   return (
@@ -622,16 +794,26 @@ export default function Sidebar({
       <button
         type="button"
         aria-label="بستن منوی کناری"
-        aria-hidden={!isSidebarOpen}
-        tabIndex={
-          isSidebarOpen ? 0 : -1
+        aria-hidden={
+          !isSidebarOpen
         }
-        onClick={closeSidebar}
+        tabIndex={
+          isSidebarOpen
+            ? 0
+            : -1
+        }
+        onClick={
+          closeSidebar
+        }
         className={cn(
           "fixed inset-0 z-40",
+
           "bg-black/50 backdrop-blur-sm",
+
           "transition-opacity duration-300",
+
           "lg:hidden",
+
           isSidebarOpen
             ? "opacity-100"
             : [
@@ -647,15 +829,25 @@ export default function Sidebar({
         dir="rtl"
         className={cn(
           "fixed inset-y-0",
+
           "right-0 z-50",
+
           "flex w-72",
+
           "max-w-[86vw]",
+
           "flex-col",
+
           "overflow-y-auto",
+
           "px-2 py-4",
+
           "transition-transform",
+
           "duration-300 ease-out",
+
           "lg:translate-x-0",
+
           appearance === "light"
             ? [
                 "border-l",
@@ -672,6 +864,7 @@ export default function Sidebar({
                 "shadow-black/40",
                 "backdrop-blur-xl",
               ],
+
           isSidebarOpen
             ? "translate-x-0"
             : "translate-x-full",
@@ -679,32 +872,46 @@ export default function Sidebar({
       >
         <div
           className="
-            flex items-center
-            justify-between gap-3
+            flex
+            items-center
+            justify-between
+            gap-3
             px-1
           "
         >
           <div
             className="
-              min-w-0 flex-1
+              min-w-0
+              flex-1
             "
           >
             <BrandLogo
-              appearance={appearance}
-              onNavigate={closeSidebar}
+              appearance={
+                appearance
+              }
+              onNavigate={
+                closeSidebar
+              }
             />
           </div>
 
           <button
             type="button"
-            onClick={closeSidebar}
+            onClick={
+              closeSidebar
+            }
             aria-label="بستن منو"
             className={cn(
               "flex h-10 w-10",
+
               "shrink-0 items-center",
+
               "justify-center",
+
               "rounded-xl transition",
+
               "lg:hidden",
+
               appearance === "light"
                 ? [
                     "text-[#52615E]",
@@ -719,7 +926,10 @@ export default function Sidebar({
           >
             <X
               aria-hidden="true"
-              className="h-5 w-5"
+              className="
+                h-5
+                w-5
+              "
             />
           </button>
         </div>
@@ -728,6 +938,7 @@ export default function Sidebar({
           aria-hidden="true"
           className={cn(
             "mx-3 my-5 h-px",
+
             appearance === "light"
               ? "bg-[#D9E0E1]"
               : "bg-white/[0.06]",
@@ -737,17 +948,27 @@ export default function Sidebar({
         <nav
           aria-label="بخش‌های اصلی"
           className="
-            flex flex-col
-            gap-1 px-2
+            flex
+            flex-col
+            gap-1
+            px-2
           "
         >
           {PRIMARY_NAVIGATION_ITEMS.map(
             (item) => (
               <NavigationLink
-                key={item.href}
-                item={item}
-                pathname={pathname}
-                appearance={appearance}
+                key={
+                  item.href
+                }
+                item={
+                  item
+                }
+                pathname={
+                  pathname
+                }
+                appearance={
+                  appearance
+                }
                 onNavigate={
                   closeSidebar
                 }
@@ -759,6 +980,7 @@ export default function Sidebar({
         <div
           className={cn(
             "mx-5 my-4 h-px",
+
             appearance === "light"
               ? "bg-[#D9E0E1]"
               : "bg-white/[0.05]",
@@ -768,17 +990,27 @@ export default function Sidebar({
         <nav
           aria-label="تنظیمات و ابزارها"
           className="
-            flex flex-col
-            gap-1 px-2
+            flex
+            flex-col
+            gap-1
+            px-2
           "
         >
           {SECONDARY_NAVIGATION_ITEMS.map(
             (item) => (
               <NavigationLink
-                key={item.href}
-                item={item}
-                pathname={pathname}
-                appearance={appearance}
+                key={
+                  item.href
+                }
+                item={
+                  item
+                }
+                pathname={
+                  pathname
+                }
+                appearance={
+                  appearance
+                }
                 onNavigate={
                   closeSidebar
                 }
@@ -787,13 +1019,18 @@ export default function Sidebar({
           )}
         </nav>
 
-        {appearance === "dark" ? (
+        {appearance ===
+        "dark" ? (
           <SupportCard />
         ) : null}
 
         <UpgradeToProCard
-          appearance={appearance}
-          onNavigate={closeSidebar}
+          appearance={
+            appearance
+          }
+          onNavigate={
+            closeSidebar
+          }
           onOpenPlans={
             openPricingModal
           }
@@ -801,9 +1038,15 @@ export default function Sidebar({
       </aside>
 
       <PricingModal
-        isOpen={isPricingModalOpen}
-        onClose={closePricingModal}
-        plans={subscriptionPlans}
+        isOpen={
+          isPricingModalOpen
+        }
+        onClose={
+          closePricingModal
+        }
+        plans={
+          subscriptionPlans
+        }
       />
     </>
   );
