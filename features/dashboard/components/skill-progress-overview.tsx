@@ -1,150 +1,326 @@
-import {
-  ArrowDown,
-  ArrowUp,
-  Minus,
-  TrendingUp,
-} from "lucide-react";
+type SkillVariant =
+  | "listening"
+  | "speaking"
+  | "writing"
+  | "vocabulary";
 
-import { Card } from "../../../components/ui/card";
-import { Progress } from "../../../components/ui/progress";
-import { cn } from "../../../lib/utils/cn";
 
-import { DASHBOARD_SKILL_LABELS } from "../constants/dashboard.constants";
+type SkillItem = {
 
-import type { SkillProgress } from "../types/dashboard.types";
+  title: string;
 
-type SkillProgressOverviewProps = {
-  skills: SkillProgress[];
+  score: number;
+
+  status: string;
+
+  variant: SkillVariant;
+
 };
 
-const numberFormatter = new Intl.NumberFormat("fa-IR");
 
-function formatNumber(value: number): string {
-  return numberFormatter.format(value);
-}
 
-function SkillTrend({
-  currentScore,
-  previousScore,
-}: {
-  currentScore: number;
-  previousScore: number | null;
-}) {
-  if (previousScore === null) {
-    return (
-      <span className="flex items-center gap-1 text-xs text-slate-600">
-        <Minus aria-hidden="true" className="h-3 w-3" />
-        بدون داده قبلی
-      </span>
-    );
+type SkillProgressOverviewProps = {
+
+  skills?: readonly SkillItem[];
+
+};
+
+
+
+const defaultSkills: readonly SkillItem[] = [
+
+  {
+    title:"شنیداری (Listening)",
+    score:88,
+    status:"عالی - در حد پیشرفته",
+    variant:"listening",
+  },
+
+
+  {
+    title:"گفتاری (Speaking)",
+    score:62,
+    status:"نیاز به تمرین بیشتر",
+    variant:"speaking",
+  },
+
+
+  {
+    title:"نوشتاری (Writing)",
+    score:91,
+    status:"خوب - در حال رشد",
+    variant:"writing",
+  },
+
+
+  {
+    title:"واژگان (Vocabulary)",
+    score:95,
+    status:"ممتاز - فراتر از هدف",
+    variant:"vocabulary",
+  },
+
+];
+
+
+
+const styles: Record<
+  SkillVariant,
+  {
+    box:string;
+    score:string;
   }
+> = {
 
-  const difference = currentScore - previousScore;
 
-  if (difference === 0) {
-    return (
-      <span className="flex items-center gap-1 text-xs text-slate-500">
-        <Minus aria-hidden="true" className="h-3 w-3" />
-        بدون تغییر
-      </span>
-    );
-  }
+  listening:{
 
-  const isPositive = difference > 0;
-  const Icon = isPositive ? ArrowUp : ArrowDown;
+    box:
+      "bg-[#EAFFFD] border-[#DFF0EC]",
+
+    score:
+      "text-[#14B8A6]",
+
+  },
+
+
+  speaking:{
+
+    box:
+      "bg-[#E2EDFF] border-[#DFF0EC]",
+
+    score:
+      "text-[#4285F4]",
+
+  },
+
+
+  writing:{
+
+    box:
+      "bg-[#F8F3FF] border-[#E6D7FF]",
+
+    score:
+      "text-[#5A00C6]",
+
+  },
+
+
+  vocabulary:{
+
+    box:
+      "bg-[#FFEFE4] border-[#FFEFE4]",
+
+    score:
+      "text-[#F97316]",
+
+  },
+
+};
+
+
+
+
+
+function SkillCard({
+
+  item,
+
+}:{
+
+  item:SkillItem;
+
+}){
+
+
+  const style =
+    styles[item.variant] ?? styles.listening;
+
+
 
   return (
-    <span
-      className={cn(
-        "flex items-center gap-1 text-xs",
-        isPositive ? "text-emerald-300" : "text-red-300",
-      )}
+
+    <div
+
+      className={`
+        rounded-2xl
+        border
+        p-4
+        ${style.box}
+      `}
+
     >
-      <Icon aria-hidden="true" className="h-3 w-3" />
-      {formatNumber(Math.abs(difference))}٪
-    </span>
+
+
+      <div
+
+        className="
+          flex
+          items-center
+          justify-between
+        "
+
+      >
+
+
+        <span
+
+          className="
+            text-base
+            font-bold
+            text-[#191C1E]
+          "
+
+        >
+
+          {item.score}٪
+
+        </span>
+
+
+
+        <span
+
+          className={`
+            text-base
+            font-bold
+            ${style.score}
+          `}
+
+        >
+
+          ●
+
+        </span>
+
+
+      </div>
+
+
+
+
+      <h3
+
+        className="
+          mt-2
+          text-sm
+          font-bold
+          text-[#191C1E]
+        "
+
+      >
+
+        {item.title}
+
+      </h3>
+
+
+
+
+      <p
+
+        className="
+          mt-2
+          text-[10px]
+          text-[#3D4947]
+        "
+
+      >
+
+        {item.status}
+
+      </p>
+
+
+    </div>
+
   );
+
 }
+
+
+
+
 
 export function SkillProgressOverview({
-  skills,
-}: SkillProgressOverviewProps) {
+
+  skills = defaultSkills,
+
+}:SkillProgressOverviewProps){
+
+
+
   return (
-    <Card className="h-full p-5 sm:p-6">
-      <div>
-        <div className="flex items-center gap-2 text-emerald-300">
-          <TrendingUp
-            aria-hidden="true"
-            className="h-5 w-5"
-          />
 
-          <span className="text-sm font-medium">
-            وضعیت مهارت‌ها
-          </span>
-        </div>
+    <section
 
-        <h2 className="mt-2 text-xl font-bold text-white">
-          نمای کلی پیشرفت
-        </h2>
+      dir="rtl"
 
-        <p className="mt-2 text-sm leading-7 text-slate-500">
-          نتیجه تمرین‌ها و ارزیابی‌های اخیر در هر مهارت
-        </p>
-      </div>
+      className="
+        rounded-2xl
+        border
+        border-[#BCC9C6]
+        bg-[#FFFFFFCC]
+        p-8
+        shadow-[0_4px_20px_rgba(0,0,0,0.04)]
+        backdrop-blur-xl
+      "
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        {skills.map((skill) => (
-          <div
-            key={skill.skill}
-            className="
-              rounded-2xl border border-white/[0.06]
-              bg-white/[0.02] p-4
-            "
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-sm font-semibold text-slate-200">
-                  {DASHBOARD_SKILL_LABELS[skill.skill]}
-                </h3>
+    >
 
-                <p className="mt-1 text-xs text-slate-600">
-                  سطح {skill.cefrLevel ?? "نامشخص"}
-                </p>
-              </div>
 
-              <div className="text-left">
-                <span className="text-lg font-bold text-white">
-                  {formatNumber(skill.score)}٪
-                </span>
 
-                <SkillTrend
-                  currentScore={skill.score}
-                  previousScore={skill.previousScore}
-                />
-              </div>
-            </div>
+      <h2
 
-            <Progress
-              value={skill.score}
-              label={`پیشرفت مهارت ${
-                DASHBOARD_SKILL_LABELS[skill.skill]
-              }`}
-              className="mt-4"
-              indicatorClassName="from-emerald-300 to-cyan-400"
+        className="
+          text-base
+          font-bold
+          text-[#191C1E]
+        "
+
+      >
+
+        تحلیل مهارت‌ها
+
+      </h2>
+
+
+
+
+
+      <div
+
+        className="
+          mt-6
+          grid
+          grid-cols-2
+          gap-4
+        "
+
+      >
+
+
+        {
+          skills.map((skill,index)=>(
+
+            <SkillCard
+
+              key={`${skill.title}-${index}`}
+
+              item={skill}
+
             />
 
-            <div className="mt-4 flex items-center justify-between text-[11px] text-slate-600">
-              <span>
-                {formatNumber(skill.completedActivities)} تمرین
-              </span>
+          ))
+        }
 
-              <span>
-                {formatNumber(skill.totalPracticeMinutes)} دقیقه
-              </span>
-            </div>
-          </div>
-        ))}
+
       </div>
-    </Card>
+
+
+
+    </section>
+
   );
+
 }

@@ -1,86 +1,151 @@
-import { dashboardMock } from "../mocks/dashboard.mock";
-
-import {
-  dashboardOverviewSchema,
-} from "../schemas/dashboard.schema";
-
 import type {
   DashboardOverview,
 } from "../types/dashboard.types";
 
-const DASHBOARD_OVERVIEW_PATH =
-  "/api/v1/dashboard/overview";
 
-function shouldUseMockData(): boolean {
-  return process.env.USE_MOCKS !== "false";
-}
+export async function getDashboardOverview():
+Promise<DashboardOverview> {
 
-function getApiBaseUrl(): string {
-  const apiBaseUrl =
-    process.env.API_BASE_URL;
+  return {
+    user: {
+      name: "نازی",
+      cefrLevel: "B1",
+    },
 
-  if (!apiBaseUrl) {
-    throw new Error(
-      "API_BASE_URL is required when USE_MOCKS is disabled.",
-    );
-  }
 
-  return apiBaseUrl;
-}
+    continueLearning: {
+      title:
+        "مکالمه در محیط کار - بخش ۳",
 
-function parseDashboardOverview(
-  payload: unknown,
-): DashboardOverview {
-  const result =
-    dashboardOverviewSchema.safeParse(payload);
+      subtitle:
+        "گرامر: حال کامل استمراری",
 
-  if (!result.success) {
-    console.error(
-      "Invalid dashboard overview payload:",
-      result.error.flatten(),
-    );
+      remainingMinutes: 12,
+    },
 
-    throw new Error(
-      "Dashboard overview payload is invalid.",
-    );
-  }
 
-  return result.data;
-}
+    summary: {
+      completedExercises: 3,
+      totalExercises: 6,
+      xp: 150,
+    },
 
-export async function getDashboardOverview(): Promise<DashboardOverview> {
-  if (shouldUseMockData()) {
-    return parseDashboardOverview(
-      dashboardMock,
-    );
-  }
 
-  const requestUrl = new URL(
-    DASHBOARD_OVERVIEW_PATH,
-    getApiBaseUrl(),
-  );
-
-  const response = await fetch(
-    requestUrl,
-    {
-      method: "GET",
-
-      headers: {
-        Accept: "application/json",
+    skillProgress: [
+      {
+        id: "listening",
+        title: "شنیداری (Listening)",
+        score: 88,
+        status:
+          "عالی - در حد پیشرفته",
       },
 
-      cache: "no-store",
-    },
-  );
+      {
+        id: "speaking",
+        title: "گفتاری (Speaking)",
+        score: 62,
+        status:
+          "نیاز به تمرین بیشتر",
+      },
 
-  if (!response.ok) {
-    throw new Error(
-      `Dashboard overview request failed with status ${response.status}.`,
-    );
-  }
+      {
+        id: "writing",
+        title: "نوشتاری (Writing)",
+        score: 91,
+        status:
+          "خوب - در حال رشد",
+      },
 
-  const payload: unknown =
-    await response.json();
+      {
+        id: "vocabulary",
+        title: "واژگان (Vocabulary)",
+        score: 95,
+        status:
+          "ممتاز - فراتر از هدف",
+      },
+    ],
 
-  return parseDashboardOverview(payload);
+
+    dailyPlan: [
+      {
+        id: "vocabulary-review",
+        title:
+          "مرور واژگان سفر",
+
+        duration:
+          "۱۰ دقیقه",
+
+        reward:
+          "+۳۰ امتیاز",
+
+        completed: true,
+      },
+
+      {
+        id: "dialog",
+        title:
+          "دیالوگ‌های روزمره",
+
+        duration:
+          "۸ دقیقه",
+
+        reward:
+          "+۲۰ امتیاز",
+
+        completed: false,
+      },
+
+      {
+        id: "grammar",
+        title:
+          "زمان افعال: گذشته دور",
+
+        duration:
+          "۱۲ دقیقه",
+
+        reward:
+          "+۴۰ امتیاز",
+
+        completed: false,
+      },
+
+      {
+        id: "writing",
+        title:
+          "تمرین حروف اضافه",
+
+        duration:
+          "۵ دقیقه",
+
+        reward:
+          "+۱۵ امتیاز",
+
+        completed: false,
+      },
+    ],
+
+
+    recentActivities: [
+      {
+        id: "1",
+        title:
+          "آزمون جامع سطح B1",
+
+        date:
+          "دیروز - ۸۵/۱۰۰",
+
+        score:
+          "85",
+      },
+
+      {
+        id: "2",
+        title:
+          "تمرین لغات رستوران",
+
+        date:
+          "۳ روز پیش - ۱۰۰٪ درست",
+      },
+    ],
+  };
 }

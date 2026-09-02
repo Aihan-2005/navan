@@ -1,82 +1,165 @@
-import type { LucideIcon } from "lucide-react";
-
-import { Card } from "../../../components/ui/card";
 import { cn } from "../../../lib/utils/cn";
-
-type OverviewStatCardTone =
-  | "cyan"
-  | "violet"
-  | "amber";
 
 type OverviewStatCardProps = {
   title: string;
   value: string;
-  description: string;
-  icon: LucideIcon;
-  tone?: OverviewStatCardTone;
+  subtitle?: string;
+  progress?: number;
+  variant?: "teal" | "purple" | "orange";
 };
 
-const toneClassNames: Record<
-  OverviewStatCardTone,
-  {
-    iconWrapper: string;
-    icon: string;
-  }
-> = {
-  cyan: {
-    iconWrapper: "bg-cyan-400/10",
-    icon: "text-cyan-300",
+const variantConfig = {
+  teal: {
+    value: "text-[#14B8A6]",
+    icon: "bg-[#14B8A61A]",
+    progress: "bg-[#14B8A6]",
   },
 
-  violet: {
-    iconWrapper: "bg-violet-400/10",
-    icon: "text-violet-300",
+  purple: {
+    value: "text-[#712AE2]",
+    icon: "bg-[#E0D3F4]",
+    progress: "bg-[#8A4CFC]",
   },
 
-  amber: {
-    iconWrapper: "bg-amber-400/10",
-    icon: "text-amber-300",
+  orange: {
+    value: "text-[#F97316]",
+    icon: "bg-[#FFF7ED]",
+    progress: "bg-[#F97316]",
   },
-};
+} as const;
+
 
 export function OverviewStatCard({
   title,
   value,
-  description,
-  icon: Icon,
-  tone = "cyan",
+  subtitle,
+  progress = 70,
+  variant = "teal",
 }: OverviewStatCardProps) {
-  const toneClasses = toneClassNames[tone];
+
+  const config = variantConfig[variant];
+
 
   return (
-    <Card className="p-5 transition duration-200 hover:-translate-y-0.5 hover:border-white/15">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-slate-400">
-            {title}
-          </p>
+    <article
+      dir="rtl"
+      className="
+        flex
+        h-[145px]
+        flex-col
+        justify-between
+        rounded-2xl
+        border
+        border-[#BCC9C6]
+        bg-[#FFFFFFCC]
+        p-6
+        shadow-[0_4px_20px_rgba(0,0,0,0.04)]
+        backdrop-blur-xl
+      "
+    >
 
-          <p className="mt-3 text-2xl font-bold tracking-tight text-white">
+      <div
+        className="
+          flex
+          items-start
+          justify-between
+          gap-4
+        "
+      >
+
+        <div>
+
+          <h3
+            className="
+              text-base
+              font-bold
+              leading-6
+              text-[#3D4947]
+            "
+          >
+            {title}
+          </h3>
+
+
+          <p
+            className={cn(
+              "mt-1 text-base font-black leading-6",
+              config.value,
+            )}
+          >
             {value}
           </p>
 
-          <p className="mt-2 text-xs leading-6 text-slate-500">
-            {description}
-          </p>
+
+          {subtitle ? (
+            <p
+              className="
+                mt-1
+                text-[10px]
+                text-[#6D7A77]
+              "
+            >
+              {subtitle}
+            </p>
+          ) : null}
+
         </div>
+
+
 
         <div
           className={cn(
-            "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
-            toneClasses.iconWrapper,
+            `
+            flex
+            h-14
+            w-14
+            items-center
+            justify-center
+            rounded-2xl
+            `,
+            config.icon,
           )}
         >
-          <Icon
-            aria-hidden="true"
-            className={cn("h-5 w-5", toneClasses.icon)}
+
+          <span
+            className="
+              h-6
+              w-6
+              rounded-full
+              border-2
+              border-current
+            "
           />
+
         </div>
+
+
       </div>
-    </Card>
+
+
+
+      <div
+        className="
+          h-2
+          overflow-hidden
+          rounded-full
+          bg-[#ECEEF0]
+        "
+      >
+
+        <div
+          className={cn(
+            "h-full rounded-full",
+            config.progress,
+          )}
+          style={{
+            width: `${progress}%`,
+          }}
+        />
+
+      </div>
+
+
+    </article>
   );
 }

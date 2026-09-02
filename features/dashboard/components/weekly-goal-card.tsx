@@ -1,148 +1,142 @@
-import {
-  CalendarDays,
-  CheckCircle2,
-  Flame,
-} from "lucide-react";
-
-import { Card } from "../../../components/ui/card";
-import { Progress } from "../../../components/ui/progress";
-
-import type { DashboardSummary } from "../types/dashboard.types";
-
-type WeeklyGoalCardProps = {
-  summary: DashboardSummary;
+type WeeklyGoalSummary = {
+  words: number;
+  listening: number;
+  speaking: number;
 };
 
-const numberFormatter = new Intl.NumberFormat("fa-IR");
+type WeeklyGoalCardProps = {
+  summary: WeeklyGoalSummary;
+};
 
-function formatNumber(value: number): string {
-  return numberFormatter.format(value);
-}
+const goals = [
+  {
+    key: "words",
+    label: "یادگیری ۱۰۰ واژه جدید",
+    color: "#14B8A6",
+  },
+  {
+    key: "listening",
+    label: "۱۰ ساعت گوش دادن",
+    color: "#14B8A6",
+  },
+  {
+    key: "speaking",
+    label: "۵ جلسه مکالمه با AI",
+    color: "#14B8A6",
+  },
+] as const;
 
-function calculatePercentage(completed: number, target: number): number {
-  if (target <= 0) {
-    return 0;
-  }
-
-  return Math.min(100, Math.round((completed / target) * 100));
-}
 
 export function WeeklyGoalCard({
   summary,
 }: WeeklyGoalCardProps) {
-  const progressPercentage = calculatePercentage(
-    summary.weeklyCompletedMinutes,
-    summary.weeklyGoalMinutes,
-  );
 
-  const remainingMinutes = Math.max(
-    0,
-    summary.weeklyGoalMinutes - summary.weeklyCompletedMinutes,
-  );
+  const values = {
+    words: summary.words,
+    listening: summary.listening,
+    speaking: summary.speaking,
+  };
 
-  const isCompleted = remainingMinutes === 0;
 
   return (
-    <Card className="h-full p-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-slate-400">
-            هدف هفتگی
-          </p>
+    <article
+      dir="rtl"
+      className="
+        h-[250px]
+        rounded-2xl
+        border
+        border-[#BCC9C6]
+        bg-[#FFFFFFCC]
+        p-6
+        backdrop-blur-xl
+        shadow-[0_4px_20px_rgba(0,0,0,.04)]
+      "
+    >
 
-          <h2 className="mt-2 text-2xl font-bold text-white">
-            {formatNumber(summary.weeklyCompletedMinutes)}
-            <span className="mr-1 text-sm font-normal text-slate-400">
-              از {formatNumber(summary.weeklyGoalMinutes)} دقیقه
-            </span>
-          </h2>
-        </div>
-
-        <div
-          className="
-            flex h-11 w-11 shrink-0 items-center justify-center
-            rounded-xl bg-violet-400/10 text-violet-300
-          "
-        >
-          <CalendarDays
-            aria-hidden="true"
-            className="h-5 w-5"
-          />
-        </div>
-      </div>
-
-      <div className="mt-6">
-        <div className="mb-3 flex items-center justify-between">
-          <span className="text-xs text-slate-500">
-            پیشرفت این هفته
-          </span>
-
-          <span className="text-sm font-bold text-white">
-            {formatNumber(progressPercentage)}٪
-          </span>
-        </div>
-
-        <Progress
-          value={progressPercentage}
-          label="پیشرفت هدف هفتگی"
-          indicatorClassName="from-violet-300 to-fuchsia-500"
-        />
-      </div>
-
-      <div className="mt-6 space-y-3">
-        <div
-          className="
-            flex items-center justify-between gap-3
-            rounded-xl bg-white/[0.03] px-3 py-2.5
-          "
-        >
-          <div className="flex items-center gap-2 text-sm text-slate-400">
-            <Flame
-              aria-hidden="true"
-              className="h-4 w-4 text-amber-300"
-            />
-
-            <span>روزهای متوالی</span>
-          </div>
-
-          <span className="text-sm font-semibold text-white">
-            {formatNumber(summary.streakDays)} روز
-          </span>
-        </div>
-
-        <div
-          className="
-            flex items-center justify-between gap-3
-            rounded-xl bg-white/[0.03] px-3 py-2.5
-          "
-        >
-          <div className="flex items-center gap-2 text-sm text-slate-400">
-            <CheckCircle2
-              aria-hidden="true"
-              className="h-4 w-4 text-emerald-300"
-            />
-
-            <span>فعالیت‌های انجام‌شده</span>
-          </div>
-
-          <span className="text-sm font-semibold text-white">
-            {formatNumber(summary.completedActivitiesThisWeek)}
-          </span>
-        </div>
-      </div>
-
-      <p
+      <h3
         className="
-          mt-5 rounded-xl border border-white/[0.06]
-          bg-black/10 px-3 py-3 text-xs leading-6 text-slate-400
+          text-base
+          font-bold
+          text-[#191C1E]
         "
       >
-        {isCompleted
-          ? "هدف این هفته کامل شده است. عملکرد فوق‌العاده‌ای داشتی."
-          : `${formatNumber(
-              remainingMinutes,
-            )} دقیقه دیگر تا تکمیل هدف هفتگی باقی مانده است.`}
-      </p>
-    </Card>
+        اهداف هفتگی
+      </h3>
+
+
+      <div
+        className="
+          mt-6
+          space-y-5
+        "
+      >
+
+        {goals.map((goal) => {
+
+          const progress =
+            values[goal.key];
+
+
+          return (
+            <div
+              key={goal.key}
+              className="space-y-2"
+            >
+
+              <div
+                className="
+                  flex
+                  justify-between
+                  text-xs
+                  font-bold
+                  text-[#191C1E]
+                "
+              >
+                <span>
+                  {goal.label}
+                </span>
+
+                <span
+                  style={{
+                    color: goal.color,
+                  }}
+                >
+                  {progress}
+                </span>
+              </div>
+
+
+              <div
+                className="
+                  h-2
+                  rounded-full
+                  bg-[#ECEEF0]
+                  overflow-hidden
+                "
+              >
+
+                <div
+                  className="
+                    h-full
+                    rounded-full
+                  "
+                  style={{
+                    width:`${progress}%`,
+                    backgroundColor:
+                      goal.color,
+                  }}
+                />
+
+              </div>
+
+
+            </div>
+          );
+
+        })}
+
+      </div>
+
+    </article>
   );
 }

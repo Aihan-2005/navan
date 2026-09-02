@@ -1,83 +1,63 @@
-import type { z } from "zod";
+export type DashboardUser = {
+  name: string;
+  cefrLevel?: string;
+};
 
-import type {
-  activityStatusSchema,
-  aiInsightSchema,
-  cefrLevelSchema,
-  continueLearningSchema,
-  dailyPlanSchema,
-  dailyTaskSchema,
-  dashboardLanguageSchema,
-  dashboardOverviewSchema,
-  dashboardSummarySchema,
-  dashboardUserSchema,
-  insightTypeSchema,
-  recentActivitySchema,
-  reviewQueueSchema,
-  skillProgressSchema,
-  skillTypeSchema,
-} from "../schemas/dashboard.schema";
 
-export type SkillType = z.infer<
-  typeof skillTypeSchema
->;
+export type ContinueLearningData = {
+  title: string;
+  subtitle: string;
+  remainingMinutes: number;
+};
 
-export type CefrLevel = z.infer<
-  typeof cefrLevelSchema
->;
 
-export type ActivityStatus = z.infer<
-  typeof activityStatusSchema
->;
+export type DashboardSummary = {
+  completedExercises: number;
+  totalExercises: number;
+  xp: number;
+};
 
-export type InsightType = z.infer<
-  typeof insightTypeSchema
->;
 
-export type DashboardLanguage = z.infer<
-  typeof dashboardLanguageSchema
->;
+export type SkillProgressItem = {
+  id: string;
+  title: string;
+  score: number;
+  status: string;
+};
 
-export type DashboardUser = z.infer<
-  typeof dashboardUserSchema
->;
 
-export type DashboardSummary = z.infer<
-  typeof dashboardSummarySchema
->;
+export type DailyPlanItem = {
+  id: string;
+  title: string;
+  duration: string;
+  reward: string;
+  completed: boolean;
+};
 
-export type ContinueLearning = z.infer<
-  typeof continueLearningSchema
->;
 
-export type DailyTask = z.infer<
-  typeof dailyTaskSchema
->;
+export type RecentActivity = {
+  id: string;
+  title: string;
+  date: string;
+  score?: string;
+};
 
-export type DailyPlan = z.infer<
-  typeof dailyPlanSchema
->;
 
-export type SkillProgress = z.infer<
-  typeof skillProgressSchema
->;
+export type DashboardOverview = {
+  user: DashboardUser;
 
-export type ReviewQueue = z.infer<
-  typeof reviewQueueSchema
->;
+  continueLearning:
+    ContinueLearningData;
 
-export type AIInsight = z.infer<
-  typeof aiInsightSchema
->;
+  summary:
+    DashboardSummary;
 
-export type RecentActivity = z.infer<
-  typeof recentActivitySchema
->;
+  skillProgress:
+    SkillProgressItem[];
 
-export type DashboardOverview = z.output<
-  typeof dashboardOverviewSchema
->;
+  dailyPlan:
+    DailyPlanItem[];
 
-export type DashboardOverviewInput = z.input<
-  typeof dashboardOverviewSchema
->;
+  recentActivities:
+    RecentActivity[];
+};
