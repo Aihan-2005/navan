@@ -1,157 +1,173 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-
-import { cn } from "./../../../lib/utils/cn";
 
 type ContinueLearningActivity = {
   title: string;
+
   grammar: string;
+
   remainingTime: string;
+
+  href: string;
 };
 
 type ContinueLearningCardProps = {
-  activity: ContinueLearningActivity;
+  activity?:
+    | ContinueLearningActivity
+    | null;
 };
+
+const fallbackActivity:
+  ContinueLearningActivity = {
+    title:
+      "مکالمه در محیط کار - بخش ۳",
+
+    grammar:
+      "گرامر: حال کامل استمراری",
+
+    remainingTime:
+      "۱۲ دقیقه",
+
+    href:
+      "/speaking",
+  };
 
 export function ContinueLearningCard({
   activity,
 }: ContinueLearningCardProps) {
+  const currentActivity =
+    activity ??
+    fallbackActivity;
+
   return (
     <article
       dir="rtl"
       className="
-        relative
         flex
         h-[250px]
+        w-full
+        items-center
+        justify-between
         overflow-hidden
         rounded-2xl
         border
         border-[#F3F4F6]
         bg-white
         p-8
-        shadow-[0_1px_2px_rgba(0,0,0,0.05)]
+        shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]
       "
     >
-
       <div
         className="
           flex
-          w-full
+          h-[155px]
+          w-[294px]
           flex-col
-          justify-between
+          gap-4
         "
       >
+        <p
+          className="
+            text-xs
+            font-medium
+            leading-4
+            text-[#9CA3AF]
+          "
+        >
+          ادامه درس امروز
+        </p>
 
-        <div>
+        <h2
+          className="
+            text-xl
+            font-bold
+            leading-7
+            text-[#1F2937]
+          "
+        >
+          {currentActivity.title}
+        </h2>
 
-          <p
-            className="
-              text-xs
-              font-medium
-              text-[#9CA3AF]
-            "
-          >
-            ادامه درس امروز
-          </p>
-
-
-          <h2
-            className="
-              mt-3
-              text-xl
-              font-bold
-              leading-7
-              text-[#1F2937]
-            "
-          >
-            {activity.title}
-          </h2>
-
-
-          <p
-            className="
-              mt-3
-              text-sm
-              leading-6
-              text-[#6B7280]
-            "
-          >
-            {activity.grammar}
-          </p>
-
-        </div>
-
+        <p
+          className="
+            text-sm
+            leading-[23px]
+            text-[#6B7280]
+          "
+        >
+          {currentActivity.grammar}
+        </p>
 
         <div
           className="
+            mt-auto
             flex
+            h-10
             items-center
-            justify-between
-            gap-4
+            gap-6
           "
         >
-
           <Link
-            href="/speaking/session"
+            href={
+              currentActivity.href
+            }
             className="
               inline-flex
+              h-10
+              min-w-[114px]
               items-center
               justify-center
-              gap-2
               rounded-lg
               bg-[#0D9488]
               px-6
-              py-2.5
               text-sm
               font-bold
               text-white
-              transition
+              transition-colors
               hover:bg-[#0F766E]
             "
           >
             ادامه جلسه
-
-            <ArrowLeft
-              className="h-4 w-4"
-              aria-hidden="true"
-            />
-
           </Link>
-
 
           <span
             className="
+              whitespace-nowrap
               text-xs
+              leading-4
               text-[#9CA3AF]
             "
           >
-            زمان باقی‌مانده:
-            {" "}
-            {activity.remainingTime}
+            زمان باقی‌مانده:{" "}
+            {
+              currentActivity.remainingTime
+            }
           </span>
-
         </div>
-
       </div>
 
-
       <div
+        aria-hidden="true"
         className="
-          absolute
-          left-8
-          top-8
-          hidden
-          h-40
-          w-40
-          rotate-[-3deg]
-          rounded-2xl
-          border
-          border-[#00C0AF]
-          bg-[#F0FDFA]
-          lg:block
+          flex
+          h-[171px]
+          w-[168px]
+          shrink-0
+          items-center
+          justify-center
         "
-      />
-
+      >
+        <div
+          className="
+            h-[160px]
+            w-[160px]
+            rotate-[-3deg]
+            rounded-2xl
+            border
+            border-[#00C0AF]
+            bg-[#F0FDFA]
+          "
+        />
+      </div>
     </article>
   );
 }

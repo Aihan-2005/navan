@@ -43,9 +43,9 @@ export default function RootLayout({
       <body
         className="
           min-h-full
-          bg-[#041121]
+          bg-white
           font-sans
-          text-white
+          text-[#191C1E]
           antialiased
         "
       >

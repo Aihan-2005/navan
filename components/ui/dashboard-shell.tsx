@@ -27,12 +27,23 @@ export type DashboardAppearance =
   | "dark"
   | "light";
 
-
 const LIGHT_SHELL_NAMESPACES = [
+  "/dashboard",
   "/daily-practice",
-  "/reading",
-  "/speaking",
   "/listening",
+  "/speaking",
+  "/writing",
+  "/reading",
+  "/vocabulary",
+  "/assessment",
+  "/profile",
+] as const;
+
+const WIDE_CONTENT_NAMESPACES = [
+  "/dashboard",
+  "/reading",
+  "/writing",
+  "/vocabulary",
 ] as const;
 
 function isRouteWithin(
@@ -50,7 +61,7 @@ function isRouteWithin(
 function resolveDashboardAppearance(
   pathname: string,
 ): DashboardAppearance {
-  const belongsToLightNamespace =
+  const isLightRoute =
     LIGHT_SHELL_NAMESPACES.some(
       (rootPath) =>
         isRouteWithin(
@@ -59,20 +70,21 @@ function resolveDashboardAppearance(
         ),
     );
 
-  if (
-    belongsToLightNamespace
-  ) {
-    return "light";
-  }
+  return isLightRoute
+    ? "light"
+    : "dark";
+}
 
-
-  if (
-    pathname === "/writing"
-  ) {
-    return "light";
-  }
-
-  return "dark";
+function isWideContentRoute(
+  pathname: string,
+): boolean {
+  return WIDE_CONTENT_NAMESPACES.some(
+    (rootPath) =>
+      isRouteWithin(
+        pathname,
+        rootPath,
+      ),
+  );
 }
 
 export default function DashboardShell({
@@ -94,6 +106,11 @@ export default function DashboardShell({
   const isLight =
     appearance === "light";
 
+  const useWideContent =
+    isWideContentRoute(
+      pathname,
+    );
+
   const closeSidebar =
     useCallback((): void => {
       setIsSidebarOpen(false);
@@ -108,16 +125,16 @@ export default function DashboardShell({
       return;
     }
 
-    function handleKeyDown(
+    const handleKeyDown = (
       event: KeyboardEvent,
-    ): void {
+    ): void => {
       if (
         event.key ===
         "Escape"
       ) {
         closeSidebar();
       }
-    }
+    };
 
     document.addEventListener(
       "keydown",
@@ -151,18 +168,14 @@ export default function DashboardShell({
       "hidden";
 
     return () => {
-      if (
-        previousOverflow
-      ) {
+      if (previousOverflow) {
         document.body.style.overflow =
           previousOverflow;
-
-        return;
+      } else {
+        document.body.style.removeProperty(
+          "overflow",
+        );
       }
-
-      document.body.style.removeProperty(
-        "overflow",
-      );
     };
   }, [isSidebarOpen]);
 
@@ -177,7 +190,7 @@ export default function DashboardShell({
 
         isLight
           ? [
-              "bg-[#F7F9FB]",
+              "bg-white",
               "text-[#191C1E]",
             ]
           : [
@@ -207,32 +220,50 @@ export default function DashboardShell({
         }
       />
 
-      <main
+      <div
         id="main-content"
         className={cn(
           "min-h-dvh",
 
-          "px-4",
+          /*
+           * Mobile horizontal spacing.
+           */
+          "px-3",
           "pb-16",
+          "pt-24",
 
-          "sm:px-6",
+          "sm:px-4",
 
+          /*
+           * Sidebar is 288px.
+           * Previous horizontal padding was 32px.
+           * It is intentionally reduced to 16-20px.
+           */
           "lg:mr-72",
-          "lg:px-8",
+          "lg:px-4",
+
+          "xl:px-5",
 
           isLight
-            ? [
-                "bg-[#F7F9FB]",
-                "pt-[104px]",
-              ]
-            : [
-                "bg-[#041121]",
-                "pt-24",
-              ],
+            ? "bg-white"
+            : "bg-[#041121]",
+
+          /*
+           * Reading / Writing currently contain
+           * max-w-[936px] containers.
+           *
+           * Override their outer page container here
+           * so we do not have to duplicate width logic
+           * in every feature page.
+           */
+          useWideContent && [
+            "[&>main]:!max-w-[1120px]",
+            "[&>nav]:!max-w-[1120px]",
+          ],
         )}
       >
         {children}
-      </main>
+      </div>
     </div>
   );
 }

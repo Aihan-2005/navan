@@ -1,44 +1,133 @@
-import { cn } from "../../../lib/utils/cn";
+import {
+  Flame,
+  Timer,
+  TrendingUp,
+} from "lucide-react";
+
+import {
+  cn,
+} from "../../../lib/utils/cn";
 
 type OverviewStatCardProps = {
   title: string;
+
   value: string;
-  subtitle?: string;
-  progress?: number;
-  variant?: "teal" | "purple" | "orange";
+
+  subtitle: string;
+
+  progress: number;
+
+  variant:
+    | "teal"
+    | "purple"
+    | "orange";
 };
 
 const variantConfig = {
   teal: {
-    value: "text-[#14B8A6]",
-    icon: "bg-[#14B8A61A]",
-    progress: "bg-[#14B8A6]",
+    value:
+      "text-[#14B8A6]",
+
+    progress:
+      "bg-[#14B8A6]",
+
+    iconWrapper:
+      "rounded-2xl bg-[#14B8A61A]",
+
+    icon:
+      "text-[#14B8A6]",
   },
 
   purple: {
-    value: "text-[#712AE2]",
-    icon: "bg-[#E0D3F4]",
-    progress: "bg-[#8A4CFC]",
+    value:
+      "text-[#712AE2]",
+
+    progress:
+      "bg-[#8A4CFC]",
+
+    iconWrapper:
+      "rounded-full bg-[#E0D3F4]",
+
+    icon:
+      "text-[#712AE2]",
   },
 
   orange: {
-    value: "text-[#F97316]",
-    icon: "bg-[#FFF7ED]",
-    progress: "bg-[#F97316]",
+    value:
+      "text-[#F97316]",
+
+    progress:
+      "bg-[#F97316]",
+
+    iconWrapper:
+      "rounded-full bg-[#FFF7ED]",
+
+    icon:
+      "text-[#F97316]",
   },
 } as const;
 
+function StatIcon({
+  variant,
+}: {
+  variant:
+    | "teal"
+    | "purple"
+    | "orange";
+}) {
+  if (
+    variant ===
+    "purple"
+  ) {
+    return (
+      <Timer
+        aria-hidden="true"
+        className="h-[26px] w-[23px]"
+        strokeWidth={2}
+      />
+    );
+  }
+
+  if (
+    variant ===
+    "orange"
+  ) {
+    return (
+      <Flame
+        aria-hidden="true"
+        className="h-[23px] w-[21px]"
+        strokeWidth={2}
+      />
+    );
+  }
+
+  return (
+    <TrendingUp
+      aria-hidden="true"
+      className="h-[25px] w-[25px]"
+      strokeWidth={2}
+    />
+  );
+}
 
 export function OverviewStatCard({
   title,
   value,
   subtitle,
-  progress = 70,
-  variant = "teal",
+  progress,
+  variant,
 }: OverviewStatCardProps) {
+  const config =
+    variantConfig[variant];
 
-  const config = variantConfig[variant];
-
+  const safeProgress =
+    Math.min(
+      100,
+      Math.max(
+        0,
+        progress,
+      ),
+    );
 
   return (
     <article
@@ -46,120 +135,104 @@ export function OverviewStatCard({
       className="
         flex
         h-[145px]
-        flex-col
+        w-full
+        items-center
         justify-between
         rounded-2xl
         border
         border-[#BCC9C6]
         bg-[#FFFFFFCC]
-        p-6
-        shadow-[0_4px_20px_rgba(0,0,0,0.04)]
-        backdrop-blur-xl
+        px-6
+        py-7
+        shadow-[0_4px_20px_0_rgba(0,0,0,0.04)]
+        backdrop-blur-[12px]
       "
     >
-
       <div
         className="
           flex
-          items-start
-          justify-between
-          gap-4
+          h-[87px]
+          w-[160px]
+          flex-col
+          gap-1
         "
       >
+        <h2
+          className="
+            text-base
+            font-bold
+            leading-6
+            text-[#3D4947]
+          "
+        >
+          {title}
+        </h2>
 
-        <div>
-
-          <h3
-            className="
-              text-base
-              font-bold
-              leading-6
-              text-[#3D4947]
-            "
-          >
-            {title}
-          </h3>
-
-
-          <p
-            className={cn(
-              "mt-1 text-base font-black leading-6",
-              config.value,
-            )}
-          >
-            {value}
-          </p>
-
-
-          {subtitle ? (
-            <p
-              className="
-                mt-1
-                text-[10px]
-                text-[#6D7A77]
-              "
-            >
-              {subtitle}
-            </p>
-          ) : null}
-
-        </div>
-
-
-
-        <div
+        <strong
           className={cn(
             `
+              text-base
+              font-black
+              leading-6
+            `,
+            config.value,
+          )}
+        >
+          {value}
+        </strong>
+
+        <div
+          className="
+            mt-auto
+            h-2
+            w-[160px]
+            overflow-hidden
+            rounded-full
+            bg-[#ECEEF0]
+          "
+        >
+          <div
+            className={cn(
+              "h-full rounded-full",
+              config.progress,
+            )}
+            style={{
+              width:
+                `${safeProgress}%`,
+            }}
+          />
+        </div>
+
+        <p
+          className="
+            text-[10px]
+            font-normal
+            leading-[15px]
+            text-[#6D7A77]
+          "
+        >
+          {subtitle}
+        </p>
+      </div>
+
+      <div
+        className={cn(
+          `
             flex
             h-14
             w-14
+            shrink-0
             items-center
             justify-center
-            rounded-2xl
-            `,
-            config.icon,
-          )}
-        >
-
-          <span
-            className="
-              h-6
-              w-6
-              rounded-full
-              border-2
-              border-current
-            "
-          />
-
-        </div>
-
-
-      </div>
-
-
-
-      <div
-        className="
-          h-2
-          overflow-hidden
-          rounded-full
-          bg-[#ECEEF0]
-        "
+          `,
+          config.iconWrapper,
+          config.icon,
+        )}
       >
-
-        <div
-          className={cn(
-            "h-full rounded-full",
-            config.progress,
-          )}
-          style={{
-            width: `${progress}%`,
-          }}
+        <StatIcon
+          variant={variant}
         />
-
       </div>
-
-
     </article>
   );
 }

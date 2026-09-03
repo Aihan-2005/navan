@@ -1,14 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f9fb;
+  --background: #ffffff;
   --foreground: #191c1e;
 
-  /*
-   * Vazirmatn is kept as the first choice.
-   * If the actual font is loaded later with @font-face
-   * or next/font/local, no component needs to change.
-   */
   --font-vazirmatn:
     "Vazirmatn",
     Tahoma,
@@ -45,21 +40,23 @@
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background:
+    var(--background);
 
-  /*
-   * این خط باعث می‌شود کلاس‌هایی که در کامپوننت‌های
-   * Writing استفاده کردیم واقعاً توسط Tailwind ساخته شوند:
-   *
-   * font-vazir
-   * font-vazirmatn
-   */
-  --font-vazir: var(--font-vazirmatn);
-  --font-vazirmatn: var(--font-vazirmatn);
+  --color-foreground:
+    var(--foreground);
 
-  --font-sans: var(--font-vazirmatn);
-  --font-mono: var(--font-geist-mono);
+  --font-vazir:
+    var(--font-vazirmatn);
+
+  --font-vazirmatn:
+    var(--font-vazirmatn);
+
+  --font-sans:
+    var(--font-vazirmatn);
+
+  --font-mono:
+    var(--font-geist-mono);
 }
 
 *,
@@ -70,22 +67,27 @@
 
 html {
   min-height: 100%;
-  background: #f7f9fb;
+  background: #ffffff;
 }
 
 body {
   min-height: 100%;
   margin: 0;
 
-  background: #f7f9fb;
+  background: #ffffff;
   color: #191c1e;
 
-  font-family: var(--font-vazirmatn);
+  font-family:
+    var(--font-vazirmatn);
 
-  text-rendering: optimizeLegibility;
+  text-rendering:
+    optimizeLegibility;
 
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing:
+    antialiased;
+
+  -moz-osx-font-smoothing:
+    grayscale;
 }
 
 button,
@@ -110,56 +112,90 @@ svg {
 }
 
 ::selection {
-  background: rgba(0, 104, 95, 0.18);
+  background:
+    rgba(
+      0,
+      104,
+      95,
+      0.18
+    );
 }
 
-/* =========================================================
-   Writing
-   ========================================================= */
+
 
 [data-dashboard-appearance="light"] {
   color-scheme: light;
 }
 
-/*
- * از ظاهر شدن بک‌گراند Dark بین shell و صفحه Writing
- * جلوگیری می‌کند.
- */
-[data-dashboard-appearance="light"],
-[data-dashboard-appearance="light"] #main-content {
+
+
+[data-dashboard-appearance="light"]
+[data-dashboard-surface="white"] {
+  background-color: #ffffff;
+}
+
+
+
+[data-dashboard-appearance="light"][data-dashboard-surface="white"],
+[data-dashboard-appearance="light"][data-dashboard-surface="white"]
+  #main-content {
+  background-color: #ffffff;
+}
+
+
+
+
+[data-dashboard-appearance="light"][data-dashboard-surface="soft"],
+[data-dashboard-appearance="light"][data-dashboard-surface="soft"]
+  #main-content {
   background-color: #f7f9fb;
 }
 
-/*
- * Card rendering را در صفحات روشن تمیزتر می‌کند.
- */
+
+
 [data-dashboard-appearance="light"] {
-  --writing-card-background: #ffffff;
-  --writing-border: #e2e8f0;
-  --writing-primary: #00685f;
-  --writing-primary-soft: #f0fdfa;
-  --writing-heading: #191c1e;
-  --writing-body: #3d4947;
-  --writing-muted: #64748b;
+  --writing-card-background:
+    #ffffff;
+
+  --writing-border:
+    #e2e8f0;
+
+  --writing-primary:
+    #00685f;
+
+  --writing-primary-soft:
+    #f0fdfa;
+
+  --writing-heading:
+    #191c1e;
+
+  --writing-body:
+    #3d4947;
+
+  --writing-muted:
+    #64748b;
 }
 
-/*
- * Scrollbar ملایم برای Light UI.
- */
-[data-dashboard-appearance="light"] ::-webkit-scrollbar {
+
+
+[data-dashboard-appearance="light"]
+  ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-[data-dashboard-appearance="light"] ::-webkit-scrollbar-track {
+[data-dashboard-appearance="light"]
+  ::-webkit-scrollbar-track {
   background: transparent;
 }
 
-[data-dashboard-appearance="light"] ::-webkit-scrollbar-thumb {
+[data-dashboard-appearance="light"]
+  ::-webkit-scrollbar-thumb {
   background: #d7dfdd;
   border-radius: 9999px;
 }
 
-[data-dashboard-appearance="light"] ::-webkit-scrollbar-thumb:hover {
+[data-dashboard-appearance="light"]
+  ::-webkit-scrollbar-thumb:hover {
   background: #bcc9c6;
 }

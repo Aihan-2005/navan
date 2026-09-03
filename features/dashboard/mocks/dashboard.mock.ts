@@ -1,11 +1,14 @@
-import type { DashboardOverview } from "../types/dashboard.types";
+import type {
+  DashboardOverview,
+} from "../types/dashboard.types";
 
 export const dashboardMock: DashboardOverview = {
   user: {
     id: "user-001",
 
-    firstName: "مجتبی",
-    lastName: "شبانی",
+    firstName: "نازی",
+
+    lastName: "Meow",
 
     avatarUrl: null,
 
@@ -22,193 +25,328 @@ export const dashboardMock: DashboardOverview = {
     cefrLevel: "B1",
 
     learningGoal:
-      "بهبود مکالمه و درک زبان انگلیسی",
+      "تقویت مکالمه و رسیدن به سطح پیشرفته",
   },
-
 
   summary: {
     streakDays: 12,
 
     todayCompletedMinutes: 25,
+
     dailyGoalMinutes: 45,
 
     weeklyCompletedMinutes: 180,
+
     weeklyGoalMinutes: 300,
 
     completedActivitiesThisWeek: 14,
   },
 
-
   continueLearning: {
-    activityId: "activity-speaking-001",
+    activityId:
+      "work-conversation-part-3",
 
-    title: "تمرین مکالمه روزانه",
+    title:
+      "مکالمه در محیط کار - بخش ۳",
 
     description:
-      "تمرین مکالمه برای افزایش سرعت پاسخ‌گویی",
+      "گرامر: حال کامل استمراری",
 
     skill: "speaking",
 
-    progressPercent: 65,
+    progressPercent: 75,
 
-    estimatedMinutesRemaining: 15,
+    estimatedMinutesRemaining: 12,
 
     lastActivityAt:
-      "2026-07-25T10:30:00.000Z",
+      "2026-09-02T08:30:00.000Z",
 
-    href: "/speaking/activity-speaking-001",
+    href:
+      "/speaking",
   },
 
-
   dailyPlan: {
-    date: "2026-07-25",
+    date:
+      "2026-09-02",
 
-    completionPercent: 40,
+    completionPercent: 20,
 
-    completedTasks: 2,
+    completedTasks: 1,
 
     totalTasks: 5,
 
-    estimatedRemainingMinutes: 35,
-
+    estimatedRemainingMinutes: 40,
 
     tasks: [
       {
-        id: "task-001",
+        id:
+          "travel-vocabulary",
 
-        title: "مرور لغات جدید",
+        title:
+          "مرور واژگان سفر",
 
         description:
-          "مرور لغات ذخیره شده امروز",
+          "مرور واژگان مرتبط با سفر",
 
-        skill: "vocabulary",
+        skill:
+          "vocabulary",
 
-        status: "completed",
+        status:
+          "completed",
 
-        estimatedMinutes: 10,
+        estimatedMinutes:
+          10,
 
-        xpReward: 50,
+        xpReward:
+          30,
 
-        href: "/vocabulary",
+        href:
+          "/vocabulary",
       },
 
-
       {
-        id: "task-002",
+        id:
+          "iranian-culture-podcast",
 
-        title: "تمرین شنیداری",
+        title:
+          "پادکست: فرهنگ ایرانی",
 
         description:
-          "گوش دادن به فایل صوتی سطح B1",
+          "تمرین شنیداری",
 
-        skill: "listening",
+        skill:
+          "listening",
 
-        status: "in_progress",
+        status:
+          "in_progress",
 
-        estimatedMinutes: 15,
+        estimatedMinutes:
+          15,
 
-        xpReward: 70,
+        xpReward:
+          50,
 
-        href: "/listening",
+        href:
+          "/listening",
       },
 
-
       {
-        id: "task-003",
+        id:
+          "daily-dialogues",
 
-        title: "تمرین گرامر",
+        title:
+          "دیالوگ‌های روزمره",
 
         description:
-          "مرور زمان‌های انگلیسی",
+          "مکالمات روزانه",
 
-        skill: "grammar",
+        skill:
+          "speaking",
 
-        status: "pending",
+        status:
+          "pending",
 
-        estimatedMinutes: 10,
+        estimatedMinutes:
+          8,
 
-        xpReward: 40,
+        xpReward:
+          20,
 
-        href: "/grammar",
+        href:
+          "/speaking",
+      },
+
+      {
+        id:
+          "past-tense",
+
+        title:
+          "زمان افعال: گذشته دور",
+
+        description:
+          "تمرین گرامر",
+
+        skill:
+          "grammar",
+
+        status:
+          "pending",
+
+        estimatedMinutes:
+          12,
+
+        xpReward:
+          40,
+
+        href:
+          "/grammar",
+      },
+
+      {
+        id:
+          "prepositions",
+
+        title:
+          "تمرین حروف اضافه",
+
+        description:
+          "تمرین نوشتاری",
+
+        skill:
+          "writing",
+
+        status:
+          "pending",
+
+        estimatedMinutes:
+          5,
+
+        xpReward:
+          15,
+
+        href:
+          "/writing",
       },
     ],
   },
 
-
   skillProgress: [
     {
-      skill: "speaking",
+      skill:
+        "listening",
 
-      score: 72,
+      score:
+        88,
 
-      previousScore: 65,
+      previousScore:
+        82,
 
-      cefrLevel: "B1",
+      cefrLevel:
+        "B2",
 
-      completedActivities: 24,
+      completedActivities:
+        31,
 
-      totalPracticeMinutes: 420,
+      totalPracticeMinutes:
+        480,
     },
 
-
     {
-      skill: "listening",
+      skill:
+        "speaking",
 
-      score: 68,
+      score:
+        62,
 
-      previousScore: 60,
+      previousScore:
+        58,
 
-      cefrLevel: "B1",
+      cefrLevel:
+        "B1",
 
-      completedActivities: 20,
+      completedActivities:
+        24,
 
-      totalPracticeMinutes: 350,
+      totalPracticeMinutes:
+        420,
     },
 
+    {
+      skill:
+        "writing",
+
+      score:
+        74,
+
+      previousScore:
+        68,
+
+      cefrLevel:
+        "B1",
+
+      completedActivities:
+        18,
+
+      totalPracticeMinutes:
+        310,
+    },
 
     {
-      skill: "vocabulary",
+      skill:
+        "vocabulary",
 
-      score: 80,
+      score:
+        91,
 
-      previousScore: 75,
+      previousScore:
+        87,
 
-      cefrLevel: "B2",
+      cefrLevel:
+        "B2",
 
-      completedActivities: 45,
+      completedActivities:
+        45,
 
-      totalPracticeMinutes: 600,
+      totalPracticeMinutes:
+        600,
+    },
+
+    {
+      skill:
+        "reading",
+
+      score:
+        80,
+
+      previousScore:
+        76,
+
+      cefrLevel:
+        "B1",
+
+      completedActivities:
+        26,
+
+      totalPracticeMinutes:
+        390,
     },
   ],
 
-
   reviewQueue: {
-    totalItems: 8,
+    totalItems:
+      8,
 
-    vocabularyCount: 5,
+    vocabularyCount:
+      5,
 
-    grammarCount: 2,
+    grammarCount:
+      2,
 
-    mistakeCount: 1,
+    mistakeCount:
+      1,
 
-    estimatedMinutes: 20,
+    estimatedMinutes:
+      20,
 
-    href: "/review",
+    href:
+      "/review",
   },
 
-
   primaryInsight: {
-    id: "insight-001",
+    id:
+      "insight-001",
 
-    type: "recommendation",
+    type:
+      "recommendation",
 
     title:
       "تمرین مکالمه را بیشتر کن",
 
     description:
-      "بر اساس فعالیت‌های اخیر، افزایش تمرین مکالمه باعث رشد سریع‌تر سطح زبان می‌شود.",
+      "تمرین مکالمه منظم باعث رشد سریع‌تر مهارت گفتاری می‌شود.",
 
-    relatedSkill: "speaking",
+    relatedSkill:
+      "speaking",
 
     actionLabel:
       "شروع تمرین",
@@ -217,49 +355,83 @@ export const dashboardMock: DashboardOverview = {
       "/speaking",
 
     createdAt:
-      "2026-07-25T09:00:00.000Z",
+      "2026-09-02T09:00:00.000Z",
   },
-
 
   recentActivities: [
     {
-      id: "recent-001",
+      id:
+        "b1-test",
 
       title:
-        "تمرین مکالمه انگلیسی",
+        "آزمون جامع سطح B1",
 
-      skill: "speaking",
+      skill:
+        "grammar",
 
-      status: "completed",
+      status:
+        "completed",
 
-      score: 85,
+      score:
+        85,
 
-      durationMinutes: 20,
+      durationMinutes:
+        30,
 
       occurredAt:
-        "2026-07-25T08:30:00.000Z",
+        "2026-09-01T10:00:00.000Z",
 
       href:
-        "/speaking/recent-001",
+        "/assessment",
     },
 
-
     {
-      id: "recent-002",
+      id:
+        "shopping-speaking",
 
       title:
-        "مرور لغات",
+        "مکالمه در مورد خرید",
 
-      skill: "vocabulary",
+      skill:
+        "speaking",
 
-      status: "completed",
+      status:
+        "completed",
 
-      score: 90,
+      score:
+        null,
 
-      durationMinutes: 15,
+      durationMinutes:
+        15,
 
       occurredAt:
-        "2026-07-24T18:00:00.000Z",
+        "2026-08-31T16:00:00.000Z",
+
+      href:
+        "/speaking",
+    },
+
+    {
+      id:
+        "restaurant-vocabulary",
+
+      title:
+        "تمرین لغات رستوران",
+
+      skill:
+        "vocabulary",
+
+      status:
+        "completed",
+
+      score:
+        100,
+
+      durationMinutes:
+        12,
+
+      occurredAt:
+        "2026-08-30T16:00:00.000Z",
 
       href:
         "/vocabulary",

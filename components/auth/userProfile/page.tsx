@@ -1,6 +1,11 @@
 "use client";
 
 import Link from "next/link";
+
+import {
+  Award,
+} from "lucide-react";
+
 import {
   signOut,
   useSession,
@@ -10,21 +15,85 @@ type UserProfileAppearance =
   | "dark"
   | "light";
 
-type UserProfileProps = Readonly<{
-  appearance?: UserProfileAppearance;
-}>;
+type UserProfileProps =
+  Readonly<{
+    appearance?:
+      UserProfileAppearance;
+  }>;
 
 function getInitials(
   name?: string | null,
   email?: string | null,
 ): string {
   const source =
-    name || email || "U";
+    name ||
+    email ||
+    "U";
 
   return source
     .trim()
     .slice(0, 1)
     .toUpperCase();
+}
+
+
+function LightProfileSkeleton() {
+  return (
+    <div
+      className="
+        flex
+        h-[47.5px]
+        w-[181.3667px]
+        items-center
+        gap-3
+      "
+    >
+      <div
+        className="
+          h-10
+          w-10
+          shrink-0
+          animate-pulse
+          rounded-full
+          border-2
+          border-[#E0E3E5]
+          bg-[#EDF1F2]
+        "
+      />
+
+      <div
+        className="
+          flex
+          h-[47.5px]
+          w-[129.3667px]
+          flex-col
+          justify-center
+          gap-0
+        "
+      >
+        <div
+          className="
+            h-4
+            w-20
+            animate-pulse
+            rounded
+            bg-[#E0E3E5]
+          "
+        />
+
+        <div
+          className="
+            mt-1
+            h-3
+            w-24
+            animate-pulse
+            rounded
+            bg-[#EEE7C9]
+          "
+        />
+      </div>
+    </div>
+  );
 }
 
 export default function UserProfile({
@@ -35,57 +104,77 @@ export default function UserProfile({
     status,
   } = useSession();
 
-  if (status === "loading") {
+  if (
+    status === "loading"
+  ) {
+    if (
+      appearance ===
+      "light"
+    ) {
+      return (
+        <LightProfileSkeleton />
+      );
+    }
+
     return (
       <div
         className="
-          flex items-center gap-3
+          flex
+          items-center
+          gap-3
         "
       >
         <div
-          className={`
-            h-10 w-10 animate-pulse
+          className="
+            h-10
+            w-10
+            animate-pulse
             rounded-full
-            ${ appearance === "light"
-                ? "bg-[#DDE5E4]"
-                : "bg-white/10"
-            }
-          `}
+            bg-white/10
+          "
         />
 
         <div
-          className={`
-            hidden h-4 w-20
-            animate-pulse rounded
+          className="
+            hidden
+            h-4
+            w-20
+            animate-pulse
+            rounded
+            bg-white/10
+
             sm:block
-            ${
-              appearance === "light"
-                ? "bg-[#DDE5E4]"
-                : "bg-white/10"
-            }
-          `}
+          "
         />
       </div>
     );
   }
 
   if (
-    status !== "authenticated" ||
+    status !==
+      "authenticated" ||
     !session?.user
   ) {
     return (
       <Link
         href="/login"
         className={`
-          rounded-xl px-4 py-2
-          text-sm font-semibold
-          transition
+          inline-flex
+          h-10
+          items-center
+          justify-center
+          rounded-lg
+          px-4
+          text-sm
+          font-semibold
+
           ${
-            appearance === "light"
+            appearance ===
+            "light"
               ? `
-                bg-[#00897F]
+                bg-[#0D9488]
                 text-white
-                hover:bg-[#00776E]
+                hover:bg-[#0F766E]
               `
               : `
                 bg-cyan-600
@@ -97,111 +186,214 @@ export default function UserProfile({
       >
         ورود / ثبت‌نام
       </Link>
-    );  }
+    );
+  }
 
-  const user = session.user;
+  const user =
+    session.user;
 
-  const initials = getInitials(
-    user.name,
-    user.email,
-  );
+  const initials =
+    getInitials(
+      user.name,
+      user.email,
+    );
 
-  if (appearance === "light") {
+    
+
+  if (
+    appearance ===
+    "light"
+  ) {
     return (
-      <div
-        className="
-          flex items-center gap-2.5
-          [font-family:var(--font-vazirmatn)]
-        "
+      <Link
+        href="/profile"
         dir="ltr"
+        className="
+          flex
+          h-[47.5px]
+          w-[181.3667px]
+          items-center
+          gap-3
+          rounded-lg
+
+          transition-opacity
+
+          hover:opacity-80
+
+          focus-visible:outline-none
+          focus-visible:ring-2
+          focus-visible:ring-[#14B8A6]/25
+        "
       >
+
+
         <div
           className="
-            flex h-10 w-10
-            shrink-0 items-center
+            flex
+            h-10
+            w-10
+            shrink-0
+            items-center
             justify-center
+            overflow-hidden
             rounded-full
-            border border-[#CBD7D5]
-            bg-[#E4F1EF]
-            text-sm font-bold
+            border-2
+            border-[#E0E3E5]
+            bg-[#EAF4F2]
+            text-sm
+            font-bold
             text-[#00685F]
           "
         >
-          {initials}
+          {user.image ? (
+            <img
+              src={
+                user.image
+              }
+              alt={
+                user.name ??
+                "تصویر کاربر"
+              }
+              className="
+                h-full
+                w-full
+                object-cover
+              "
+            />
+          ) : (
+            initials
+          )}
         </div>
 
+
+
         <div
+          dir="ltr"
           className="
-            hidden min-w-0
-            text-left sm:block
+            flex
+            h-[47.5px]
+            w-[129.3667px]
+            min-w-0
+            flex-col
+            justify-center
           "
         >
           <div
             className="
-              max-w-36 truncate
-              text-sm font-medium
+              h-6
+              truncate
+              text-left
+              text-base
+              font-normal
+              leading-6
               text-[#191C1E]
             "
           >
             {user.name ||
               user.username ||
-              user.email ||"کاربر"}
+              user.email ||
+              "کاربر"}
           </div>
 
-          <button
-            type="button"
-            onClick={() =>
-              signOut({
-                callbackUrl: "/login",
-              })
-            }
+          <div
             className="
-              mt-0.5 block
-              text-[10px]
-              font-medium
-              uppercase
-              tracking-[0.05em]
-              text-[#B28300]
-              transition
-              hover:text-[#8A6500]
+              flex
+              h-6
+              items-center
+              gap-1
+              overflow-hidden
             "
           >
-            خروج
-          </button>
+            <span
+              className="
+                whitespace-nowrap
+                text-base
+                font-normal
+                leading-6
+                text-[#D4AF37]
+              "
+            >
+              GOLD LEARNER
+            </span>
+
+            <Award
+              aria-hidden="true"
+              className="
+                h-3
+                w-3
+                shrink-0
+                text-[#D4AF37]
+              "
+              strokeWidth={1.8}
+            />
+          </div>
         </div>
-      </div>
+      </Link>
     );
   }
+
+  
+  
 
   return (
     <div
       className="
-        flex items-center gap-3
+        flex
+        items-center
+        gap-3
       "
     >
       <div
         className="
-          flex h-10 w-10
-          items-center justify-center
+          flex
+          h-10
+          w-10
+          items-center
+          justify-center
+          overflow-hidden
           rounded-full
-          border border-cyan-400/30
+          border
+          border-cyan-400/30
           bg-cyan-400/10
-          text-sm font-bold
+          text-sm
+          font-bold
           text-cyan-200
         "
       >
-        {initials}
+        {user.image ? (
+          <img
+            src={
+              user.image
+            }
+            alt={
+              user.name ??
+              "تصویر کاربر"
+            }
+            className="
+              h-full
+              w-full
+              object-cover
+            "
+          />
+        ) : (
+          initials
+        )}
       </div>
 
       <div
-        className="hidden text-right
+        className="
+          hidden
+          text-right
+
           sm:block
         "
       >
         <div
           className="
-            max-w-36 truncate
-            text-sm font-medium
+            max-w-36
+            truncate
+            text-sm
+            font-medium
             text-white
           "
         >
@@ -215,12 +407,16 @@ export default function UserProfile({
           type="button"
           onClick={() =>
             signOut({
-              callbackUrl: "/login",
+              callbackUrl:
+                "/login",
             })
           }
           className="
-            text-xs text-red-300
+            text-xs
+            text-red-300
+
             transition
+
             hover:text-red-200
           "
         >

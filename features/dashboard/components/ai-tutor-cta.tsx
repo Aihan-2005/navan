@@ -1,108 +1,99 @@
 import Link from "next/link";
+
 import {
   MessageCircle,
 } from "lucide-react";
 
-
-export function AITutorCTA(){
-
+export function AITutorCTA() {
   return (
     <section
       dir="rtl"
       className="
+        flex
+        h-[236px]
+        w-full
+        flex-col
+        items-center
         rounded-2xl
         border
         border-[#BCC9C6]
-        bg-white
-        p-6
-        shadow-[0_4px_20px_rgba(0,0,0,.04)]
+        bg-[#F2F4F6]
+        px-6
+        pb-[42px]
+        pt-6
+        text-center
+        shadow-[0_4px_20px_0_rgba(0,0,0,0.04)]
+        backdrop-blur-[12px]
       "
     >
-
       <div
         className="
           flex
-          flex-col
+          h-16
+          w-16
+          shrink-0
           items-center
-          text-center
+          justify-center
+          rounded-full
+          bg-[#B7E3E1]
+          shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.05)]
         "
       >
-
-        <div
+        <MessageCircle
+          aria-hidden="true"
           className="
-            flex
-            h-16
-            w-16
-            items-center
-            justify-center
-            rounded-full
-            bg-[#FFF7ED]
+            h-7
+            w-7
+            text-[#0D9488]
           "
-        >
-
-          <MessageCircle
-            className="
-              h-8
-              w-8
-              text-[#F97316]
-            "
-          />
-
-        </div>
-
-
-
-        <h2
-          className="
-            mt-5
-            text-base
-            font-bold
-            text-[#191C1E]
-          "
-        >
-          آماده گفتگو هستی؟
-        </h2>
-
-
-
-        <p
-          className="
-            mt-2
-            text-xs
-            leading-5
-            text-[#3D4947]
-          "
-        >
-          همین حالا یک مکالمه واقعی را شروع کن.
-        </p>
-
-
-
-        <Link
-          href="/speaking"
-          className="
-            mt-5
-            flex
-            h-9
-            w-full
-            items-center
-            justify-center
-            rounded-lg
-            bg-[#00685F]
-            text-sm
-            font-bold
-            text-white
-            transition
-            hover:bg-[#00574F]
-          "
-        >
-          شروع مکالمه
-        </Link>
-
-
+        />
       </div>
 
+      <h2
+        className="
+          mt-3
+          text-sm
+          font-bold
+          leading-5
+          text-[#191C1E]
+        "
+      >
+        آماده گفتگو هستی؟
+      </h2>
 
+      <p
+        className="
+          mt-1
+          text-xs
+          font-normal
+          leading-4
+          text-[#526E7A]
+        "
+      >
+        همین حالا یک مکالمه واقعی را شروع کن.
+      </p>
+
+      <Link
+        href="/speaking"
+        className="
+          mt-4
+          flex
+          h-9
+          w-full
+          items-center
+          justify-center
+          rounded-lg
+          bg-[#14B8A6]
+          text-sm
+          font-bold
+          leading-5
+          text-white
+          transition-colors
+          hover:bg-[#0D9488]
+        "
+      >
+        شروع گفتگو
+      </Link>
     </section>
   );
 }

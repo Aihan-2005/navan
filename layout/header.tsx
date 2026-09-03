@@ -25,6 +25,8 @@ type HeaderProps =
       HeaderAppearance;
   }>;
 
+  
+
 function LightHeader({
   setIsSidebarOpen,
 }: Pick<
@@ -40,15 +42,23 @@ function LightHeader({
         right-0
         top-0
         z-[80]
-        h-20
+
+        h-16
+
         border-b
-        border-[#D9E1E0]
-        bg-[#F7F9FB]/95
+        border-[#BCC9C6]
+
+        bg-[#F7F9FBCC]
+
         px-4
-        backdrop-blur-lg
+
+        backdrop-blur-[12px]
+
         sm:px-6
+
         lg:right-72
         lg:px-8
+
         [font-family:var(--font-vazirmatn)]
       "
     >
@@ -62,15 +72,17 @@ function LightHeader({
           max-w-[936px]
           items-center
           justify-between
-          gap-4
         "
       >
+        {/* User + notification */}
+
         <div
-          dir="rtl"
           className="
             flex
+            h-[47.5px]
+            w-[245.3667px]
             items-center
-            gap-2
+            gap-6
           "
         >
           <UserProfile
@@ -85,22 +97,28 @@ function LightHeader({
               flex
               h-10
               w-10
+              shrink-0
               items-center
               justify-center
-              rounded-xl
+              rounded-full
               text-[#3D4947]
-              transition
-              duration-200
+
+              transition-colors
+
               hover:bg-[#E9EEEF]
               hover:text-[#00685F]
+
               focus-visible:outline-none
               focus-visible:ring-2
-              focus-visible:ring-[#00897F]/25
+              focus-visible:ring-[#14B8A6]/25
             "
           >
             <Bell
               aria-hidden="true"
-              className="h-5 w-5"
+              className="
+                h-5
+                w-4
+              "
               strokeWidth={1.8}
             />
 
@@ -108,62 +126,63 @@ function LightHeader({
               aria-hidden="true"
               className="
                 absolute
-                right-[9px]
+                right-[10px]
                 top-[8px]
-                h-1.5
-                w-1.5
+                h-[6px]
+                w-[6px]
                 rounded-full
-                bg-[#E64B4B]
+                bg-[#DC2626]
               "
             />
           </button>
         </div>
 
-        <div
-          dir="rtl"
+        {/* Mobile menu */}
+
+        <button
+          type="button"
+          onClick={() => {
+            setIsSidebarOpen(
+              true,
+            );
+          }}
+          aria-label="باز کردن منو"
           className="
             flex
+            h-10
+            w-10
             items-center
-            justify-end
+            justify-center
+            rounded-full
+            text-[#3D4947]
+
+            transition-colors
+
+            hover:bg-[#E9EEEF]
+            hover:text-[#00685F]
+
+            focus-visible:outline-none
+            focus-visible:ring-2
+            focus-visible:ring-[#14B8A6]/25
+
+            lg:hidden
           "
         >
-          <button
-            type="button"
-            onClick={() => {
-              setIsSidebarOpen(
-                true,
-              );
-            }}
-            aria-label="باز کردن منو"
+          <Menu
+            aria-hidden="true"
             className="
-              flex
-              h-10
-              w-10
-              items-center
-              justify-center
-              rounded-xl
-              text-[#3D4947]
-              transition
-              duration-200
-              hover:bg-[#E9EEEF]
-              hover:text-[#00685F]
-              focus-visible:outline-none
-              focus-visible:ring-2
-              focus-visible:ring-[#00897F]/25
-              lg:hidden
+              h-5
+              w-5
             "
-          >
-            <Menu
-              aria-hidden="true"
-              className="h-5 w-5"
-              strokeWidth={1.8}
-            />
-          </button>
-        </div>
+            strokeWidth={1.8}
+          />
+        </button>
       </div>
     </header>
   );
 }
+
+
 
 function DarkHeader({
   setIsSidebarOpen,
@@ -179,12 +198,17 @@ function DarkHeader({
         inset-x-0
         top-0
         z-[80]
+
         border-b
         border-white/10
+
         bg-[#0B1221]/85
+
         px-4
         py-4
+
         backdrop-blur-lg
+
         lg:px-8
       "
     >
@@ -216,19 +240,25 @@ function DarkHeader({
               rounded-lg
               p-2.5
               text-gray-300
+
               transition
-              duration-200
+
               hover:bg-white/10
               hover:text-white
+
               focus-visible:outline-none
               focus-visible:ring-2
               focus-visible:ring-cyan-300/40
+
               lg:hidden
             "
           >
             <Menu
               aria-hidden="true"
-              className="h-6 w-6"
+              className="
+                h-6
+                w-6
+              "
             />
           </button>
 
@@ -239,9 +269,11 @@ function DarkHeader({
               items-center
               gap-3
               rounded-xl
+
               focus-visible:outline-none
               focus-visible:ring-2
               focus-visible:ring-cyan-300/40
+
               lg:flex
             "
           >
@@ -253,17 +285,23 @@ function DarkHeader({
                 items-center
                 justify-center
                 rounded-xl
+
                 bg-gradient-to-br
                 from-cyan-400
                 to-blue-600
+
                 text-white
+
                 shadow-lg
                 shadow-cyan-500/20
               "
             >
               <Languages
                 aria-hidden="true"
-                className="h-5 w-5"
+                className="
+                  h-5
+                  w-5
+                "
               />
             </span>
 
@@ -311,10 +349,12 @@ function DarkHeader({
               rounded-xl
               p-2.5
               text-gray-300
+
               transition
-              duration-200
+
               hover:bg-white/10
               hover:text-white
+
               focus-visible:outline-none
               focus-visible:ring-2
               focus-visible:ring-cyan-300/40
@@ -322,7 +362,10 @@ function DarkHeader({
           >
             <Bell
               aria-hidden="true"
-              className="h-5 w-5"
+              className="
+                h-5
+                w-5
+              "
             />
           </button>
 
@@ -333,10 +376,12 @@ function DarkHeader({
               rounded-xl
               p-2.5
               text-gray-300
+
               transition
-              duration-200
+
               hover:bg-white/10
               hover:text-white
+
               focus-visible:outline-none
               focus-visible:ring-2
               focus-visible:ring-cyan-300/40
@@ -344,7 +389,10 @@ function DarkHeader({
           >
             <Settings
               aria-hidden="true"
-              className="h-5 w-5"
+              className="
+                h-5
+                w-5
+              "
             />
           </Link>
 
@@ -357,11 +405,15 @@ function DarkHeader({
   );
 }
 
+
+
 export default function Header({
   setIsSidebarOpen,
   appearance = "dark",
 }: HeaderProps) {
-  if (appearance === "light") {
+  if (
+    appearance === "light"
+  ) {
     return (
       <LightHeader
         setIsSidebarOpen={

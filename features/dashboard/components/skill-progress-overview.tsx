@@ -1,326 +1,275 @@
-type SkillVariant =
+import {
+  BookOpen,
+  Ear,
+  Mic2,
+  PenLine,
+} from "lucide-react";
+
+import type {
+  SkillProgress,
+} from "../types/dashboard.types";
+
+type SkillProgressOverviewProps = {
+  skills:
+    readonly SkillProgress[];
+};
+
+type VisibleSkill =
   | "listening"
   | "speaking"
   | "writing"
   | "vocabulary";
 
+const metadata = {
+  listening: {
+    title:
+      "شنیداری (Listening)",
 
-type SkillItem = {
-
-  title: string;
-
-  score: number;
-
-  status: string;
-
-  variant: SkillVariant;
-
-};
-
-
-
-type SkillProgressOverviewProps = {
-
-  skills?: readonly SkillItem[];
-
-};
-
-
-
-const defaultSkills: readonly SkillItem[] = [
-
-  {
-    title:"شنیداری (Listening)",
-    score:88,
-    status:"عالی - در حد پیشرفته",
-    variant:"listening",
-  },
-
-
-  {
-    title:"گفتاری (Speaking)",
-    score:62,
-    status:"نیاز به تمرین بیشتر",
-    variant:"speaking",
-  },
-
-
-  {
-    title:"نوشتاری (Writing)",
-    score:91,
-    status:"خوب - در حال رشد",
-    variant:"writing",
-  },
-
-
-  {
-    title:"واژگان (Vocabulary)",
-    score:95,
-    status:"ممتاز - فراتر از هدف",
-    variant:"vocabulary",
-  },
-
-];
-
-
-
-const styles: Record<
-  SkillVariant,
-  {
-    box:string;
-    score:string;
-  }
-> = {
-
-
-  listening:{
+    status:
+      "عالی - در حد پیشرفته",
 
     box:
-      "bg-[#EAFFFD] border-[#DFF0EC]",
+      "border-[#DFF0EC] bg-[#EAFFFD]",
 
-    score:
+    accent:
       "text-[#14B8A6]",
-
   },
 
+  speaking: {
+    title:
+      "گفتاری (Speaking)",
 
-  speaking:{
+    status:
+      "نیاز به تمرین بیشتر",
 
     box:
-      "bg-[#E2EDFF] border-[#DFF0EC]",
+      "border-[#D6E3F9] bg-[#E2EDFF]",
 
-    score:
+    accent:
       "text-[#4285F4]",
-
   },
 
+  writing: {
+    title:
+      "نوشتاری (Writing)",
 
-  writing:{
+    status:
+      "خوب - در حال رشد",
 
     box:
-      "bg-[#F8F3FF] border-[#E6D7FF]",
+      "border-[#E6D7FF] bg-[#F8F3FF]",
 
-    score:
-      "text-[#5A00C6]",
-
+    accent:
+      "text-[#712AE2]",
   },
 
+  vocabulary: {
+    title:
+      "واژگان (Vocabulary)",
 
-  vocabulary:{
+    status:
+      "ممتاز - فراتر از هدف",
 
     box:
-      "bg-[#FFEFE4] border-[#FFEFE4]",
+      "border-[#FFE1CF] bg-[#FFEFE4]",
 
-    score:
+    accent:
       "text-[#F97316]",
-
   },
+} as const;
 
-};
+function SkillIcon({
+  skill,
+}: {
+  skill: VisibleSkill;
+}) {
+  if (
+    skill ===
+    "listening"
+  ) {
+    return (
+      <Ear className="h-5 w-[18px]" />
+    );
+  }
 
+  if (
+    skill ===
+    "speaking"
+  ) {
+    return (
+      <Mic2 className="h-5 w-[22px]" />
+    );
+  }
 
-
-
-
-function SkillCard({
-
-  item,
-
-}:{
-
-  item:SkillItem;
-
-}){
-
-
-  const style =
-    styles[item.variant] ?? styles.listening;
-
-
+  if (
+    skill ===
+    "writing"
+  ) {
+    return (
+      <PenLine className="h-[19px] w-[19px]" />
+    );
+  }
 
   return (
-
-    <div
-
-      className={`
-        rounded-2xl
-        border
-        p-4
-        ${style.box}
-      `}
-
-    >
-
-
-      <div
-
-        className="
-          flex
-          items-center
-          justify-between
-        "
-
-      >
-
-
-        <span
-
-          className="
-            text-base
-            font-bold
-            text-[#191C1E]
-          "
-
-        >
-
-          {item.score}٪
-
-        </span>
-
-
-
-        <span
-
-          className={`
-            text-base
-            font-bold
-            ${style.score}
-          `}
-
-        >
-
-          ●
-
-        </span>
-
-
-      </div>
-
-
-
-
-      <h3
-
-        className="
-          mt-2
-          text-sm
-          font-bold
-          text-[#191C1E]
-        "
-
-      >
-
-        {item.title}
-
-      </h3>
-
-
-
-
-      <p
-
-        className="
-          mt-2
-          text-[10px]
-          text-[#3D4947]
-        "
-
-      >
-
-        {item.status}
-
-      </p>
-
-
-    </div>
-
+    <BookOpen className="h-4 w-[22px]" />
   );
-
 }
 
-
-
-
-
 export function SkillProgressOverview({
+  skills,
+}: SkillProgressOverviewProps) {
+  const visibleSkills:
+    VisibleSkill[] = [
+      "listening",
+      "speaking",
+      "writing",
+      "vocabulary",
+    ];
 
-  skills = defaultSkills,
-
-}:SkillProgressOverviewProps){
-
-
+  const fallbackScores:
+    Record<
+      VisibleSkill,
+      number
+    > = {
+      listening: 88,
+      speaking: 62,
+      writing: 74,
+      vocabulary: 91,
+    };
 
   return (
-
     <section
-
       dir="rtl"
-
       className="
+        h-[348px]
+        w-full
         rounded-2xl
         border
         border-[#BCC9C6]
         bg-[#FFFFFFCC]
         p-8
-        shadow-[0_4px_20px_rgba(0,0,0,0.04)]
-        backdrop-blur-xl
+        shadow-[0_4px_20px_0_rgba(0,0,0,0.04)]
+        backdrop-blur-[12px]
       "
-
     >
-
-
-
       <h2
-
         className="
           text-base
           font-bold
+          leading-6
           text-[#191C1E]
         "
-
       >
-
         تحلیل مهارت‌ها
-
       </h2>
 
-
-
-
-
       <div
-
         className="
           mt-6
           grid
           grid-cols-2
           gap-4
         "
-
       >
+        {visibleSkills.map(
+          (skillName) => {
+            const item =
+              skills.find(
+                (skill) =>
+                  skill.skill ===
+                  skillName,
+              );
 
+            const style =
+              metadata[
+                skillName
+              ];
 
-        {
-          skills.map((skill,index)=>(
+            const score =
+              item?.score ??
+              fallbackScores[
+                skillName
+              ];
 
-            <SkillCard
+            return (
+              <article
+                key={
+                  skillName
+                }
+                className={`
+                  flex
+                  h-[109px]
+                  flex-col
+                  rounded-2xl
+                  border
+                  p-4
+                  shadow-[0_4px_4px_0_rgba(0,0,0,0.16)]
+                  ${style.box}
+                `}
+              >
+                <div
+                  className="
+                    flex
+                    h-6
+                    items-center
+                    justify-between
+                  "
+                >
+                  <span
+                    className={`
+                      text-base
+                      font-bold
+                      leading-6
+                      ${style.accent}
+                    `}
+                  >
+                    {score}٪
+                  </span>
 
-              key={`${skill.title}-${index}`}
+                  <span
+                    className={
+                      style.accent
+                    }
+                  >
+                    <SkillIcon
+                      skill={
+                        skillName
+                      }
+                    />
+                  </span>
+                </div>
 
-              item={skill}
+                <h3
+                  className="
+                    mt-2
+                    text-sm
+                    font-bold
+                    leading-5
+                    text-[#191C1E]
+                  "
+                >
+                  {
+                    style.title
+                  }
+                </h3>
 
-            />
-
-          ))
-        }
-
-
+                <p
+                  className="
+                    mt-1
+                    text-[10px]
+                    leading-[15px]
+                    text-[#3D4947]
+                  "
+                >
+                  {
+                    style.status
+                  }
+                </p>
+              </article>
+            );
+          },
+        )}
       </div>
-
-
-
     </section>
-
   );
-
 }
