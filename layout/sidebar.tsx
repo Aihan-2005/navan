@@ -27,13 +27,13 @@ import {
 } from "react";
 
 import {
+  SupportCard,
+} from "../components/ui/support-card";
+
+import {
   PricingModal,
   subscriptionPlans,
 } from "../features/subscription";
-
-import {
-  SupportCard,
-} from "../components/ui/support-card";
 
 import {
   cn,
@@ -63,158 +63,79 @@ type NavigationItem =
     exact?: boolean;
   }>;
 
-const NAVIGATION_ITEMS =
-  [
-    {
-      label:
-        "داشبورد",
+const NAVIGATION_ITEMS = [
+  {
+    label: "داشبورد",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+    exact: true,
+  },
 
-      href:
-        "/dashboard",
+  {
+    label: "تمرین روزانه",
+    href: "/daily-practice",
+    icon: CalendarDays,
+  },
 
-      icon:
-        LayoutDashboard,
+  {
+    label: "شنیداری",
+    href: "/listening",
+    icon: Headphones,
+  },
 
-      exact:
-        true,
-    },
+  {
+    label: "مکالمه",
+    href: "/speaking",
+    icon: Mic2,
+  },
 
-    {
-      label:
-        "تمرین روزانه",
+  {
+    label: "نوشتاری",
+    href: "/writing",
+    icon: PenLine,
+  },
 
-      href:
-        "/daily-practice",
+  {
+    label: "خواندن",
+    href: "/reading",
+    icon: BookOpenText,
+  },
 
-      icon:
-        CalendarDays,
-    },
+  {
+    label: "واژگان",
+    href: "/vocabulary",
+    icon: BookMarked,
+  },
 
-    {
-      label:
-        "شنیداری",
+  {
+    label: "ارزیابی",
+    href: "/assessment",
+    icon: ClipboardCheck,
+  },
 
-      href:
-        "/listening",
+  {
+    label: "بحث آزاد",
+    href: "/classroom",
+    icon: MessageCircle,
+  },
 
-      icon:
-        Headphones,
-    },
-
-    {
-      label:
-        "مکالمه",
-
-      href:
-        "/speaking",
-
-      icon:
-        Mic2,
-    },
-
-    {
-      label:
-        "نوشتاری",
-
-      href:
-        "/writing",
-
-      icon:
-        PenLine,
-    },
-
-    {
-      label:
-        "خواندن",
-
-      href:
-        "/reading",
-
-      icon:
-        BookOpenText,
-    },
-
-    {
-      label:
-        "واژگان",
-
-      href:
-        "/vocabulary",
-
-      icon:
-        BookMarked,
-    },
-
-    {
-      label:
-        "ارزیابی",
-
-      href:
-        "/assessment",
-
-      icon:
-        ClipboardCheck,
-    },
-
-    {
-      label:
-        "بحث آزاد",
-
-      href:
-        "/speaking/free",
-
-      icon:
-        MessageCircle,
-    },
-
-    {
-      label:
-        "پیشرفت من",
-
-      href:
-        "/profile",
-
-      icon:
-        BarChart3,
-    },
-  ] satisfies readonly NavigationItem[];
+  {
+    label: "پیشرفت من",
+    href: "/profile",
+    icon: BarChart3,
+  },
+] satisfies readonly NavigationItem[];
 
 function isNavigationItemActive(
   pathname: string,
   item: NavigationItem,
 ): boolean {
   if (item.exact) {
-    return (
-      pathname ===
-      item.href
-    );
-  }
-
-  /*
-   * /speaking/free باید فقط آیتم بحث آزاد
-   * را active کند و نه هر دو مورد.
-   */
-  if (
-    item.href ===
-    "/speaking"
-  ) {
-    return (
-      pathname ===
-        "/speaking" ||
-      (
-        pathname.startsWith(
-          "/speaking/",
-        ) &&
-        !pathname.startsWith(
-          "/speaking/free",
-        )
-      )
-    );
+    return pathname === item.href;
   }
 
   return (
-    pathname ===
-      item.href ||
+    pathname === item.href ||
     pathname.startsWith(
       `${item.href}/`,
     )
@@ -224,27 +145,22 @@ function isNavigationItemActive(
 function BrandLogo({
   appearance,
   onNavigate,
-}: {
+}: Readonly<{
   appearance:
     SidebarAppearance;
 
   onNavigate:
     () => void;
-}) {
+}>) {
   return (
     <Link
       href="/dashboard"
-      onClick={
-        onNavigate
-      }
+      onClick={onNavigate}
       aria-label="Navan AI"
       className={cn(
         "flex items-center gap-2",
-
         "rounded-xl",
-
         "px-2 py-1.5",
-
         "transition",
 
         appearance === "light"
@@ -315,7 +231,7 @@ function NavigationLink({
   pathname,
   appearance,
   onNavigate,
-}: {
+}: Readonly<{
   item: NavigationItem;
 
   pathname: string;
@@ -325,22 +241,19 @@ function NavigationLink({
 
   onNavigate:
     () => void;
-}) {
+}>) {
   const active =
     isNavigationItemActive(
       pathname,
       item,
     );
 
-  const Icon =
-    item.icon;
+  const Icon = item.icon;
 
   return (
     <Link
       href={item.href}
-      onClick={
-        onNavigate
-      }
+      onClick={onNavigate}
       aria-current={
         active
           ? "page"
@@ -349,22 +262,15 @@ function NavigationLink({
       className={cn(
         "group",
         "relative",
-
         "flex",
         "h-11",
         "items-center",
-
         "gap-3",
-
         "rounded-lg",
-
         "px-3",
-
         "text-sm",
         "font-medium",
-
         "transition-colors",
-
         "focus-visible:outline-none",
         "focus-visible:ring-2",
 
@@ -407,9 +313,7 @@ function NavigationLink({
             "bottom-0",
             "right-0",
             "top-0",
-
             "w-[3px]",
-
             "rounded-l-full",
 
             appearance === "light"
@@ -452,18 +356,17 @@ function NavigationLink({
 function UpgradeToProCard({
   appearance,
   onOpenPlans,
-}: {
+}: Readonly<{
   appearance:
     SidebarAppearance;
 
   onOpenPlans:
     () => void;
-}) {
+}>) {
   return (
     <section
       className={cn(
         "rounded-2xl",
-
         "p-4",
 
         appearance === "light"
@@ -471,19 +374,15 @@ function UpgradeToProCard({
               "bg-gradient-to-br",
               "from-[#079B90]",
               "to-[#15B9AE]",
-
               "text-white",
-
               "shadow-[0_8px_20px_rgba(0,104,95,0.16)]",
             ]
           : [
               "border",
               "border-violet-300/15",
-
               "bg-gradient-to-br",
               "from-violet-600/90",
               "to-blue-700/90",
-
               "text-white",
             ],
       )}
@@ -524,9 +423,7 @@ function UpgradeToProCard({
 
       <button
         type="button"
-        onClick={
-          onOpenPlans
-        }
+        onClick={onOpenPlans}
         className="
           mt-3
           flex
@@ -561,19 +458,15 @@ export default function Sidebar({
   const [
     isPricingModalOpen,
     setIsPricingModalOpen,
-  ] = useState(false);
+  ] =
+    useState(false);
 
-  const closeSidebar =
-    (): void => {
-      setIsSidebarOpen(
-        false,
-      );
-    };
+  function closeSidebar(): void {
+    setIsSidebarOpen(false);
+  }
 
   return (
     <>
-      {/* Mobile backdrop */}
-
       <button
         type="button"
         aria-label="بستن منوی کناری"
@@ -585,19 +478,14 @@ export default function Sidebar({
             ? 0
             : -1
         }
-        onClick={
-          closeSidebar
-        }
+        onClick={closeSidebar}
         className={cn(
           "fixed",
           "inset-0",
           "z-40",
-
           "bg-black/40",
           "backdrop-blur-sm",
-
           "transition-opacity",
-
           "lg:hidden",
 
           isSidebarOpen
@@ -618,20 +506,14 @@ export default function Sidebar({
           "inset-y-0",
           "right-0",
           "z-50",
-
           "flex",
           "w-72",
           "max-w-[86vw]",
           "flex-col",
-
-          
           "overflow-hidden",
-
           "border-l",
-
           "transition-transform",
           "duration-300",
-
           "lg:translate-x-0",
 
           appearance === "light"
@@ -652,8 +534,6 @@ export default function Sidebar({
             : "translate-x-full",
         )}
       >
-        {/* Header */}
-
         <div
           className="
             flex
@@ -666,9 +546,7 @@ export default function Sidebar({
           "
         >
           <BrandLogo
-            appearance={
-              appearance
-            }
+            appearance={appearance}
             onNavigate={
               closeSidebar
             }
@@ -676,9 +554,7 @@ export default function Sidebar({
 
           <button
             type="button"
-            onClick={
-              closeSidebar
-            }
+            onClick={closeSidebar}
             aria-label="بستن منو"
             className={cn(
               "flex",
@@ -686,9 +562,7 @@ export default function Sidebar({
               "w-9",
               "items-center",
               "justify-center",
-
               "rounded-lg",
-
               "lg:hidden",
 
               appearance === "light"
@@ -697,6 +571,7 @@ export default function Sidebar({
             )}
           >
             <X
+              aria-hidden="true"
               className="h-5 w-5"
             />
           </button>
@@ -714,8 +589,6 @@ export default function Sidebar({
           )}
         />
 
-        {/* Fixed navigation area */}
-
         <nav
           aria-label="بخش‌های اصلی"
           className="
@@ -732,9 +605,7 @@ export default function Sidebar({
           {NAVIGATION_ITEMS.map(
             (item) => (
               <NavigationLink
-                key={
-                  item.href
-                }
+                key={item.href}
                 item={item}
                 pathname={
                   pathname
@@ -750,19 +621,20 @@ export default function Sidebar({
           )}
         </nav>
 
-        {/* Fixed footer cards */}
-
         <div
-          className="
-            shrink-0
-            space-y-3
-            border-t
-            border-[#D9E0E1]
-            bg-inherit
-            px-4
-            pb-4
-            pt-3
-          "
+          className={cn(
+            "shrink-0",
+            "space-y-3",
+            "border-t",
+            "bg-inherit",
+            "px-4",
+            "pb-4",
+            "pt-3",
+
+            appearance === "light"
+              ? "border-[#D9E0E1]"
+              : "border-white/[0.07]",
+          )}
         >
           <SupportCard
             appearance={
@@ -787,14 +659,14 @@ export default function Sidebar({
         isOpen={
           isPricingModalOpen
         }
+        plans={
+          subscriptionPlans
+        }
         onClose={() => {
           setIsPricingModalOpen(
             false,
           );
         }}
-        plans={
-          subscriptionPlans
-        }
       />
     </>
   );

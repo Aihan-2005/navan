@@ -8,14 +8,6 @@ import {
 } from "lucide-react";
 
 import {
-  Card,
-} from "../../../../components/ui/card";
-
-import {
-  Progress,
-} from "../../../../components/ui/progress";
-
-import {
   ASSESSMENT_SKILL_LABELS,
 } from "../../constants/assessment.constants";
 
@@ -30,9 +22,52 @@ type SkillEstimateCardProps =
   }>;
 
 const numberFormatter =
-  new Intl.NumberFormat(
-    "fa-IR",
-  );
+  new Intl.NumberFormat("fa-IR");
+
+const skillTone: Record<
+  AssessmentLearnerSkillSignal["skill"],
+  Readonly<{
+    iconSurface: string;
+    iconColor: string;
+    bar: string;
+  }>
+> = {
+  reading: {
+    iconSurface: "bg-[#E7F4F2]",
+    iconColor: "text-[#00685F]",
+    bar: "bg-[#14B8A6]",
+  },
+
+  listening: {
+    iconSurface: "bg-[#EAF2FF]",
+    iconColor: "text-[#2563EB]",
+    bar: "bg-[#3B82F6]",
+  },
+
+  speaking: {
+    iconSurface: "bg-[#F4F0FF]",
+    iconColor: "text-[#712AE2]",
+    bar: "bg-[#8B5CF6]",
+  },
+
+  writing: {
+    iconSurface: "bg-[#FFF0E6]",
+    iconColor: "text-[#EA580C]",
+    bar: "bg-[#F97316]",
+  },
+
+  grammar: {
+    iconSurface: "bg-[#FFF8E1]",
+    iconColor: "text-[#B7791F]",
+    bar: "bg-[#EAB308]",
+  },
+
+  vocabulary: {
+    iconSurface: "bg-[#E9FBF3]",
+    iconColor: "text-[#047857]",
+    bar: "bg-[#10B981]",
+  },
+};
 
 function getSkillIcon(
   skill:
@@ -63,47 +98,70 @@ export function SkillEstimateCard({
   signal,
 }: SkillEstimateCardProps) {
   const Icon =
-    getSkillIcon(
-      signal.skill,
-    );
+    getSkillIcon(signal.skill);
+
+  const tone =
+    skillTone[signal.skill];
 
   const delta =
     signal.score !== null &&
-    signal.previousScore !==
-      null
+    signal.previousScore !== null
       ? signal.score -
         signal.previousScore
       : null;
 
+  const safeScore =
+    signal.score === null
+      ? 0
+      : Math.min(
+          100,
+          Math.max(
+            0,
+            signal.score,
+          ),
+        );
+
   return (
-    <Card
+    <article
       className="
+        rounded-2xl
+        border
+        border-[#DFE8E6]
+        bg-white
         p-5
+        shadow-[0_8px_25px_rgba(15,23,42,0.04)]
         transition
-        hover:border-cyan-400/15
-        hover:bg-white/[0.055]
+        hover:border-[#C4DAD6]
+        hover:shadow-[0_12px_30px_rgba(15,23,42,0.06)]
       "
     >
       <div
         className="
-          flex items-start
-          justify-between gap-4
+          flex
+          items-start
+          justify-between
+          gap-4
         "
       >
         <div
           className="
-            flex items-center gap-3
+            flex
+            items-center
+            gap-3
           "
         >
           <span
-            className="
-              flex h-10 w-10
-              shrink-0 items-center
+            className={`
+              flex
+              h-11
+              w-11
+              shrink-0
+              items-center
               justify-center
               rounded-xl
-              bg-cyan-400/10
-              text-cyan-300
-            "
+              ${tone.iconSurface}
+              ${tone.iconColor}
+            `}
           >
             <Icon
               aria-hidden="true"
@@ -114,8 +172,9 @@ export function SkillEstimateCard({
           <div>
             <h3
               className="
-                text-sm font-bold
-                text-white
+                text-sm
+                font-black
+                text-[#0F172A]
               "
             >
               {
@@ -127,11 +186,12 @@ export function SkillEstimateCard({
 
             <p
               className="
-                mt-1 text-[11px]
-                text-slate-600
+                mt-1
+                text-[11px]
+                text-[#64748B]
               "
             >
-              برآورد فعلی
+              برآورد فعلی مهارت
             </p>
           </div>
         </div>
@@ -139,14 +199,15 @@ export function SkillEstimateCard({
         <span
           className="
             rounded-lg
-            bg-white/[0.05]
-            px-2.5 py-1
-            text-xs font-bold
-            text-slate-300
+            bg-[#F1F5F4]
+            px-2.5
+            py-1
+            text-xs
+            font-black
+            text-[#334155]
           "
         >
-          {signal.cefrLevel ??
-            "—"}
+          {signal.cefrLevel ?? "—"}
         </span>
       </div>
 
@@ -154,9 +215,11 @@ export function SkillEstimateCard({
         <>
           <div
             className="
-              mt-5 flex
+              mt-5
+              flex
               items-end
               justify-between
+              gap-3
             "
           >
             <div>
@@ -164,7 +227,7 @@ export function SkillEstimateCard({
                 className="
                   text-2xl
                   font-black
-                  text-white
+                  text-[#0F172A]
                 "
               >
                 {numberFormatter.format(
@@ -174,8 +237,9 @@ export function SkillEstimateCard({
 
               <span
                 className="
-                  mr-1 text-xs
-                  text-slate-600
+                  mr-1
+                  text-xs
+                  text-[#94A3B8]
                 "
               >
                 / 100
@@ -186,13 +250,11 @@ export function SkillEstimateCard({
               <span
                 className={
                   delta >= 0
-                    ? "text-xs text-emerald-300"
-                    : "text-xs text-amber-300"
+                    ? "text-xs font-bold text-[#047857]"
+                    : "text-xs font-bold text-[#C2410C]"
                 }
               >
-                {delta > 0
-                  ? "+"
-                  : ""}
+                {delta > 0 ? "+" : ""}
                 {numberFormatter.format(
                   delta,
                 )}
@@ -200,45 +262,76 @@ export function SkillEstimateCard({
             ) : null}
           </div>
 
-          <Progress
-            value={signal.score}
-            label={`امتیاز ${
+          <div
+            role="progressbar"
+            aria-label={`امتیاز ${
               ASSESSMENT_SKILL_LABELS[
                 signal.skill
               ]
             }`}
-            className="mt-3"
-          />
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={
+              signal.score
+            }
+            className="
+              mt-3
+              h-2
+              w-full
+              overflow-hidden
+              rounded-full
+              bg-[#EDF2F1]
+            "
+          >
+            <div
+              className={`
+                h-full
+                rounded-full
+                transition-[width]
+                duration-500
+                ${tone.bar}
+              `}
+              style={{
+                width:
+                  `${safeScore}%`,
+              }}
+            />
+          </div>
         </>
       ) : (
         <div
           className="
-            mt-5 rounded-xl
+            mt-5
+            rounded-xl
             border
             border-dashed
-            border-white/[0.07]
-            bg-white/[0.02]
-            px-4 py-3
+            border-[#CBD5E1]
+            bg-[#F8FAFC]
+            px-4
+            py-3
           "
         >
           <p
             className="
-              text-xs leading-6
-              text-slate-600
+              text-xs
+              leading-6
+              text-[#64748B]
             "
           >
             هنوز داده کافی برای تخمین
-            این مهارت نداریم.
+            این مهارت وجود ندارد.
           </p>
         </div>
       )}
 
       <div
         className="
-          mt-4 flex
+          mt-4
+          flex
           justify-between
+          gap-3
           text-[10px]
-          text-slate-700
+          text-[#64748B]
         "
       >
         <span>
@@ -255,6 +348,6 @@ export function SkillEstimateCard({
           دقیقه تمرین
         </span>
       </div>
-    </Card>
+    </article>
   );
 }

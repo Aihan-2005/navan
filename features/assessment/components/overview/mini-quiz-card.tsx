@@ -3,13 +3,10 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Clock3,
+  ListChecks,
   LockKeyhole,
   Sparkles,
 } from "lucide-react";
-
-import {
-  Card,
-} from "../../../../components/ui/card";
 
 import {
   ASSESSMENT_SKILL_LABELS,
@@ -26,39 +23,51 @@ type MiniQuizCardProps =
   }>;
 
 const numberFormatter =
-  new Intl.NumberFormat(
-    "fa-IR",
-  );
+  new Intl.NumberFormat("fa-IR");
 
 export function MiniQuizCard({
   quiz,
 }: MiniQuizCardProps) {
   const isAvailable =
-    quiz.status ===
-      "available" &&
+    quiz.status === "available" &&
     Boolean(quiz.href);
 
   return (
-    <Card
+    <article
       className="
-        flex h-full
-        flex-col p-5
+        flex
+        h-full
+        flex-col
+        rounded-2xl
+        border
+        border-[#DFE8E6]
+        bg-white
+        p-5
+        shadow-[0_8px_25px_rgba(15,23,42,0.04)]
+        transition
+        duration-200
+        hover:-translate-y-0.5
+        hover:border-[#AED6D0]
+        hover:shadow-[0_12px_30px_rgba(15,23,42,0.07)]
       "
     >
       <div
         className="
-          flex items-center
-          justify-between gap-3
+          flex
+          items-center
+          justify-between
+          gap-3
         "
       >
         <span
           className="
             rounded-full
-            bg-cyan-400/10
-            px-2.5 py-1
+            bg-[#E7F4F2]
+            px-2.5
+            py-1
             text-[10px]
-            font-medium
-            text-cyan-300
+            font-bold
+            text-[#00685F]
           "
         >
           {
@@ -71,11 +80,12 @@ export function MiniQuizCard({
         <span
           className="
             rounded-full
-            bg-white/[0.05]
-            px-2.5 py-1
+            bg-[#F4F0FF]
+            px-2.5
+            py-1
             text-[10px]
-            font-bold
-            text-slate-400
+            font-black
+            text-[#712AE2]
           "
         >
           {quiz.cefrLevel}
@@ -83,11 +93,12 @@ export function MiniQuizCard({
       </div>
 
       <h3
-        dir="ltr"
         className="
-          mt-5 text-left
-          text-lg font-bold
-          text-white
+          mt-5
+          text-lg
+          font-black
+          leading-7
+          text-[#0F172A]
         "
       >
         {quiz.title}
@@ -95,128 +106,169 @@ export function MiniQuizCard({
 
       <p
         className="
-          mt-3 flex-1
-          text-sm leading-7
-          text-slate-500
+          mt-3
+          flex-1
+          text-sm
+          leading-7
+          text-[#64748B]
         "
       >
         {quiz.description}
       </p>
 
-      <div
-        className="
-          mt-4 flex
-          flex-wrap gap-2
-        "
-      >
-        {quiz.focusTags.map(
-          (tag) => (
-            <span
-              key={tag}
-              dir="ltr"
-              className="
-                rounded-lg
-                bg-white/[0.035]
-                px-2 py-1
-                text-[10px]
-                text-slate-600
-              "
-            >
-              {tag}
-            </span>
-          ),
-        )}
-      </div>
+      {quiz.focusTags.length > 0 ? (
+        <div
+          className="
+            mt-4
+            flex
+            flex-wrap
+            gap-2
+          "
+        >
+          {quiz.focusTags.map(
+            (tag) => (
+              <span
+                key={tag}
+                dir="ltr"
+                className="
+                  rounded-lg
+                  bg-[#F8FAFC]
+                  px-2
+                  py-1
+                  text-[10px]
+                  text-[#64748B]
+                "
+              >
+                {tag}
+              </span>
+            ),
+          )}
+        </div>
+      ) : null}
 
       <div
         className="
-          mt-5 flex
-          items-center
-          justify-between
+          mt-5
+          grid
+          grid-cols-3
+          gap-2
           border-t
-          border-white/[0.06]
+          border-[#E8EEEC]
           pt-4
         "
       >
-        <div
+        <QuizMetric
+          icon={Clock3}
+          value={`${numberFormatter.format(
+            quiz.estimatedMinutes,
+          )} دقیقه`}
+        />
+
+        <QuizMetric
+          icon={ListChecks}
+          value={`${numberFormatter.format(
+            quiz.questionCount,
+          )} سؤال`}
+        />
+
+        <QuizMetric
+          icon={Sparkles}
+          value={`+${numberFormatter.format(
+            quiz.xpReward,
+          )} XP`}
+        />
+      </div>
+
+      {isAvailable && quiz.href ? (
+        <Link
+          href={quiz.href}
           className="
-            flex gap-4
-            text-[11px]
-            text-slate-600
+            mt-4
+            inline-flex
+            min-h-10
+            w-full
+            items-center
+            justify-center
+            gap-2
+            rounded-xl
+            bg-[#00685F]
+            px-4
+            text-xs
+            font-black
+            text-[#FFFFFF]
+            transition
+            hover:bg-[#005A52]
           "
         >
-          <span
-            className="
-              inline-flex
-              items-center gap-1
-            "
-          >
-            <Clock3
-              aria-hidden="true"
-              className="h-3.5 w-3.5"
-            />
+          شروع کوییز
 
-            {numberFormatter.format(
-              quiz.estimatedMinutes,
-            )}{" "}
-            دقیقه
-          </span>
+          <ArrowLeft
+            aria-hidden="true"
+            className="h-3.5 w-3.5"
+          />
+        </Link>
+      ) : (
+        <div
+          className="
+            mt-4
+            inline-flex
+            min-h-10
+            w-full
+            items-center
+            justify-center
+            gap-2
+            rounded-xl
+            bg-[#F1F5F4]
+            px-4
+            text-xs
+            font-bold
+            text-[#94A3B8]
+          "
+        >
+          <LockKeyhole
+            aria-hidden="true"
+            className="h-3.5 w-3.5"
+          />
 
-          <span
-            className="
-              inline-flex
-              items-center gap-1
-            "
-          >
-            <Sparkles
-              aria-hidden="true"
-              className="h-3.5 w-3.5"
-            />
-
-            +{numberFormatter.format(
-              quiz.xpReward,
-            )} XP
-          </span>
+          به‌زودی
         </div>
+      )}
+    </article>
+  );
+}
 
-        {isAvailable &&
-        quiz.href ? (
-          <Link
-            href={quiz.href}
-            className="
-              inline-flex
-              items-center gap-1.5
-              text-xs font-bold
-              text-cyan-300
-              transition
-              hover:text-cyan-200
-            "
-          >
-            شروع
+function QuizMetric({
+  icon: Icon,
+  value,
+}: Readonly<{
+  icon: typeof Clock3;
+  value: string;
+}>) {
+  return (
+    <span
+      className="
+        flex
+        min-w-0
+        items-center
+        justify-center
+        gap-1
+        text-[10px]
+        text-[#64748B]
+      "
+    >
+      <Icon
+        aria-hidden="true"
+        className="
+          h-3.5
+          w-3.5
+          shrink-0
+          text-[#00685F]
+        "
+      />
 
-            <ArrowLeft
-              aria-hidden="true"
-              className="h-3.5 w-3.5"
-            />
-          </Link>
-        ) : (
-          <span
-            className="
-              inline-flex
-              items-center gap-1.5
-              text-[10px]
-              text-slate-700
-            "
-          >
-            <LockKeyhole
-              aria-hidden="true"
-              className="h-3.5 w-3.5"
-            />
-
-            به‌زودی
-          </span>
-        )}
-      </div>
-    </Card>
+      <span className="truncate">
+        {value}
+      </span>
+    </span>
   );
 }

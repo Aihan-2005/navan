@@ -1,0 +1,263 @@
+.root {
+  --assessment-surface: #ffffff;
+  --assessment-surface-soft: #f8fafc;
+
+  --assessment-border: #dfe8e6;
+  --assessment-border-strong: #c8d8d4;
+
+  --assessment-title: #0f172a;
+  --assessment-body: #334155;
+  --assessment-muted: #64748b;
+
+  --assessment-primary: #00685f;
+  --assessment-primary-soft: #e7f4f2;
+
+  --assessment-purple: #712ae2;
+  --assessment-purple-soft: #f4efff;
+
+  color: var(--assessment-title);
+}
+
+
+.root [class~="text-white"] {
+  color: var(--assessment-title) !important;
+}
+
+.root [class~="text-slate-100"],
+.root [class~="text-slate-200"] {
+  color: #1e293b !important;
+}
+
+.root [class~="text-slate-300"] {
+  color: #334155 !important;
+}
+
+.root [class~="text-slate-400"] {
+  color: #475569 !important;
+}
+
+.root [class~="text-slate-500"],
+.root [class~="text-slate-600"],
+.root [class~="text-slate-700"] {
+  color: var(--assessment-muted) !important;
+}
+
+/* Shared dark surfaces */
+
+.root [class~="bg-white/[0.02]"],
+.root [class~="bg-white/[0.025]"],
+.root [class~="bg-white/[0.03]"],
+.root [class~="bg-white/[0.035]"],
+.root [class~="bg-white/[0.04]"],
+.root [class~="bg-white/[0.045]"],
+.root [class~="bg-white/[0.05]"],
+.root [class~="bg-white/[0.055]"],
+.root [class~="bg-white/[0.06]"],
+.root [class~="bg-slate-950/50"],
+.root [class~="bg-slate-950/60"],
+.root [class~="bg-slate-950/70"],
+.root [class~="bg-slate-950/80"],
+.root [class~="bg-slate-950/90"] {
+  background-color: var(--assessment-surface) !important;
+}
+
+.root [class~="bg-black/10"],
+.root [class~="bg-black/15"] {
+  background-color: var(--assessment-surface-soft) !important;
+}
+
+/* Borders */
+
+.root [class~="border-white/10"],
+.root [class~="border-white/[0.05]"],
+.root [class~="border-white/[0.06]"],
+.root [class~="border-white/[0.07]"],
+.root [class~="border-white/[0.08]"],
+.root [class~="border-white/[0.1]"] {
+  border-color: var(--assessment-border) !important;
+}
+
+/* Cyan -> Navan teal */
+
+.root [class~="text-cyan-200"],
+.root [class~="text-cyan-300"],
+.root [class~="text-cyan-400"] {
+  color: var(--assessment-primary) !important;
+}
+
+.root [class~="bg-cyan-400/10"],
+.root [class~="bg-cyan-400/[0.035]"],
+.root [class~="bg-cyan-400/[0.04]"],
+.root [class~="bg-cyan-400/[0.05]"],
+.root [class~="bg-cyan-400/[0.07]"] {
+  background-color: var(--assessment-primary-soft) !important;
+}
+
+.root [class~="border-cyan-400/10"],
+.root [class~="border-cyan-400/15"],
+.root [class~="border-cyan-400/20"] {
+  border-color: #b8ded8 !important;
+}
+
+.root [class~="bg-cyan-400"] {
+  background-color: var(--assessment-primary) !important;
+}
+
+/* Violet */
+
+.root [class~="text-violet-200"],
+.root [class~="text-violet-300"],
+.root [class~="text-violet-400"] {
+  color: var(--assessment-purple) !important;
+}
+
+.root [class~="bg-violet-400/10"],
+.root [class~="bg-violet-400/[0.035]"],
+.root [class~="bg-violet-400/[0.045]"],
+.root [class~="bg-violet-400/[0.05]"],
+.root [class~="bg-violet-400/[0.07]"] {
+  background-color: var(--assessment-purple-soft) !important;
+}
+
+.root [class~="border-violet-400/10"],
+.root [class~="border-violet-400/15"],
+.root [class~="border-violet-400/20"] {
+  border-color: #ded0ff !important;
+}
+
+.root [class~="bg-violet-400"] {
+  background-color: var(--assessment-purple) !important;
+}
+
+/* Success */
+
+.root [class~="text-emerald-200"],
+.root [class~="text-emerald-300"],
+.root [class~="text-emerald-400"] {
+  color: #047857 !important;
+}
+
+.root [class~="bg-emerald-400/[0.04]"],
+.root [class~="bg-emerald-400/[0.05]"],
+.root [class~="bg-emerald-400/10"] {
+  background-color: #ecfdf5 !important;
+}
+
+.root [class~="border-emerald-400/10"],
+.root [class~="border-emerald-400/15"] {
+  border-color: #a7f3d0 !important;
+}
+
+/* Warning */
+
+.root [class~="text-amber-200"],
+.root [class~="text-amber-300"],
+.root [class~="text-amber-400"] {
+  color: #b45309 !important;
+}
+
+.root [class~="bg-amber-400/[0.035]"],
+.root [class~="bg-amber-400/[0.05]"],
+.root [class~="bg-amber-400/10"] {
+  background-color: #fffbeb !important;
+}
+
+.root [class~="border-amber-400/10"],
+.root [class~="border-amber-400/15"] {
+  border-color: #fde68a !important;
+}
+
+/* Error */
+
+.root [class~="text-red-200"],
+.root [class~="text-red-300"],
+.root [class~="text-red-400"] {
+  color: #b91c1c !important;
+}
+
+.root [class~="bg-red-400/[0.05]"],
+.root [class~="bg-red-400/10"] {
+  background-color: #fef2f2 !important;
+}
+
+.root [class~="border-red-400/15"],
+.root [class~="border-red-400/20"] {
+  border-color: #fecaca !important;
+}
+
+/* Interactive legacy states */
+
+.root [class~="hover:bg-white/[0.05]"]:hover,
+.root [class~="hover:bg-white/[0.055]"]:hover,
+.root [class~="hover:bg-white/[0.06]"]:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.root [class~="hover:text-white"]:hover {
+  color: var(--assessment-primary) !important;
+}
+
+/* Dark-first shared Card */
+
+.root [class~="backdrop-blur-sm"] {
+  backdrop-filter: none !important;
+}
+
+.root
+  [class~="shadow-[0_18px_50px_rgba(0,0,0,0.18)]"] {
+  box-shadow:
+    0 10px 35px rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Solid old CTAs */
+
+.root
+  [class~="bg-cyan-400"][class~="text-slate-950"],
+.root
+  [class~="bg-violet-400"][class~="text-slate-950"],
+.root
+  [class~="bg-emerald-400"][class~="text-slate-950"],
+.root
+  [class~="bg-red-400"][class~="text-white"] {
+  color: #ffffff !important;
+}
+
+/* Form controls */
+
+.root [class~="placeholder:text-slate-700"]::placeholder,
+.root [class~="placeholder:text-slate-600"]::placeholder {
+  color: #94a3b8 !important;
+}
+
+.root input,
+.root textarea,
+.root select,
+.root button,
+.root a {
+  outline-color: var(--assessment-primary);
+}
+
+/* Scrollbars */
+
+.root * {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.root *::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.root *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.root *::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+
+.root *::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

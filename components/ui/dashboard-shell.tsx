@@ -36,6 +36,7 @@ const LIGHT_SHELL_NAMESPACES = [
   "/reading",
   "/vocabulary",
   "/assessment",
+  "/classroom",
   "/profile",
 ] as const;
 
@@ -96,7 +97,8 @@ export default function DashboardShell({
   const [
     isSidebarOpen,
     setIsSidebarOpen,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const appearance =
     resolveDashboardAppearance(
@@ -129,8 +131,7 @@ export default function DashboardShell({
       event: KeyboardEvent,
     ): void => {
       if (
-        event.key ===
-        "Escape"
+        event.key === "Escape"
       ) {
         closeSidebar();
       }
@@ -200,18 +201,14 @@ export default function DashboardShell({
       )}
     >
       <Header
-        appearance={
-          appearance
-        }
+        appearance={appearance}
         setIsSidebarOpen={
           setIsSidebarOpen
         }
       />
 
       <Sidebar
-        appearance={
-          appearance
-        }
+        appearance={appearance}
         isSidebarOpen={
           isSidebarOpen
         }
@@ -225,20 +222,12 @@ export default function DashboardShell({
         className={cn(
           "min-h-dvh",
 
-          /*
-           * Mobile horizontal spacing.
-           */
           "px-3",
           "pb-16",
           "pt-24",
 
           "sm:px-4",
 
-          /*
-           * Sidebar is 288px.
-           * Previous horizontal padding was 32px.
-           * It is intentionally reduced to 16-20px.
-           */
           "lg:mr-72",
           "lg:px-4",
 
@@ -248,14 +237,6 @@ export default function DashboardShell({
             ? "bg-white"
             : "bg-[#041121]",
 
-          /*
-           * Reading / Writing currently contain
-           * max-w-[936px] containers.
-           *
-           * Override their outer page container here
-           * so we do not have to duplicate width logic
-           * in every feature page.
-           */
           useWideContent && [
             "[&>main]:!max-w-[1120px]",
             "[&>nav]:!max-w-[1120px]",

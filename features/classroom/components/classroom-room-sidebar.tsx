@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Bot,
   ExternalLink,
   FileAudio2,
   FileText,
@@ -20,10 +21,6 @@ import {
 } from "react";
 
 import {
-  Card,
-} from "../../../components/ui/card";
-
-import {
   cn,
 } from "../../../lib/utils/cn";
 
@@ -41,15 +38,21 @@ import type {
   ClassroomShareItemInput,
 } from "../types/classroom.types";
 
+import {
+  ClassroomAIAssistant,
+} from "./classroom-ai-assistant";
+
 type RoomSidebarTab =
   | "chat"
   | "notes"
-  | "resources";
+  | "resources"
+  | "assistant";
 
 type ClassroomRoomSidebarProps =
   Readonly<{
-    roomId:
-      string; messages:
+    roomId: string;
+
+    messages:
       readonly ClassroomChatMessage[];
 
     sharedItems:
@@ -57,17 +60,13 @@ type ClassroomRoomSidebarProps =
 
     currentUser:
       Readonly<{
-        id:
-          string;
-
-        name:
-          string;
+        id: string;
+        name: string;
       }>;
 
     onSendMessage:
       (
-        body:
-          string,
+        body: string,
       ) => boolean;
 
     onShareItem:
@@ -81,35 +80,25 @@ const dateFormatter =
   new Intl.DateTimeFormat(
     "fa-IR",
     {
-      hour:
-        "2-digit",
-
-      minute:
-        "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     },
   );
+
 function formatFileSize(
-  bytes:
-    number,
+  bytes: number,
 ): string {
-  if (
-    bytes <
-    1024
-  ) {
+  if (bytes < 1024) {
     return `${bytes} B`;
   }
 
   if (
     bytes <
-    1024 *
-      1024
+    1024 * 1024
   ) {
     return `${(
-      bytes /
-      1024
-    ).toFixed(
-      1,
-    )} KB`;
+      bytes / 1024
+    ).toFixed(1)} KB`;
   }
 
   return `${(
@@ -118,14 +107,11 @@ function formatFileSize(
       1024 *
       1024
     )
-  ).toFixed(
-    1,
-  )} MB`;
+  ).toFixed(1)} MB`;
 }
 
 function getSafeExternalUrl(
-  value:
-    string | null,
+  value: string | null,
 ): string | null {
   if (!value) {
     return null;
@@ -133,15 +119,11 @@ function getSafeExternalUrl(
 
   try {
     const url =
-      new URL(
-        value,
-      );
+      new URL(value);
 
     if (
-      url.protocol !==
-         "https:" &&
-      url.protocol !==
-        "http:"
+      url.protocol !== "https:" &&
+      url.protocol !== "http:"
     ) {
       return null;
     }
@@ -169,78 +151,80 @@ export function ClassroomRoomSidebar({
     );
 
   return (
-    <Card
+    <section
       className="
         flex
         min-h-[620px]
         flex-col
         overflow-hidden
-        p-0
+        rounded-2xl
+        border
+        border-[#DCE7E5]
+        bg-white
+        shadow-[0_12px_36px_rgba(15,23,42,0.055)]
       "
     >
       <div
         className="
           grid
-          grid-cols-3
+          grid-cols-4
           border-b
-          border-white/[0.06]
+          border-[#E2E8F0]
+          bg-[#FAFCFC]
         "
       >
         <TabButton
           active={
-            activeTab ===
-            "chat"
-         }
-          label="چت"
-          icon={
-            MessageCircle
+            activeTab === "chat"
           }
+          label="چت"
+          icon={MessageCircle}
           onClick={() => {
-            setActiveTab(
-              "chat",
-            );
+            setActiveTab("chat");
           }}
         />
 
         <TabButton
           active={
-            activeTab ===
-            "notes"
+            activeTab === "notes"
           }
           label="یادداشت"
-          icon={
-            NotebookPen
-          }
+          icon={NotebookPen}
           onClick={() => {
-            setActiveTab(
-              "notes",
-            );
+            setActiveTab("notes");
           }}
         />
 
         <TabButton
           active={
-            activeTab ===
-            "resources"
+            activeTab === "resources"
           }
-label="منابع"
-          icon={
-            Paperclip
-          }
+          label="منابع"
+          icon={Paperclip}
           onClick={() => {
             setActiveTab(
               "resources",
             );
           }}
         />
+
+        <TabButton
+          active={
+            activeTab === "assistant"
+          }
+          label="دستیار"
+          icon={Bot}
+          onClick={() => {
+            setActiveTab(
+              "assistant",
+            );
+          }}
+        />
       </div>
 
-      {activeTab ===
-      "chat" ? (
+      {activeTab === "chat" ? (
         <ChatPanel
-          messages={
-            messages
-          }
+          messages={messages}
           currentUser={
             currentUser
           }
@@ -250,27 +234,33 @@ label="منابع"
         />
       ) : null}
 
-      {activeTab ===
-      "notes" ? (
+      {activeTab === "notes" ? (
         <NotesPanel
-          roomId={
-            roomId
-          }
+          roomId={roomId}
         />
       ) : null}
 
       {activeTab ===
       "resources" ? (
         <ResourcesPanel
-          items={
-            sharedItems
-          }
+          items={sharedItems}
           onShareItem={
             onShareItem
           }
         />
       ) : null}
-    </Card>
+
+      {activeTab ===
+      "assistant" ? (
+        <ClassroomAIAssistant
+          roomId={roomId}
+          messages={messages}
+          currentUserName={
+            currentUser.name
+          }
+        />
+      ) : null}
+    </section>
   );
 }
 
@@ -280,55 +270,55 @@ function TabButton({
   icon: Icon,
   onClick,
 }: Readonly<{
-  active:
-    boolean;
-
-  label:
-    string;
-
-  icon:
-    typeof MessageCircle;
-
-  onClick:
-    () => void;
+  active: boolean;
+  label: string;
+  icon: typeof MessageCircle;
+  onClick: () => void;
 }>) {
   return (
     <button
       type="button"
-      onClick={
-        onClick
-      }
+      onClick={onClick}
       className={cn(
+        "relative",
         "flex",
         "min-h-14",
         "items-center",
         "justify-center",
         "gap-1.5",
         "border-b-2",
-        "text-xs",
-        "font-medium",
+        "px-2",
+        "text-[11px]",
+        "font-bold",
         "transition",
 
         active
           ? [
-              "border-violet-300",
-              "bg-violet-400/[0.05]",
-              "text-violet-200",
+              "border-[#00685F]",
+              "bg-[#EAF6F4]",
+              "text-[#00685F]",
             ]
           : [
               "border-transparent",
-              "text-slate-600",
-              "hover:bg-white/[0.025]",
-              "hover:text-slate-300",
+              "text-[#64748B]",
+              "hover:bg-[#F1F5F4]",
+              "hover:text-[#334155]",
             ],
       )}
     >
       <Icon
         aria-hidden="true"
- className="h-4 w-4"
+        className="h-4 w-4"
       />
 
-      {label}
+      <span
+        className="
+          hidden
+          sm:inline
+        "
+      >
+        {label}
+      </span>
     </button>
   );
 }
@@ -343,17 +333,13 @@ function ChatPanel({
 
   currentUser:
     Readonly<{
-      id:
-        string;
-
-      name:
-        string;
+      id: string;
+      name: string;
     }>;
 
   onSendMessage:
     (
-      body:
-        string,
+      body: string,
     ) => boolean;
 }>) {
   const [
@@ -368,16 +354,11 @@ function ChatPanel({
     );
 
   useEffect(() => {
- endRef.current?.scrollIntoView({
-      block:
-        "nearest",
-
-      behavior:
-        "smooth",
+    endRef.current?.scrollIntoView({
+      block: "nearest",
+      behavior: "smooth",
     });
-  }, [
-    messages,
-  ]);
+  }, [messages]);
 
   function sendMessage(): void {
     const normalized =
@@ -393,9 +374,7 @@ function ChatPanel({
       );
 
     if (success) {
-      setMessage(
-        "",
-      );
+      setMessage("");
     }
   }
 
@@ -407,7 +386,8 @@ function ChatPanel({
         flex-1
         flex-col
       "
-    > <div
+    >
+      <div
         className="
           min-h-0
           flex-1
@@ -417,27 +397,32 @@ function ChatPanel({
         "
       >
         {messages.map(
-          (
-            item,
-          ) => {
+          (item) => {
             if (
               item.kind ===
               "system"
             ) {
               return (
-                <p
-                  key={
-                    item.id
-                  }
+                <div
+                  key={item.id}
                   className="
                     py-2
                     text-center
-                    text-[10px]
-                    text-slate-700
                   "
                 >
-                  {item.body}
-                </p>
+                  <span
+                    className="
+                      rounded-full
+                      bg-[#F1F5F4]
+                      px-3
+                      py-1.5
+                      text-[10px]
+                      text-[#64748B]
+                    "
+                  >
+                    {item.body}
+                  </span>
+                </div>
               );
             }
 
@@ -447,9 +432,7 @@ function ChatPanel({
 
             return (
               <article
-                key={
-                  item.id
-                }
+                key={item.id}
                 className={cn(
                   "max-w-[88%]",
 
@@ -457,20 +440,19 @@ function ChatPanel({
                     ? "mr-auto"
                     : "ml-auto",
                 )}
-              > <div
+              >
+                <div
                   className="
                     mb-1
                     flex
                     items-center
                     gap-2
                     text-[10px]
-                    text-slate-600
+                    text-[#64748B]
                   "
                 >
                   <span>
-                    {
-                      item.senderName
-                    }
+                    {item.senderName}
                   </span>
 
                   <span>
@@ -494,33 +476,32 @@ function ChatPanel({
                     isSelf
                       ? [
                           "rounded-bl-md",
-                          "bg-violet-400/15",
-                          "text-violet-50",
+                          "bg-[#00685F]",
+                          "text-[#FFFFFF]",
                         ]
                       : [
                           "rounded-br-md",
-                          "bg-white/[0.05]",
-                          "text-slate-300",
+                          "border",
+                          "border-[#E2E8F0]",
+                          "bg-[#F8FAFC]",
+                          "text-[#334155]",
                         ],
                   )}
                 >
                   {item.body}
-                </div>  </article>
+                </div>
+              </article>
             );
           },
         )}
 
-        <div
-          ref={
-            endRef
-          }
-        />
+        <div ref={endRef} />
       </div>
 
       <div
         className="
           border-t
-          border-white/[0.06]
+          border-[#E2E8F0]
           p-3
         "
       >
@@ -531,35 +512,31 @@ function ChatPanel({
             gap-2
             rounded-2xl
             border
-            border-white/[0.07]
-            bg-white/[0.025]
+            border-[#D8E7E4]
+            bg-white
             p-2
+            focus-within:border-[#9BCFC7]
+            focus-within:ring-2
+            focus-within:ring-[#14B8A6]/10
           "
         >
           <textarea
-            value={
-              message
-            }
+            value={message}
             maxLength={
               CLASSROOM_CHAT_MESSAGE_MAX_LENGTH
             }
             rows={1}
-            onChange={(
-              event,
-            ) => {
+            onChange={(event) => {
               setMessage(
                 event.target.value,
               );
-            }} onKeyDown={(
-              event,
-            ) => {
+            }}
+            onKeyDown={(event) => {
               if (
-                event.key ===
-                  "Enter" &&
+                event.key === "Enter" &&
                 !event.shiftKey
               ) {
                 event.preventDefault();
-
                 sendMessage();
               }
             }}
@@ -575,17 +552,15 @@ function ChatPanel({
               py-2
               text-sm
               leading-6
-              text-white
+              text-[#0F172A]
               outline-none
-              placeholder:text-slate-700
+              placeholder:text-[#94A3B8]
             "
           />
 
           <button
             type="button"
-            onClick={
-              sendMessage
-            }
+            onClick={sendMessage}
             disabled={
               !message.trim()
             }
@@ -597,10 +572,10 @@ function ChatPanel({
               items-center
               justify-center
               rounded-xl
-              bg-violet-400
-              text-slate-950
+              bg-[#00685F]
+              text-[#FFFFFF]
               transition
- hover:bg-violet-300
+              hover:bg-[#005A52]
               disabled:cursor-not-allowed
               disabled:opacity-30
             "
@@ -618,12 +593,14 @@ function ChatPanel({
             mt-2
             text-left
             text-[9px]
-            text-slate-700
+            text-[#94A3B8]
           "
           dir="ltr"
         >
           {message.length}/
-          {CLASSROOM_CHAT_MESSAGE_MAX_LENGTH}
+          {
+            CLASSROOM_CHAT_MESSAGE_MAX_LENGTH
+          }
         </p>
       </div>
     </div>
@@ -633,15 +610,15 @@ function ChatPanel({
 function NotesPanel({
   roomId,
 }: Readonly<{
-  roomId:
-    string;
+  roomId: string;
 }>) {
   const storageKey =
     `classroom-notes:${roomId}`;
 
   const [
     notes,
-    setNotes, ] =
+    setNotes,
+  ] =
     useState("");
 
   const [
@@ -665,17 +642,11 @@ function NotesPanel({
       );
 
     if (savedValue) {
-      setNotes(
-        savedValue,
-      );
+      setNotes(savedValue);
     }
 
-    setIsLoaded(
-      true,
-    );
-  }, [
-    storageKey,
-  ]);
+    setIsLoaded(true);
+  }, [storageKey]);
 
   useEffect(() => {
     if (!isLoaded) {
@@ -717,41 +688,67 @@ function NotesPanel({
         flex-col
         p-4
       "
-    ><div>
-        <h3
+    >
+      <div
+        className="
+          rounded-2xl
+          bg-[#F1FAF8]
+          p-4
+        "
+      >
+        <div
           className="
-            text-sm
-            font-bold
-            text-white
+            flex
+            items-center
+            gap-2
           "
         >
-          یادداشت شخصی جلسه
-        </h3>
+          <NotebookPen
+            aria-hidden="true"
+            className="
+              h-5
+              w-5
+              text-[#00685F]
+            "
+          />
+
+          <h3
+            className="
+              text-sm
+              font-black
+              text-[#0F172A]
+            "
+          >
+            دفترچه شخصی جلسه
+          </h3>
+        </div>
 
         <p
           className="
             mt-2
             text-xs
             leading-6
-            text-slate-600
+            text-[#64748B]
           "
         >
-          این یادداشت فعلاً فقط در مرورگر خودت ذخیره می‌شود و برای دیگر اعضای اتاق ارسال نمی‌شود.
+          کلمات جدید، اصلاح‌ها، جمله‌های
+          کاربردی و نکات جلسه را اینجا
+          نگه دار. این محتوا داخل چت عمومی
+          منتشر نمی‌شود.
         </p>
       </div>
 
       <textarea
-        value={
-          notes
-        }
-        onChange={(
-          event,
-        ) => {
+        value={notes}
+        onChange={(event) => {
           setNotes(
             event.target.value,
           );
         }}
-        placeholder="کلمات جدید، اشتباه‌ها، نکات مهم یا جمله‌هایی که بعداً می‌خواهی مرور کنی..."
+        placeholder="مثلاً:
+• عبارت جدید: That makes sense
+• اشتباه من: ...
+• جمله‌ای که باید تمرین کنم: ..."
         className="
           mt-4
           min-h-[360px]
@@ -759,15 +756,17 @@ function NotesPanel({
           resize-none
           rounded-2xl
           border
-          border-white/[0.07]
-          bg-black/15
+          border-[#D8E7E4]
+          bg-[#FCFDFD]
           p-4
           text-sm
-          leading-7
-          text-slate-200
+          leading-8
+          text-[#334155]
           outline-none
-           placeholder:text-slate-700
-          focus:border-violet-300/20
+          placeholder:text-[#94A3B8]
+          focus:border-[#9BCFC7]
+          focus:ring-2
+          focus:ring-[#14B8A6]/10
         "
       />
 
@@ -779,11 +778,11 @@ function NotesPanel({
           justify-between
           gap-3
           text-[10px]
-          text-slate-600
+          text-[#64748B]
         "
       >
         <span>
-          ذخیره خودکار
+          ذخیره خودکار در مرورگر
         </span>
 
         <span>
@@ -818,7 +817,8 @@ function ResourcesPanel({
     useState("");
 
   const [
-    linkValue, setLinkValue,
+    linkValue,
+    setLinkValue,
   ] =
     useState("");
 
@@ -841,19 +841,15 @@ function ResourcesPanel({
     );
 
   function shareFile(
-    file:
-      File,
-
+    file: File,
     kind:
-      "file" | "audio",
+      | "file"
+      | "audio",
   ): void {
-    setErrorMessage(
-      null,
-    );
+    setErrorMessage(null);
 
     const maxBytes =
-      kind ===
-      "audio"
+      kind === "audio"
         ? CLASSROOM_SHARED_AUDIO_MAX_BYTES
         : CLASSROOM_SHARED_FILE_MAX_BYTES;
 
@@ -862,11 +858,12 @@ function ResourcesPanel({
       maxBytes
     ) {
       setErrorMessage(
-        kind ===
-          "audio"
+        kind === "audio"
           ? "حجم فایل صوتی بیش از ۳۰ مگابایت است."
           : "حجم فایل بیش از ۲۰ مگابایت است.",
-      ); return;
+      );
+
+      return;
     }
 
     const success =
@@ -877,8 +874,7 @@ function ResourcesPanel({
           file.name,
 
         description:
-          kind ===
-          "audio"
+          kind === "audio"
             ? "فایل صوتی انتخاب‌شده برای اشتراک در اتاق"
             : "فایل انتخاب‌شده برای اشتراک در اتاق",
 
@@ -903,8 +899,7 @@ function ResourcesPanel({
 
     const success =
       onShareItem({
-        kind:
-          "text",
+        kind: "text",
 
         title:
           "متن اشتراک‌گذاری‌شده",
@@ -916,14 +911,9 @@ function ResourcesPanel({
           null,
       });
 
- if (success) {
-      setTextValue(
-        "",
-      );
-
-      setErrorMessage(
-        null,
-      );
+    if (success) {
+      setTextValue("");
+      setErrorMessage(null);
     }
   }
 
@@ -935,14 +925,11 @@ function ResourcesPanel({
       return;
     }
 
-    let url:
-      URL;
+    let url: URL;
 
     try {
       url =
-        new URL(
-          normalized,
-        );
+        new URL(normalized);
     } catch {
       setErrorMessage(
         "آدرس لینک معتبر نیست.",
@@ -952,10 +939,8 @@ function ResourcesPanel({
     }
 
     if (
-      url.protocol !==
-        "https:" &&
-      url.protocol !==
-        "http:"
+      url.protocol !== "https:" &&
+      url.protocol !== "http:"
     ) {
       setErrorMessage(
         "فقط لینک‌های HTTP و HTTPS قابل اشتراک هستند.",
@@ -966,7 +951,7 @@ function ResourcesPanel({
 
     const success =
       onShareItem({
-        kind:"link",
+        kind: "link",
 
         title:
           url.hostname,
@@ -979,13 +964,8 @@ function ResourcesPanel({
       });
 
     if (success) {
-      setLinkValue(
-        "",
-      );
-
-      setErrorMessage(
-        null,
-      );
+      setLinkValue("");
+      setErrorMessage(null);
     }
   }
 
@@ -999,21 +979,18 @@ function ResourcesPanel({
       "
     >
       <input
-        ref={
-          fileInputRef
-        }
+        ref={fileInputRef}
         type="file"
         accept={
           CLASSROOM_SHARED_FILE_ACCEPT
         }
         className="sr-only"
-        onChange={(
-          event,
-        ) => {
+        onChange={(event) => {
           const file =
             event.target
               .files?.[0];
-if (file) {
+
+          if (file) {
             shareFile(
               file,
               "file",
@@ -1026,15 +1003,11 @@ if (file) {
       />
 
       <input
-        ref={
-          audioInputRef
-        }
+        ref={audioInputRef}
         type="file"
         accept="audio/*"
         className="sr-only"
-        onChange={(
-          event,
-        ) => {
+        onChange={(event) => {
           const file =
             event.target
               .files?.[0];
@@ -1051,25 +1024,36 @@ if (file) {
         }}
       />
 
-      <h3
+      <div
         className="
-          text-sm
-          font-bold
-          text-white
+          rounded-2xl
+          bg-[#F1FAF8]
+          p-4
         "
       >
-        اشتراک منابع
-      </h3>
+        <h3
+          className="
+            text-sm
+            font-black
+            text-[#0F172A]
+          "
+        >
+          منابع مشترک جلسه
+        </h3>
 
-      <p
-        className="
-          mt-2text-xs
-          leading-6
-          text-slate-600
-        "
-      >
-        فایل، صوت، متن و لینک را می‌توانی به فضای مشترک اتاق اضافه کنی.
-      </p>
+        <p
+          className="
+            mt-2
+            text-xs
+            leading-6
+            text-[#64748B]
+          "
+        >
+          فایل، صوت، متن یا لینک آموزشی
+          را با اعضای اتاق به اشتراک
+          بگذار.
+        </p>
+      </div>
 
       <div
         className="
@@ -1092,13 +1076,15 @@ if (file) {
             gap-2
             rounded-xl
             border
-            border-white/[0.06]
-            bg-white/[0.025]
+            border-[#DCE7E5]
+            bg-white
             text-xs
-            text-slate-400
+            font-bold
+            text-[#475569]
             transition
-            hover:bg-white/[0.05]
-            hover:text-white
+            hover:border-[#A8D8D1]
+            hover:bg-[#F1FAF8]
+            hover:text-[#00685F]
           "
         >
           <FileText
@@ -1122,13 +1108,15 @@ if (file) {
             gap-2
             rounded-xl
             border
-            border-white/[0.06]
-            bg-white/[0.025]
+            border-[#DCE7E5]
+            bg-white
             text-xs
-            text-slate-400
+            font-bold
+            text-[#475569]
             transition
-            hover:bg-white/[0.05]
-            hover:text-white
+            hover:border-[#A8D8D1]
+            hover:bg-[#F1FAF8]
+            hover:text-[#00685F]
           "
         >
           <FileAudio2
@@ -1145,17 +1133,19 @@ if (file) {
           mt-4
           rounded-2xl
           border
-          border-white/[0.06]
-          bg-white/[0.02]
+          border-[#DCE7E5]
+          bg-white
           p-3
-        ">
+        "
+      >
         <div
           className="
             flex
             items-center
             gap-2
             text-xs
-            text-slate-500
+            font-bold
+            text-[#52615F]
           "
         >
           <Type
@@ -1167,15 +1157,11 @@ if (file) {
         </div>
 
         <textarea
-          value={
-            textValue
-          }
+          value={textValue}
           maxLength={
             CLASSROOM_SHARED_TEXT_MAX_LENGTH
           }
-          onChange={(
-            event,
-          ) => {
+          onChange={(event) => {
             setTextValue(
               event.target.value,
             );
@@ -1189,17 +1175,16 @@ if (file) {
             bg-transparent
             text-sm
             leading-6
-            text-slate-200
+            text-[#334155]
             outline-none
-            placeholder:text-slate-700
+            placeholder:text-[#94A3B8]
           "
         />
 
         <button
           type="button"
-          onClick={
-            shareText
-          }disabled={
+          onClick={shareText}
+          disabled={
             !textValue.trim()
           }
           className="
@@ -1209,11 +1194,13 @@ if (file) {
             items-center
             gap-2
             rounded-lg
-            bg-violet-400/15
+            bg-[#E7F4F2]
             px-3
             text-xs
-            font-medium
-            text-violet-200
+            font-bold
+            text-[#00685F]
+            transition
+            hover:bg-[#D9EFEB]
             disabled:opacity-30
           "
         >
@@ -1231,8 +1218,8 @@ if (file) {
           mt-3
           rounded-2xl
           border
-          border-white/[0.06]
-          bg-white/[0.02]
+          border-[#DCE7E5]
+          bg-white
           p-3
         "
       >
@@ -1242,14 +1229,16 @@ if (file) {
             items-center
             gap-2
             text-xs
-            text-slate-500
+            font-bold
+            text-[#52615F]
           "
         >
           <Link2
             aria-hidden="true"
             className="h-4 w-4"
           />
- اشتراک لینک
+
+          اشتراک لینک
         </div>
 
         <div
@@ -1262,22 +1251,15 @@ if (file) {
         >
           <input
             type="url"
-            value={
-              linkValue
-            }
-            onChange={(
-              event,
-            ) => {
+            value={linkValue}
+            onChange={(event) => {
               setLinkValue(
                 event.target.value,
               );
             }}
-            onKeyDown={(
-              event,
-            ) => {
+            onKeyDown={(event) => {
               if (
-                event.key ===
-                "Enter"
+                event.key === "Enter"
               ) {
                 shareLink();
               }
@@ -1289,24 +1271,25 @@ if (file) {
               flex-1
               rounded-xl
               border
-              border-white/[0.06]
-              bg-black/15
+              border-[#DCE7E5]
+              bg-[#F8FAFC]
               px-3
               text-left
               text-xs
-              text-white
+              text-[#0F172A]
               outline-none
-              placeholder:text-slate-700
+              placeholder:text-[#94A3B8]
+              focus:border-[#9BCFC7]
             "
           />
 
-          <button type="button"
-            onClick={
-              shareLink
-            }
+          <button
+            type="button"
+            onClick={shareLink}
             disabled={
               !linkValue.trim()
             }
+            aria-label="اشتراک لینک"
             className="
               flex
               h-10
@@ -1315,8 +1298,10 @@ if (file) {
               items-center
               justify-center
               rounded-xl
-              bg-violet-400/15
-              text-violet-200
+              bg-[#00685F]
+              text-[#FFFFFF]
+              transition
+              hover:bg-[#005A52]
               disabled:opacity-30
             "
           >
@@ -1335,30 +1320,63 @@ if (file) {
             mt-3
             rounded-xl
             border
-            border-red-400/15
-            bg-red-400/[0.05]
+            border-[#FECACA]
+            bg-[#FEF2F2]
             px-3
             py-2
             text-xs
             leading-6
-            text-red-200
+            text-[#B91C1C]
           "
         >
           {errorMessage}
         </div>
-      ) : null}<div
+      ) : null}
+
+      <div
         className="
           mt-5
           space-y-3
         "
       >
-        {items.map(
-          (
-            item,
-          ) => {
+        {items.length === 0 ? (
+          <div
+            className="
+              rounded-2xl
+              border
+              border-dashed
+              border-[#CBD5E1]
+              bg-[#F8FAFC]
+              px-4
+              py-8
+              text-center
+            "
+          >
+            <Paperclip
+              aria-hidden="true"
+              className="
+                mx-auto
+                h-6
+                w-6
+                text-[#94A3B8]
+              "
+            />
+
+            <p
+              className="
+                mt-3
+                text-xs
+                text-[#64748B]
+              "
+            >
+              هنوز منبعی در این جلسه
+              به اشتراک گذاشته نشده.
+            </p>
+          </div>
+        ) : (
+          items.map((item) => {
             const safeUrl =
-              item.kind ===
-              "link"
+              item.kind === "link"
                 ? getSafeExternalUrl(
                     item.description,
                   )
@@ -1366,14 +1384,12 @@ if (file) {
 
             return (
               <article
-                key={
-                  item.id
-                }
+                key={item.id}
                 className="
                   rounded-xl
                   border
-                  border-white/[0.06]
-                  bg-white/[0.025]
+                  border-[#DFE8E6]
+                  bg-white
                   p-3
                 "
               >
@@ -1391,10 +1407,10 @@ if (file) {
                       w-9
                       shrink-0
                       items-center
-                       justify-center
+                      justify-center
                       rounded-lg
-                      bg-violet-400/10
-                      text-violet-300
+                      bg-[#F4F0FF]
+                      text-[#712AE2]
                     "
                   >
                     {item.kind ===
@@ -1404,13 +1420,13 @@ if (file) {
                         className="h-4 w-4"
                       />
                     ) : item.kind ===
-                        "text" ? (
+                      "text" ? (
                       <Type
                         aria-hidden="true"
                         className="h-4 w-4"
                       />
                     ) : item.kind ===
-                        "link" ? (
+                      "link" ? (
                       <Link2
                         aria-hidden="true"
                         className="h-4 w-4"
@@ -1433,7 +1449,8 @@ if (file) {
                       className="
                         break-words
                         text-xs
-                        font-medium text-slate-200
+                        font-bold
+                        text-[#334155]
                       "
                     >
                       {item.title}
@@ -1442,8 +1459,7 @@ if (file) {
                     {item.description ? (
                       <p
                         dir={
-                          item.kind ===
-                          "link"
+                          item.kind === "link"
                             ? "ltr"
                             : "auto"
                         }
@@ -1453,7 +1469,7 @@ if (file) {
                           break-all
                           text-[11px]
                           leading-5
-                          text-slate-600
+                          text-[#64748B]
                         "
                       >
                         {
@@ -1470,7 +1486,7 @@ if (file) {
                         items-center
                         gap-2
                         text-[9px]
-                        text-slate-700
+                        text-[#94A3B8]
                       "
                     >
                       <span>
@@ -1485,23 +1501,22 @@ if (file) {
                         <span>
                           {formatFileSize(
                             item.sizeBytes,
-                       )}
+                          )}
                         </span>
                       ) : null}
 
                       {safeUrl ? (
                         <a
-                          href={
-                            safeUrl
-                          }
+                          href={safeUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="
                             inline-flex
                             items-center
                             gap-1
-                            text-violet-400
-                            hover:text-violet-300
+                            font-bold
+                            text-[#00685F]
+                            hover:text-[#005A52]
                           "
                         >
                           باز کردن
@@ -1517,7 +1532,7 @@ if (file) {
                 </div>
               </article>
             );
-          },
+          })
         )}
       </div>
 
@@ -1526,17 +1541,20 @@ if (file) {
           mt-5
           rounded-xl
           border
-          bor border-amber-400/10
-          bg-amber-400/[0.035]
+          border-[#FDE68A]
+          bg-[#FFFBEB]
           px-3
           py-3
           text-[10px]
           leading-5
-          text-amber-200/70
+          text-[#92400E]
         "
       >
-        در این مرحله File و Audio فقط به‌صورت metadata در Session نمایش داده می‌شوند؛ Upload واقعی فایل را بعد از ساخت Backend Storage وصل می‌کنیم.
+        File و Audio در وضعیت فعلی به
+        شکل metadata در Session ثبت
+        می‌شوند. Upload واقعی باید به
+        Storage backend متصل شود.
       </p>
     </div>
   );
-}
+ }

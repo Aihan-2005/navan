@@ -1,14 +1,20 @@
+import Link from "next/link";
+
 import {
+  ArrowLeft,
   BrainCircuit,
+  CheckCircle2,
   ClipboardCheck,
+  Gauge,
   RotateCcw,
+  ShieldCheck,
   Sparkles,
   Target,
 } from "lucide-react";
 
 import {
-  Card,
-} from "../../../../components/ui/card";
+  ASSESSMENT_SKILL_LABELS,
+} from "../../constants/assessment.constants";
 
 import type {
   AssessmentOverview as AssessmentOverviewData,
@@ -32,14 +38,28 @@ import {
 
 type AssessmentOverviewProps =
   Readonly<{
-    overview:
-      AssessmentOverviewData;
+    overview: AssessmentOverviewData;
   }>;
 
 const numberFormatter =
-  new Intl.NumberFormat(
-    "fa-IR",
+  new Intl.NumberFormat("fa-IR");
+
+function calculateAverageScore(
+  scores: readonly number[],
+): number | null {
+  if (scores.length === 0) {
+    return null;
+  }
+
+  const total = scores.reduce(
+    (sum, score) => sum + score,
+    0,
   );
+
+  return Math.round(
+    total / scores.length,
+  );
+}
 
 export function AssessmentOverview({
   overview,
@@ -54,30 +74,69 @@ export function AssessmentOverview({
         skill.score !== null,
     );
 
+  const averageScore =
+    calculateAverageScore(
+      availableSkillSignals
+        .map((skill) => skill.score)
+        .filter(
+          (score): score is number =>
+            score !== null,
+        ),
+    );
+
+  const weakestSkill =
+    [...availableSkillSignals]
+      .sort(
+        (left, right) =>
+          (left.score ?? 0) -
+          (right.score ?? 0),
+      )
+      .at(0) ?? null;
+
+  const recommendedQuiz =
+    overview.miniQuizzes.find(
+      (quiz) =>
+        quiz.status === "available" &&
+        Boolean(quiz.href),
+    ) ?? null;
+
+  const recommendationHref =
+    recommendedQuiz?.href ??
+    "/assessment/custom";
+
   return (
     <main
       className="
-        mx-auto w-full
-        max-w-7xl space-y-8
+        mx-auto
+        w-full
+        max-w-7xl
+        space-y-8
       "
     >
       <section
         className="
-          relative overflow-hidden
-          rounded-3xl border
-          border-cyan-400/15
-          bg-white/[0.035]
-          p-6 sm:p-8
+          relative
+          overflow-hidden
+          rounded-[28px]
+          border
+          border-[#CBE2DE]
+          bg-[linear-gradient(135deg,#E6F7F4_0%,#FFFFFF_52%,#F5F0FF_100%)]
+          p-6
+          shadow-[0_16px_50px_rgba(15,23,42,0.06)]
+          sm:p-8
         "
       >
         <div
           aria-hidden="true"
           className="
             pointer-events-none
-            absolute -left-24 -top-24
-            h-72 w-72
+            absolute
+            -left-20
+            -top-24
+            h-64
+            w-64
             rounded-full
-            bg-cyan-500/15
+            bg-[#14B8A6]/10
             blur-3xl
           "
         />
@@ -86,10 +145,13 @@ export function AssessmentOverview({
           aria-hidden="true"
           className="
             pointer-events-none
-            absolute -bottom-32 right-0
-            h-72 w-72
+            -bottom-28
+            absolute
+            right-16
+            h-64
+            w-64
             rounded-full
-            bg-violet-500/10
+            bg-[#712AE2]/10
             blur-3xl
           "
         />
@@ -97,69 +159,128 @@ export function AssessmentOverview({
         <div className="relative">
           <div
             className="
-              flex items-center
-              gap-2 text-cyan-300
+              inline-flex
+              items-center
+              gap-2
+              rounded-full
+              border
+              border-[#A8D8D1]
+              bg-white/80
+              px-3
+              py-1.5
+              text-xs
+              font-bold
+              text-[#00685F]
+              shadow-sm
             "
           >
             <BrainCircuit
               aria-hidden="true"
-              className="h-5 w-5"
+              className="h-4 w-4"
             />
 
-            <span
-              className="
-                text-sm font-medium
-              "
-            >
-              Assessment Center
-            </span>
+            مرکز ارزیابی هوشمند
           </div>
 
           <div
             className="
-              mt-4 flex
-              flex-col gap-6
-              lg:flex-row
+              mt-5
+              grid
+              gap-8
+              lg:grid-cols-[minmax(0,1fr)_390px]
               lg:items-end
-              lg:justify-between
             "
           >
-            <div
-              className="
-                max-w-3xl
-              "
-            >
+            <div className="max-w-3xl">
               <h1
                 className="
-                  text-3xl font-bold
-                  text-white
+                  text-3xl
+                  font-black
+                  leading-tight
+                  text-[#0F172A]
                   sm:text-4xl
                 "
               >
-                ارزیابی هوشمند سطح زبان
+                سطح واقعی زبانت را دقیق‌تر بشناس
               </h1>
 
               <p
                 className="
-                  mt-4 text-sm
+                  mt-4
+                  max-w-2xl
+                  text-sm
                   leading-8
-                  text-slate-400
+                  text-[#52615F]
                 "
               >
-                آزمون تعیین سطح، آزمون‌های
-                سفارشی و کوییزهای کوتاه در
-                یک سیستم مشترک اجرا
-                می‌شوند تا Skill Score و
-                مسیر یادگیری کاربر
-                دقیق‌تر شود.
+                تعیین سطح، آزمون‌های
+                مهارتی، کوییزهای کوتاه و
+                سیگنال‌های تمرینی در یک
+                مسیر واحد کنار هم قرار
+                می‌گیرند تا نتیجه ارزیابی
+                فقط یک نمره نباشد؛ بلکه
+                مستقیماً روی برنامه یادگیری
+                بعدی تو اثر بگذارد.
               </p>
+
+              {learner.learningGoal ? (
+                <div
+                  className="
+                    mt-5
+                    flex
+                    max-w-2xl
+                    items-start
+                    gap-3
+                    rounded-2xl
+                    border
+                    border-[#CBE2DE]
+                    bg-white/80
+                    px-4
+                    py-3
+                  "
+                >
+                  <Target
+                    aria-hidden="true"
+                    className="
+                      mt-0.5
+                      h-5
+                      w-5
+                      shrink-0
+                      text-[#00685F]
+                    "
+                  />
+
+                  <div>
+                    <p
+                      className="
+                        text-xs
+                        font-bold
+                        text-[#0F172A]
+                      "
+                    >
+                      هدف یادگیری
+                    </p>
+
+                    <p
+                      className="
+                        mt-1
+                        text-xs
+                        leading-6
+                        text-[#64748B]
+                      "
+                    >
+                      {learner.learningGoal}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div
               className="
-                grid grid-cols-2
+                grid
+                grid-cols-3
                 gap-3
-                sm:grid-cols-3
               "
             >
               <HeroMetric
@@ -168,57 +289,131 @@ export function AssessmentOverview({
                   learner.currentCefrLevel ??
                   "—"
                 }
+                accent="teal"
               />
 
               <HeroMetric
-                label="Skill دارای داده"
-                value={numberFormatter.format(
-                  availableSkillSignals.length,
-                )}
+                label="میانگین مهارت"
+                value={
+                  averageScore === null
+                    ? "—"
+                    : `${numberFormatter.format(
+                        averageScore,
+                      )}٪`
+                }
+                accent="purple"
               />
 
               <HeroMetric
                 label="موارد مرور"
                 value={numberFormatter.format(
-                  learner.review
-                    .totalItems,
+                  learner.review.totalItems,
                 )}
+                accent="orange"
               />
             </div>
           </div>
+        </div>
+      </section>
 
-          {learner.learningGoal ? (
+      <section
+        aria-labelledby="assessment-flow-title"
+        className="
+          rounded-3xl
+          border
+          border-[#DFE8E6]
+          bg-white
+          p-5
+          shadow-[0_10px_30px_rgba(15,23,42,0.045)]
+          sm:p-6
+        "
+      >
+        <div
+          className="
+            flex
+            flex-col
+            gap-3
+            sm:flex-row
+            sm:items-end
+            sm:justify-between
+          "
+        >
+          <div>
             <div
               className="
-                mt-6 inline-flex
-                max-w-3xl
-                items-start gap-2
-                rounded-xl border
-                border-white/[0.06]
-                bg-black/10
-                px-4 py-3
+                flex
+                items-center
+                gap-2
+                text-sm
+                font-bold
+                text-[#712AE2]
               "
             >
-              <Target
+              <ShieldCheck
                 aria-hidden="true"
-                className="
-                  mt-0.5 h-4 w-4
-                  shrink-0
-                  text-violet-300
-                "
+                className="h-5 w-5"
               />
 
-              <p
-                className="
-                  text-xs leading-6
-                  text-slate-500
-                "
-              >
-                هدف یادگیری:{" "}
-                {learner.learningGoal}
-              </p>
+              مسیر آزمون
             </div>
-          ) : null}
+
+            <h2
+              id="assessment-flow-title"
+              className="
+                mt-2
+                text-xl
+                font-black
+                text-[#0F172A]
+                sm:text-2xl
+              "
+            >
+              از شروع آزمون تا برنامه بعدی
+            </h2>
+          </div>
+
+          <span
+            className="
+              rounded-full
+              bg-[#E7F4F2]
+              px-3
+              py-1.5
+              text-xs
+              font-bold
+              text-[#00685F]
+            "
+          >
+            نتیجه قابل استفاده در مسیر یادگیری
+          </span>
+        </div>
+
+        <div
+          className="
+            mt-6
+            grid
+            gap-3
+            md:grid-cols-3
+          "
+        >
+          <AssessmentFlowStep
+            number="۱"
+            icon={ClipboardCheck}
+            title="قبل از آزمون"
+            description="سطح شروع، هدف و مهارت‌های مورد سنجش مشخص می‌شوند."
+          />
+
+          <AssessmentFlowStep
+            number="۲"
+            icon={Gauge}
+            title="حین آزمون"
+            description="سؤال‌ها بر اساس پاسخ‌ها و سطح فعلی تو تنظیم می‌شوند."
+          />
+
+          <AssessmentFlowStep
+            number="۳"
+            icon={Sparkles}
+            title="بعد از آزمون"
+            description="Skill Score، نقاط ضعف و پیشنهاد تمرین بعدی به‌روزرسانی می‌شود."
+          />
         </div>
       </section>
 
@@ -227,34 +422,46 @@ export function AssessmentOverview({
         className="space-y-5"
       >
         <div>
+          <p
+            className="
+              text-sm
+              font-bold
+              text-[#00685F]
+            "
+          >
+            مسیرهای اصلی
+          </p>
+
           <h2
             id="assessment-main-paths"
             className="
-              text-2xl font-bold
-              text-white
+              mt-2
+              text-2xl
+              font-black
+              text-[#0F172A]
             "
           >
-            مسیر ارزیابی را انتخاب کن
+            نوع ارزیابی را انتخاب کن
           </h2>
 
           <p
             className="
-              mt-2 text-sm
+              mt-2
+              max-w-2xl
+              text-sm
               leading-7
-              text-slate-500
+              text-[#64748B]
             "
           >
-            تعیین سطح برای سنجش کلی
-            زبان است؛ آزمون سفارشی برای
-            ارزیابی یک یا چند Skill
-            دلخواه.
+            اگر سطح کلی خودت را نمی‌دانی
+            از تعیین سطح شروع کن. اگر روی
+            یک مهارت مشخص تمرکز داری،
+            آزمون دلخواه انتخاب بهتری است.
           </p>
         </div>
 
         <PlacementTestCard
-          placement={
-            overview.placement
-          }
+          placement={overview.placement}
         />
 
         <CustomAssessmentCard
@@ -265,64 +472,216 @@ export function AssessmentOverview({
       </section>
 
       <section
-        aria-labelledby="assessment-skill-estimates"
+        className="
+          grid
+          gap-5
+          lg:grid-cols-[minmax(0,1fr)_340px]
+        "
       >
         <div
           className="
-            flex items-end
-            justify-between gap-4
+            rounded-3xl
+            border
+            border-[#DFE8E6]
+            bg-white
+            p-6
+            shadow-[0_10px_30px_rgba(15,23,42,0.04)]
           "
         >
-          <div>
-            <div
+          <div
+            className="
+              flex
+              items-center
+              gap-2
+              text-[#00685F]
+            "
+          >
+            <Sparkles
+              aria-hidden="true"
+              className="h-5 w-5"
+            />
+
+            <span
               className="
-                flex items-center
-                gap-2 text-cyan-300
+                text-sm
+                font-bold
               "
             >
-              <ClipboardCheck
-                aria-hidden="true"
-                className="h-5 w-5"
-              />
-
-              <span
-                className="
-                  text-sm font-medium
-                "
-              >
-                Skill Signals
-              </span>
-            </div>
-
-            <h2
-              id="assessment-skill-estimates"
-              className="
-                mt-2 text-2xl
-                font-bold text-white
-              "
-            >
-              برآورد فعلی مهارت‌ها
-            </h2>
-
-            <p
-              className="
-                mt-2 text-sm
-                leading-7
-                text-slate-500
-              "
-            >
-              این Signalها از سابقه
-              یادگیری می‌آیند و بعداً
-              همراه با نتایج Assessment
-              ورودی موتور شخصی‌سازی
-              خواهند شد.
-            </p>
+              پیشنهاد هوشمند بعدی
+            </span>
           </div>
+
+          <h2
+            className="
+              mt-3
+              text-xl
+              font-black
+              text-[#0F172A]
+            "
+          >
+            {weakestSkill
+              ? `تمرکز بعدی: ${
+                  ASSESSMENT_SKILL_LABELS[
+                    weakestSkill.skill
+                  ]
+                }`
+              : "اولین ارزیابی را شروع کن"}
+          </h2>
+
+          <p
+            className="
+              mt-3
+              text-sm
+              leading-7
+              text-[#64748B]
+            "
+          >
+            {weakestSkill
+              ? `بر اساس داده‌های فعلی، این مهارت با امتیاز ${numberFormatter.format(
+                  weakestSkill.score ?? 0,
+                )} از ۱۰۰ بیشترین ظرفیت رشد را دارد. یک ارزیابی کوتاه می‌تواند تصویر دقیق‌تری بدهد.`
+              : "هنوز داده کافی برای تشخیص نقطه تمرکز نداریم. تعیین سطح بهترین نقطه شروع است."}
+          </p>
+
+          <Link
+            href={recommendationHref}
+            className="
+              mt-5
+              inline-flex
+              min-h-11
+              items-center
+              justify-center
+              gap-2
+              rounded-xl
+              bg-[#00685F]
+              px-5
+              text-sm
+              font-bold
+              text-[#FFFFFF]
+              transition
+              hover:bg-[#005A52]
+              focus-visible:outline-none
+              focus-visible:ring-2
+              focus-visible:ring-[#14B8A6]/40
+            "
+          >
+            {recommendedQuiz
+              ? "شروع ارزیابی پیشنهادی"
+              : "ساخت آزمون مهارتی"}
+
+            <ArrowLeft
+              aria-hidden="true"
+              className="h-4 w-4"
+            />
+          </Link>
         </div>
 
         <div
           className="
-            mt-5 grid gap-4
+            rounded-3xl
+            border
+            border-[#E4DCF7]
+            bg-[#F8F5FF]
+            p-6
+          "
+        >
+          <CheckCircle2
+            aria-hidden="true"
+            className="
+              h-8
+              w-8
+              text-[#712AE2]
+            "
+          />
+
+          <h3
+            className="
+              mt-4
+              text-lg
+              font-black
+              text-[#0F172A]
+            "
+          >
+            آزمون قابل اعتماد
+          </h3>
+
+          <p
+            className="
+              mt-2
+              text-sm
+              leading-7
+              text-[#64748B]
+            "
+          >
+            نتیجه فقط از یک پاسخ ساخته
+            نمی‌شود. سطح، سابقه تمرین،
+            عملکرد مهارتی و پاسخ‌های
+            آزمون با هم در نظر گرفته
+            می‌شوند.
+          </p>
+        </div>
+      </section>
+
+      <section
+        aria-labelledby="assessment-skill-estimates"
+      >
+        <div>
+          <div
+            className="
+              flex
+              items-center
+              gap-2
+              text-[#00685F]
+            "
+          >
+            <ClipboardCheck
+              aria-hidden="true"
+              className="h-5 w-5"
+            />
+
+            <span
+              className="
+                text-sm
+                font-bold
+              "
+            >
+              Skill Signals
+            </span>
+          </div>
+
+          <h2
+            id="assessment-skill-estimates"
+            className="
+              mt-2
+              text-2xl
+              font-black
+              text-[#0F172A]
+            "
+          >
+            برآورد فعلی مهارت‌ها
+          </h2>
+
+          <p
+            className="
+              mt-2
+              max-w-2xl
+              text-sm
+              leading-7
+              text-[#64748B]
+            "
+          >
+            این امتیازها از سابقه تمرین و
+            ارزیابی‌های قبلی ساخته می‌شوند
+            و با هر فعالیت جدید دقیق‌تر
+            خواهند شد.
+          </p>
+        </div>
+
+        <div
+          className="
+            mt-5
+            grid
+            gap-4
             sm:grid-cols-2
             xl:grid-cols-3
           "
@@ -330,9 +689,7 @@ export function AssessmentOverview({
           {learner.skills.map(
             (signal) => (
               <SkillEstimateCard
-                key={
-                  signal.skill
-                }
+                key={signal.skill}
                 signal={signal}
               />
             ),
@@ -345,8 +702,10 @@ export function AssessmentOverview({
       >
         <div
           className="
-            flex items-center gap-2
-            text-violet-300
+            flex
+            items-center
+            gap-2
+            text-[#712AE2]
           "
         >
           <Sparkles
@@ -356,7 +715,8 @@ export function AssessmentOverview({
 
           <span
             className="
-              text-sm font-medium
+              text-sm
+              font-bold
             "
           >
             Quick Assessments
@@ -366,29 +726,36 @@ export function AssessmentOverview({
         <h2
           id="assessment-mini-quizzes"
           className="
-            mt-2 text-2xl
-            font-bold text-white
+            mt-2
+            text-2xl
+            font-black
+            text-[#0F172A]
           "
         >
-          کوییزهای پیشنهادی
+          کوییزهای کوتاه پیشنهادی
         </h2>
 
         <p
           className="
-            mt-2 max-w-2xl
-            text-sm leading-7
-            text-slate-500
+            mt-2
+            max-w-2xl
+            text-sm
+            leading-7
+            text-[#64748B]
           "
         >
-          این بخش بعداً با داده‌های
-          واقعی کاربر و AI پویا خواهد
-          شد و برای ضعف‌های شناسایی‌شده
-          Quiz پیشنهاد می‌دهد.
+          برای بررسی سریع یک نقطه ضعف،
+          لازم نیست همیشه آزمون کامل
+          بدهی. این کوییزها سریع‌تر هستند
+          و مستقیماً روی Skill Score اثر
+          می‌گذارند.
         </p>
 
         <div
           className="
-            mt-5 grid gap-4
+            mt-5
+            grid
+            gap-4
             md:grid-cols-2
             xl:grid-cols-4
           "
@@ -404,22 +771,35 @@ export function AssessmentOverview({
         </div>
       </section>
 
-      {learner.review.totalItems >
-      0 ? (
-        <Card className="p-5 sm:p-6">
+      {learner.review.totalItems > 0 ? (
+        <section
+          className="
+            rounded-3xl
+            border
+            border-[#F3D8A2]
+            bg-[#FFFBEB]
+            p-5
+            sm:p-6
+          "
+        >
           <div
             className="
-              flex items-start gap-3
+              flex
+              items-start
+              gap-3
             "
           >
             <span
               className="
-                flex h-10 w-10
-                shrink-0 items-center
+                flex
+                h-11
+                w-11
+                shrink-0
+                items-center
                 justify-center
                 rounded-xl
-                bg-amber-400/10
-                text-amber-300
+                bg-[#F97316]/10
+                text-[#F97316]
               "
             >
               <RotateCcw
@@ -431,7 +811,8 @@ export function AssessmentOverview({
             <div>
               <h2
                 className="
-                  font-bold text-white
+                  font-black
+                  text-[#0F172A]
                 "
               >
                 سیگنال‌های مرور
@@ -439,27 +820,27 @@ export function AssessmentOverview({
 
               <p
                 className="
-                  mt-2 text-sm
+                  mt-2
+                  text-sm
                   leading-7
-                  text-slate-500
+                  text-[#665748]
                 "
               >
-                سیستم فعلاً{" "}
+                در حال حاضر{" "}
                 {numberFormatter.format(
-                  learner.review
-                    .totalItems,
+                  learner.review.totalItems,
                 )}{" "}
-                مورد برای مرور دارد؛ شامل{" "}
+                مورد برای مرور داری؛ شامل{" "}
                 {numberFormatter.format(
                   learner.review
                     .vocabularyCount,
                 )}{" "}
-                مورد واژگان،{" "}
+                واژه،{" "}
                 {numberFormatter.format(
                   learner.review
                     .grammarCount,
                 )}{" "}
-                مورد گرامر و{" "}
+                نکته گرامری و{" "}
                 {numberFormatter.format(
                   learner.review
                     .mistakeCount,
@@ -468,7 +849,7 @@ export function AssessmentOverview({
               </p>
             </div>
           </div>
-        </Card>
+        </section>
       ) : null}
     </main>
   );
@@ -477,37 +858,138 @@ export function AssessmentOverview({
 function HeroMetric({
   label,
   value,
+  accent,
 }: Readonly<{
   label: string;
   value: string;
+  accent:
+    | "teal"
+    | "purple"
+    | "orange";
 }>) {
+  const accentClass =
+    accent === "teal"
+      ? "text-[#00685F]"
+      : accent === "purple"
+        ? "text-[#712AE2]"
+        : "text-[#F97316]";
+
   return (
     <div
       className="
-        min-w-28
-        rounded-2xl border
-        border-white/[0.07]
-        bg-black/10
+        min-w-0
+        rounded-2xl
+        border
+        border-[#DCE7E5]
+        bg-white/90
         p-4
+        shadow-sm
       "
     >
       <p
         className="
           text-[10px]
-          text-slate-600
+          font-medium
+          text-[#64748B]
         "
       >
         {label}
       </p>
 
       <p
-        className="
-          mt-2 text-xl
-          font-black text-white
-        "
+        className={`
+          mt-2
+          truncate
+          text-xl
+          font-black
+          ${accentClass}
+        `}
       >
         {value}
       </p>
     </div>
+  );
+}
+
+function AssessmentFlowStep({
+  number,
+  icon: Icon,
+  title,
+  description,
+}: Readonly<{
+  number: string;
+  icon: typeof ClipboardCheck;
+  title: string;
+  description: string;
+}>) {
+  return (
+    <article
+      className="
+        rounded-2xl
+        border
+        border-[#E2E8F0]
+        bg-[#FAFCFC]
+        p-4
+      "
+    >
+      <div
+        className="
+          flex
+          items-center
+          justify-between
+          gap-3
+        "
+      >
+        <span
+          className="
+            flex
+            h-10
+            w-10
+            items-center
+            justify-center
+            rounded-xl
+            bg-[#E7F4F2]
+            text-[#00685F]
+          "
+        >
+          <Icon
+            aria-hidden="true"
+            className="h-5 w-5"
+          />
+        </span>
+
+        <span
+          className="
+            text-xs
+            font-black
+            text-[#94A3B8]
+          "
+        >
+          مرحله {number}
+        </span>
+      </div>
+
+      <h3
+        className="
+          mt-4
+          text-sm
+          font-black
+          text-[#0F172A]
+        "
+      >
+        {title}
+      </h3>
+
+      <p
+        className="
+          mt-2
+          text-xs
+          leading-6
+          text-[#64748B]
+        "
+      >
+        {description}
+      </p>
+    </article>
   );
 }
