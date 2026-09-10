@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronUp,
   CircleX,
+  Clock3,
   RefreshCw,
   Sparkles,
   Target,
@@ -17,14 +18,6 @@ import {
 import {
   useState,
 } from "react";
-
-import {
-  Card,
-} from "../../../../components/ui/card";
-
-import {
-  cn,
-} from "../../../../lib/utils/cn";
 
 import {
   ASSESSMENT_SKILL_LABELS,
@@ -56,7 +49,7 @@ export function AssessmentResultView({
   submission,
   onRetake,
 }: AssessmentResultViewProps) {
-   const {
+  const {
     result,
     review,
   } =
@@ -70,24 +63,42 @@ export function AssessmentResultView({
       null,
     );
 
+  const hasObjectiveScore =
+    result.skillScores.some(
+      (skill) =>
+        skill.totalCount > 0,
+    );
+
+  const pendingReviewCount =
+    review.filter(
+      (item) =>
+        item.isCorrect ===
+          null &&
+        item.submittedAnswerLabel !==
+          null,
+    ).length;
+
   return (
     <main
+      dir="rtl"
       className="
         mx-auto
         w-full
-        max-w-6xl
+        max-w-[1120px]
         space-y-6
+        pb-12
       "
     >
       <section
         className="
           relative
           overflow-hidden
-          rounded-3xl
+          rounded-[28px]
           border
-          border-emerald-400/15
-          bg-emerald-400/[0.035]
+          border-[#C7E1DC]
+          bg-[linear-gradient(135deg,#EAF8F5_0%,#FFFFFF_55%,#F5F0FF_100%)]
           p-6
+          shadow-[0_14px_40px_rgba(15,23,42,0.055)]
           sm:p-8
         "
       >
@@ -96,19 +107,19 @@ export function AssessmentResultView({
           className="
             pointer-events-none
             absolute
-            -left-24
+            -left-20
             -top-24
-            h-72
-            w-72
+            h-64
+            w-64
             rounded-full
-            bg-emerald-500/10
+            bg-[#14B8A6]/10
             blur-3xl
           "
         />
 
         <div
           className="
-             relative
+            relative
             flex
             flex-col
             gap-7
@@ -123,7 +134,9 @@ export function AssessmentResultView({
                 flex
                 items-center
                 gap-2
-                text-emerald-300
+                text-sm
+                font-bold
+                text-[#00685F]
               "
             >
               <Award
@@ -131,17 +144,16 @@ export function AssessmentResultView({
                 className="h-5 w-5"
               />
 
-              نتیجه آزمون
+              نتیجه ارزیابی
             </div>
 
             <h1
-              dir="ltr"
               className="
                 mt-3
-                text-left
-                text-3xl
-                font-bold
-                text-white
+                text-2xl
+                font-black
+                text-[#0F172A]
+                sm:text-3xl
               "
             >
               {title}
@@ -153,49 +165,105 @@ export function AssessmentResultView({
                 max-w-2xl
                 text-sm
                 leading-8
-                text-slate-400
+                text-[#64748B]
               "
             >
-              {result.aiSummary}
+              {result.aiSummary ??
+                "ارزیابی تکمیل شد و نتیجه برای مسیر یادگیری آماده است."}
             </p>
           </div>
 
-          <div
-            className="
-              flex
-              h-36
-              w-36
-            shrink-0
-              flex-col
-              items-center
-              justify-center
-              rounded-full
-              border
-              border-emerald-300/20
-              bg-emerald-400/[0.07]
-            "
-          >
-            <strong
+          {hasObjectiveScore ? (
+            <div
               className="
-                text-4xl
-                text-white
+                flex
+                h-36
+                w-36
+                shrink-0
+                flex-col
+                items-center
+                justify-center
+                rounded-full
+                border-[6px]
+                border-[#BFE0DA]
+                bg-white
+                shadow-sm
               "
             >
-              {numberFormatter.format(
-                result.overallScore,
-              )}
-            </strong>
+              <strong
+                className="
+                  text-4xl
+                  font-black
+                  text-[#00685F]
+                "
+              >
+                {numberFormatter.format(
+                  result.overallScore,
+                )}
+              </strong>
 
-            <span
+              <span
+                className="
+                  mt-1
+                  text-xs
+                  text-[#64748B]
+                "
+              >
+                از ۱۰۰
+              </span>
+            </div>
+          ) : (
+            <div
               className="
-                mt-1
-                text-xs
-                text-emerald-300
+                flex
+                min-h-36
+                w-full
+                max-w-[210px]
+                shrink-0
+                flex-col
+                items-center
+                justify-center
+                rounded-2xl
+                border
+                border-[#DED2F6]
+                bg-[#F8F5FF]
+                p-5
+                text-center
               "
             >
-              از ۱۰۰
-            </span>
-          </div>
+              <Clock3
+                aria-hidden="true"
+                className="
+                  h-8
+                  w-8
+                  text-[#712AE2]
+                "
+              />
+
+              <strong
+                className="
+                  mt-3
+                  text-sm
+                  font-black
+                  text-[#0F172A]
+                "
+              >
+                در انتظار تحلیل
+              </strong>
+
+              <span
+                className="
+                  mt-1
+                  text-[10px]
+                  leading-5
+                  text-[#64748B]
+                "
+              >
+                هیچ نمره ساختگی نمایش داده
+                نمی‌شود
+              </span>
+            </div>
+          )}
         </div>
 
         <div
@@ -211,53 +279,72 @@ export function AssessmentResultView({
           <ResultMetric
             label="سطح تخمینی"
             value={
-              result.estimatedCefrLevel
+              hasObjectiveScore
+                ? result.estimatedCefrLevel
+                : "در انتظار تحلیل"
             }
           />
 
           <ResultMetric
             label="پاسخ صحیح"
-            value={numberFormatter.format(
-              result.scoreSummary
-                .correctCount,
-            )}
+            value={
+              hasObjectiveScore
+                ? numberFormatter.format(
+                    result.scoreSummary
+                      .correctCount,
+                  )
+                : "—"
+            }
           />
- <ResultMetric
-            label="بدون پاسخ"
+
+          <ResultMetric
+            label="نیازمند تحلیل"
             value={numberFormatter.format(
-              result.scoreSummary
-                .unansweredCount,
+              pendingReviewCount,
             )}
           />
 
           <ResultMetric
-            label="XP"
-            value={`+${numberFormatter.format(
-              result.xpAwarded,
-            )}`}
+            label="Confidence"
+            value={`${numberFormatter.format(
+              result.confidence,
+            )}٪`}
           />
         </div>
       </section>
 
-      <Card className="p-5 sm:p-6">
+      <section
+        className="
+          rounded-3xl
+          border
+          border-[#DFE8E6]
+          bg-white
+          p-5
+          shadow-[0_8px_28px_rgba(15,23,42,0.04)]
+          sm:p-6
+        "
+      >
         <div
           className="
             flex
             items-center
             gap-2
-            text-cyan-300
           "
         >
           <BrainCircuit
             aria-hidden="true"
-            className="h-5 w-5"
+            className="
+              h-5
+              w-5
+              text-[#00685F]
+            "
           />
 
           <h2
             className="
               text-lg
-              font-bold
-              text-white
+              font-black
+              text-[#0F172A]
             "
           >
             عملکرد مهارت‌ها
@@ -274,130 +361,191 @@ export function AssessmentResultView({
           "
         >
           {result.skillScores.map(
-            (
-              skill,
-            ) => (
-              <div
-                key={
-               skill.skill
-                }
-                className="
-                  rounded-2xl
-                  border
-                  border-white/[0.06]
-                  bg-white/[0.025]
-                  p-4
-                "
-              >
-                <div
+            (skill) => {
+              const pending =
+                skill.totalCount ===
+                0;
+
+              return (
+                <article
+                  key={skill.skill}
                   className="
-                    flex
-                    items-center
-                    justify-between
-                    gap-3
+                    rounded-2xl
+                    border
+                    border-[#DFE8E6]
+                    bg-[#FAFCFC]
+                    p-4
                   "
                 >
-                  <span
+                  <div
                     className="
-                      text-sm
-                      font-medium
-                      text-slate-300
+                      flex
+                      items-center
+                      justify-between
+                      gap-3
                     "
                   >
-                    {
-                      ASSESSMENT_SKILL_LABELS[
-                        skill.skill
-                      ]
-                    }
-                  </span>
+                    <span
+                      className="
+                        text-sm
+                        font-bold
+                        text-[#334155]
+                      "
+                    >
+                      {
+                        ASSESSMENT_SKILL_LABELS[
+                          skill.skill
+                        ]
+                      }
+                    </span>
 
-                  <strong
-                    className="
-                      text-white
-                    "
-                  >
-                    {
-                      skill.score
-                    }
-                    ٪
-                  </strong>
-                </div>
+                    {pending ? (
+                      <span
+                        className="
+                          rounded-full
+                          bg-[#F4EFFF]
+                          px-2.5
+                          py-1
+                          text-[9px]
+                          font-bold
+                          text-[#712AE2]
+                        "
+                      >
+                        در انتظار تحلیل
+                      </span>
+                    ) : (
+                      <strong
+                        className="
+                          text-lg
+                          font-black
+                          text-[#00685F]
+                        "
+                      >
+                        {numberFormatter.format(
+                          skill.score,
+                        )}
+                        ٪
+                      </strong>
+                    )}
+                  </div>
 
-                <div
-                  className="
-                    mt-4
-                    h-2
-                    overflow-hidden
-                    rounded-full
-                    bg-white/[0.05]
-                  "
-                >
-                     <div
-                    className="
-                      h-full
-                      rounded-full
-                      bg-cyan-400
-                    "
-                    style={{
-                      width:
-                        `${skill.score}%`,
-                    }}
-                  />
-                </div>
+                  {pending ? (
+                    <div
+                      className="
+                        mt-4
+                        rounded-xl
+                        border
+                        border-dashed
+                        border-[#D9CDF5]
+                        bg-[#F8F5FF]
+                        p-3
+                      "
+                    >
+                      <p
+                        className="
+                          text-xs
+                          leading-6
+                          text-[#64748B]
+                        "
+                      >
+                        پاسخ ثبت شده و پس از
+                        اتصال موتور تحلیل
+                        تخصصی، نمره و CEFR
+                        این مهارت نمایش داده
+                        می‌شود.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div
+                        className="
+                          mt-4
+                          h-2
+                          overflow-hidden
+                          rounded-full
+                          bg-[#E8EFED]
+                        "
+                      >
+                        <div
+                          className="
+                            h-full
+                            rounded-full
+                            bg-[#00685F]
+                          "
+                          style={{
+                            width:
+                              `${skill.score}%`,
+                          }}
+                        />
+                      </div>
 
-                <div
-                  className="
-                    mt-3
-                    flex
-                    justify-between
-                    text-xs
-                    text-slate-600
-                  "
-                >
-                  <span>
-                    سطح{" "}
-                    {
-                      skill.cefrLevel
-                    }
-                  </span>
+                      <div
+                        className="
+                          mt-3
+                          flex
+                          justify-between
+                          gap-3
+                          text-[10px]
+                          text-[#64748B]
+                        "
+                      >
+                        <span>
+                          سطح{" "}
+                          {skill.cefrLevel}
+                        </span>
 
-                  <span>
-                    {
-                      skill.correctCount
-                    }
-                    /
-                    {
-                      skill.totalCount
-                    }
-                  </span>
-                </div>
-              </div>
-            ),
+                        <span>
+                          {numberFormatter.format(
+                            skill.correctCount,
+                          )}
+                          /
+                          {numberFormatter.format(
+                            skill.totalCount,
+                          )}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </article>
+              );
+            },
           )}
         </div>
-      </Card>
+      </section>
 
       {result.weaknesses.length >
       0 ? (
-        <Card className="p-5 sm:p-6">
+        <section
+          className="
+            rounded-3xl
+            border
+            border-[#F5D9A0]
+            bg-[#FFFBEB]
+            p-5
+            sm:p-6
+          "
+        >
           <div
             className="
               flex
               items-center
               gap-2
-              text-amber-300
             "
           >
             <Target
-               aria-hidden="true"
-              className="h-5 w-5"
+              aria-hidden="true"
+              className="
+                h-5
+                w-5
+                text-[#D97706]
+              "
             />
 
             <h2
               className="
                 text-lg
-                font-bold
-                text-white
+                font-black
+                text-[#0F172A]
               "
             >
               اولویت‌های تمرین
@@ -413,69 +561,162 @@ export function AssessmentResultView({
             "
           >
             {result.weaknesses.map(
-              (
-                insight,
-              ) => (
-                <div
-                  key={
-                    insight.id
-                  }
+              (insight) => (
+                <article
+                  key={insight.id}
                   className="
-                    rounded-xl
+                    rounded-2xl
                     border
-                    border-amber-400/10
-                    bg-amber-400/[0.035]
+                    border-[#F3D8A2]
+                    bg-white/70
                     p-4
                   "
                 >
                   <p
                     className="
-                      font-bold
-                      text-white
+                      text-sm
+                      font-black
+                      text-[#0F172A]
                     "
                   >
-                    {
-                      insight.title
-                    }
+                    {insight.title}
                   </p>
 
                   <p
                     className="
                       mt-2
                       text-xs
-                      leading-6 text-slate-500
+                      leading-6
+                      text-[#64748B]
                     "
                   >
-                    {
-                      insight.description
-                    }
+                    {insight.description}
                   </p>
-                </div>
+                </article>
               ),
             )}
           </div>
-        </Card>
+        </section>
       ) : null}
 
-      <Card className="p-5 sm:p-6">
+      {result.strengths.length >
+      0 ? (
+        <section
+          className="
+            rounded-3xl
+            border
+            border-[#B8E4D1]
+            bg-[#ECFDF5]
+            p-5
+            sm:p-6
+          "
+        >
+          <div
+            className="
+              flex
+              items-center
+              gap-2
+            "
+          >
+            <CheckCircle2
+              aria-hidden="true"
+              className="
+                h-5
+                w-5
+                text-[#047857]
+              "
+            />
+
+            <h2
+              className="
+                text-lg
+                font-black
+                text-[#0F172A]
+              "
+            >
+              نقاط قوت
+            </h2>
+          </div>
+
+          <div
+            className="
+              mt-5
+              grid
+              gap-3
+              md:grid-cols-2
+            "
+          >
+            {result.strengths.map(
+              (insight) => (
+                <article
+                  key={insight.id}
+                  className="
+                    rounded-2xl
+                    border
+                    border-[#C7E8D7]
+                    bg-white/70
+                    p-4
+                  "
+                >
+                  <p
+                    className="
+                      text-sm
+                      font-black
+                      text-[#0F172A]
+                    "
+                  >
+                    {insight.title}
+                  </p>
+
+                  <p
+                    className="
+                      mt-2
+                      text-xs
+                      leading-6
+                      text-[#64748B]
+                    "
+                  >
+                    {insight.description}
+                  </p>
+                </article>
+              ),
+            )}
+          </div>
+        </section>
+      ) : null}
+
+      <section
+        className="
+          rounded-3xl
+          border
+          border-[#DFE8E6]
+          bg-white
+          p-5
+          shadow-[0_8px_28px_rgba(15,23,42,0.04)]
+          sm:p-6
+        "
+      >
         <div
           className="
             flex
             items-center
             gap-2
-            text-violet-300
           "
         >
           <Sparkles
             aria-hidden="true"
-            className="h-5 w-5"
+            className="
+              h-5
+              w-5
+              text-[#712AE2]
+            "
           />
 
           <h2
             className="
               text-lg
-              font-bold
-              text-white
+              font-black
+              text-[#0F172A]
             "
           >
             مرور سؤال‌ها
@@ -497,17 +738,19 @@ export function AssessmentResultView({
                 expandedQuestionId ===
                 item.questionId;
 
+              const pending =
+                item.isCorrect ===
+                null;
+
               return (
                 <article
-                  key={
-                     item.questionId
-                  }
+                  key={item.questionId}
                   className="
                     overflow-hidden
                     rounded-2xl
                     border
-                    border-white/[0.06]
-                    bg-white/[0.02]
+                    border-[#E2E8F0]
+                    bg-[#FAFCFC]
                   "
                 >
                   <button
@@ -526,26 +769,50 @@ export function AssessmentResultView({
                       gap-3
                       p-4
                       text-right
+                      transition
+                      hover:bg-[#F5F8F7]
                     "
                   >
                     <span
-                      className={cn(
-                        "flex",
-                        "h-8",
-                        "w-8",
-                        "shrink-0",
-                        "items-center",
-                        "justify-center",
-                        "rounded-lg",
-
+                      className={
                         item.isCorrect ===
                         true
-                          ? "bg-emerald-400/10 text-emerald-300"
+                          ? `
+                            flex
+                            h-9
+                            w-9
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-xl
+                            bg-[#ECFDF5]
+                            text-[#047857]
+                          `
                           : item.isCorrect ===
-                              false
-                            ? "bg-red-400/10 text-red-300"
-                            : "bg-amber-400/10 text-amber-300",
-                      )}
+                            false
+                            ? `
+                              flex
+                              h-9
+                              w-9
+                              shrink-0
+                              items-center
+                              justify-center
+                              rounded-xl
+                              bg-[#FEF2F2]
+                              text-[#DC2626]
+                            `
+                            : `
+                              flex
+                              h-9
+                              w-9
+                              shrink-0
+                              items-center
+                              justify-center
+                              rounded-xl
+                              bg-[#F4EFFF]
+                              text-[#712AE2]
+                            `
+                      }
                     >
                       {item.isCorrect ===
                       true ? (
@@ -556,7 +823,7 @@ export function AssessmentResultView({
                       ) : item.isCorrect ===
                         false ? (
                         <CircleX
-                           aria-hidden="true"
+                          aria-hidden="true"
                           className="h-4 w-4"
                         />
                       ) : (
@@ -573,18 +840,42 @@ export function AssessmentResultView({
                         flex-1
                       "
                     >
-                      <p
+                      <div
                         className="
-                          text-xs
-                          text-slate-600
+                          flex
+                          flex-wrap
+                          items-center
+                          gap-2
                         "
                       >
-                        سؤال{" "}
-                        {
-                          index +
-                          1
-                        }
-                      </p>
+                        <span
+                          className="
+                            text-[10px]
+                            text-[#64748B]
+                          "
+                        >
+                          سؤال{" "}
+                          {numberFormatter.format(
+                            index + 1,
+                          )}
+                        </span>
+
+                        {pending ? (
+                          <span
+                            className="
+                              rounded-full
+                              bg-[#F4EFFF]
+                              px-2
+                              py-0.5
+                              text-[9px]
+                              font-bold
+                              text-[#712AE2]
+                            "
+                          >
+                            تحلیل تکمیلی
+                          </span>
+                        ) : null}
+                      </div>
 
                       <p
                         dir="ltr"
@@ -593,20 +884,21 @@ export function AssessmentResultView({
                           truncate
                           text-left
                           text-sm
-                          text-slate-200
+                          font-medium
+                          text-[#334155]
                         "
                       >
-                        {
-                          item.prompt
-                        }
+                        {item.prompt}
                       </p>
-                    </div> {expanded ? (
+                    </div>
+
+                    {expanded ? (
                       <ChevronUp
                         aria-hidden="true"
                         className="
                           h-4
                           w-4
-                          text-slate-500
+                          text-[#64748B]
                         "
                       />
                     ) : (
@@ -615,7 +907,7 @@ export function AssessmentResultView({
                         className="
                           h-4
                           w-4
-                          text-slate-500
+                          text-[#64748B]
                         "
                       />
                     )}
@@ -625,7 +917,7 @@ export function AssessmentResultView({
                     <div
                       className="
                         border-t
-                        border-white/[0.05]
+                        border-[#E2E8F0]
                         p-4
                       "
                     >
@@ -645,10 +937,16 @@ export function AssessmentResultView({
                         />
 
                         <ReviewValue
-                          label="پاسخ صحیح"
+                          label={
+                            pending
+                              ? "وضعیت"
+                              : "پاسخ صحیح"
+                          }
                           value={
-                            item.correctAnswerLabel ??
-                            "نیازمند ارزیابی AI"
+                            pending
+                              ? "در انتظار ارزیابی تخصصی"
+                              : item.correctAnswerLabel ??
+                                "—"
                           }
                         />
                       </div>
@@ -657,13 +955,11 @@ export function AssessmentResultView({
                         className="
                           mt-4
                           text-sm
-                                                    leading-7
-                          text-slate-400
+                          leading-7
+                          text-[#64748B]
                         "
                       >
-                        {
-                          item.feedback
-                        }
+                        {item.feedback}
                       </p>
 
                       {item.explanation ? (
@@ -672,16 +968,16 @@ export function AssessmentResultView({
                             mt-4
                             rounded-xl
                             border
-                            border-cyan-400/10
-                            bg-cyan-400/[0.035]
+                            border-[#BFE0DA]
+                            bg-[#F1FAF8]
                             p-4
                           "
                         >
                           <p
                             className="
                               text-xs
-                              font-medium
-                              text-cyan-300
+                              font-bold
+                              text-[#00685F]
                             "
                           >
                             توضیح
@@ -692,12 +988,10 @@ export function AssessmentResultView({
                               mt-2
                               text-sm
                               leading-7
-                              text-slate-400
+                              text-[#52615F]
                             "
                           >
-                            {
-                              item.explanation
-                            }
+                            {item.explanation}
                           </p>
                         </div>
                       ) : null}
@@ -708,7 +1002,62 @@ export function AssessmentResultView({
             },
           )}
         </div>
-      </Card>
+      </section>
+
+      {result.recommendedActions.length >
+      0 ? (
+        <section
+          className="
+            rounded-2xl
+            border
+            border-[#E4DCF7]
+            bg-[#F8F5FF]
+            p-5
+          "
+        >
+          <h2
+            className="
+              text-sm
+              font-black
+              text-[#0F172A]
+            "
+          >
+            قدم بعدی پیشنهادی
+          </h2>
+
+          <div
+            className="
+              mt-4
+              flex
+              flex-wrap
+              gap-3
+            "
+          >
+            {result.recommendedActions.map(
+              (action) =>
+                action.href ? (
+                  <Link
+                    key={action.id}
+                    href={action.href}
+                    className="
+                      rounded-xl
+                      bg-[#712AE2]
+                      px-4
+                      py-2.5
+                      text-xs
+                      font-bold
+                      text-[#FFFFFF]
+                      transition
+                      hover:bg-[#5F20C5]
+                    "
+                  >
+                    {action.title}
+                  </Link>
+                ) : null,
+            )}
+          </div>
+        </section>
+      ) : null}
 
       <div
         className="
@@ -730,13 +1079,13 @@ export function AssessmentResultView({
             justify-center
             gap-2
             rounded-xl
-            bg-cyan-400
+            bg-[#00685F]
             px-5
             text-sm
-            font-bold
-            text-slate-950
+            font-black
+            text-[#FFFFFF]
             transition
-            hover:bg-cyan-300
+            hover:bg-[#005A52]
           "
         >
           <RefreshCw
@@ -756,11 +1105,14 @@ export function AssessmentResultView({
             justify-center
             rounded-xl
             border
-            border-white/[0.07]
-            bg-white/[0.025]
+            border-[#D8E2E0]
+            bg-white
             px-5
             text-sm
-            text-slate-300
+            font-medium
+            text-[#52615F]
+            transition
+            hover:bg-[#F8FAF9]
           "
         >
           بازگشت به ارزیابی‌ها
@@ -769,6 +1121,7 @@ export function AssessmentResultView({
     </main>
   );
 }
+
 function ResultMetric({
   label,
   value,
@@ -782,17 +1135,17 @@ function ResultMetric({
   return (
     <div
       className="
-        rounded-xl
+        rounded-2xl
         border
-        border-white/[0.06]
-        bg-black/10
+        border-[#DFE8E6]
+        bg-white/90
         p-4
       "
     >
       <p
         className="
-          text-xs
-          text-slate-600
+          text-[10px]
+          text-[#64748B]
         "
       >
         {label}
@@ -801,9 +1154,9 @@ function ResultMetric({
       <p
         className="
           mt-2
-          text-xl
-          font-bold
-          text-white
+          text-lg
+          font-black
+          text-[#0F172A]
         "
       >
         {value}
@@ -826,29 +1179,30 @@ function ReviewValue({
     <div
       className="
         rounded-xl
- border
-        border-white/[0.05]
-        bg-black/10
+        border
+        border-[#E2E8F0]
+        bg-white
         p-3
       "
     >
       <p
         className="
           text-[10px]
-          text-slate-600
+          text-[#64748B]
         "
       >
         {label}
       </p>
 
       <p
-        dir="ltr"
+        dir="auto"
         className="
           mt-2
-          text-left
+          whitespace-pre-wrap
+          break-words
           text-sm
-          leading-6
-          text-slate-300
+          leading-7
+          text-[#334155]
         "
       >
         {value}

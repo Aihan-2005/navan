@@ -10,11 +10,17 @@ import {
   AssessmentOverview,
 } from "../../../features/assessment/components/overview/assessment-overview";
 
-export const metadata: Metadata = {
-  title: "ارزیابی سطح زبان",
+import {
+  SkillAssessmentGrid,
+} from "../../../features/assessment/components/overview/skill-assessment-grid";
+
+export const metadata:
+  Metadata = {
+  title:
+    "ارزیابی سطح زبان",
 
   description:
-    "آزمون تعیین سطح، Skill Assessment و کوییزهای کوتاه هوشمند.",
+    "تعیین سطح تطبیقی، ارزیابی مهارت و کوییزهای کوتاه زبان.",
 };
 
 export default async function AssessmentPage() {
@@ -22,8 +28,12 @@ export default async function AssessmentPage() {
     await getAssessmentOverview();
 
   return (
-    <AssessmentOverview
-      overview={overview}
-    />
+    <>
+      <AssessmentOverview
+        overview={overview}
+      />
+
+      <SkillAssessmentGrid />
+    </>
   );
 }

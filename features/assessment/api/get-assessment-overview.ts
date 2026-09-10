@@ -33,7 +33,9 @@ export async function getAssessmentOverview(): Promise<AssessmentOverview> {
     ),
   ]);
 
-  if (!placementAssessment) {
+  if (
+    !placementAssessment
+  ) {
     throw new Error(
       "Placement assessment definition was not found.",
     );
@@ -45,6 +47,13 @@ export async function getAssessmentOverview(): Promise<AssessmentOverview> {
       .adaptiveConfig
       ?.startingCefrLevel ??
     null;
+
+  const placementQuestionTarget =
+    placementAssessment
+      .adaptiveConfig
+      ?.maximumQuestions ??
+    placementAssessment
+      .questionCount;
 
   const payload = {
     learner,
@@ -65,8 +74,7 @@ export async function getAssessmentOverview(): Promise<AssessmentOverview> {
           .estimatedMinutes,
 
       questionCount:
-        placementAssessment
-          .questionCount,
+        placementQuestionTarget,
 
       mode:
         placementAssessment.mode,
@@ -92,7 +100,9 @@ export async function getAssessmentOverview(): Promise<AssessmentOverview> {
       payload,
     );
 
-  if (!result.success) {
+  if (
+    !result.success
+  ) {
     console.error(
       "Invalid Assessment overview:",
       result.error.flatten(),

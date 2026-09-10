@@ -1,19 +1,21 @@
 import Link from "next/link";
 
 import {
-  ArrowRight,
+  ArrowLeft,
   BrainCircuit,
   CheckCircle2,
   Clock3,
-  Info,
+  Ear,
+  Gauge,
   ListChecks,
+  ShieldCheck,
   Sparkles,
   Target,
 } from "lucide-react";
+import type {
+  ReactNode,
+} from "react";
 
-import {
-  Card,
-} from "../../../../components/ui/card";
 
 import {
   ASSESSMENT_SKILL_LABELS,
@@ -45,301 +47,528 @@ export function PlacementIntro({
   assessment,
   learner,
 }: PlacementIntroProps) {
+  const config =
+    assessment.adaptiveConfig;
+
+  if (!config) {
+    throw new Error(
+      "Placement assessment requires adaptive configuration.",
+    );
+  }
+
   const startingLevel =
     learner.currentCefrLevel ??
-    assessment.adaptiveConfig
-      ?.startingCefrLevel ??
-    "B1";
+    config.startingCefrLevel;
+
+  const orderedSections =
+    [...assessment.sections]
+      .sort(
+        (
+          first,
+          second,
+        ) =>
+          first.order -
+          second.order,
+      );
 
   return (
     <main
+      dir="rtl"
       className="
-        mx-auto w-full
-        max-w-5xl space-y-6
+        mx-auto
+        w-full
+        max-w-[1120px]
+        space-y-6
+        pb-12
       "
     >
       <Link
         href="/assessment"
         className="
-          inline-flex items-center
-          gap-2 text-sm
-          text-slate-500
+          inline-flex
+          items-center
+          gap-2
+          text-sm
+          font-medium
+          text-[#64748B]
           transition
-          hover:text-white
+          hover:text-[#00685F]
         "
       >
-        <ArrowRight
+        بازگشت به ارزیابی‌ها
+
+        <ArrowLeft
           aria-hidden="true"
           className="h-4 w-4"
         />
-
-        بازگشت به ارزیابی‌ها
       </Link>
 
       <section
         className="
-          relative overflow-hidden
-          rounded-3xl border
-          border-violet-400/20
-          bg-violet-400/[0.04]
-          p-6 sm:p-8
+          relative
+          overflow-hidden
+          rounded-[28px]
+          border
+          border-[#C6E2DD]
+          bg-[linear-gradient(135deg,#E7F6F3_0%,#FFFFFF_55%,#F4EFFF_100%)]
+          p-6
+          shadow-[0_14px_40px_rgba(15,23,42,0.055)]
+          sm:p-8
         "
       >
         <div
           aria-hidden="true"
           className="
             pointer-events-none
-            absolute -left-24 -top-24
-            h-72 w-72
+            absolute
+            -right-20
+            -top-24
+            h-64
+            w-64
             rounded-full
-            bg-violet-500/15
+            bg-[#14B8A6]/10
             blur-3xl
           "
         />
 
-        <div className="relative">
-          <div
-            className="
-              flex items-center gap-2
-              text-violet-300
-            "
-          >
-            <Target
-              aria-hidden="true"
-              className="h-5 w-5"
-            />
+        <div
+          className="
+            relative
+            grid
+            gap-8
+            lg:grid-cols-[minmax(0,1fr)_300px]
+            lg:items-center
+          "
+        >
+          <div>
+            <div
+              className="
+                inline-flex
+                items-center
+                gap-2
+                rounded-full
+                bg-[#E7F4F2]
+                px-3
+                py-1.5
+                text-xs
+                font-black
+                text-[#00685F]
+              "
+            >
+              <Target
+                aria-hidden="true"
+                className="h-4 w-4"
+              />
 
-            آزمون تعیین سطح
+              Adaptive Placement
+            </div>
+
+            <h1
+              className="
+                mt-5
+                text-3xl
+                font-black
+                leading-tight
+                text-[#0F172A]
+                sm:text-4xl
+              "
+            >
+              {assessment.title}
+            </h1>
+
+            <p
+              className="
+                mt-4
+                max-w-3xl
+                text-sm
+                leading-8
+                text-[#52615F]
+              "
+            >
+              {assessment.description}
+            </p>
+
+            <div
+              className="
+                mt-6
+                flex
+                flex-wrap
+                gap-2
+              "
+            >
+              <FeaturePill>
+                سؤال بعدی بر اساس پاسخ قبلی
+              </FeaturePill>
+
+              <FeaturePill>
+                بدون نمره منفی برای Skip
+              </FeaturePill>
+
+              <FeaturePill>
+                توقف خودکار با Confidence کافی
+              </FeaturePill>
+            </div>
           </div>
 
-          <h1
-            className="
-              mt-4 text-3xl
-              font-bold text-white
-              sm:text-4xl
-            "
-          >
-            {assessment.title}
-          </h1>
-
-          <p
-            className="
-              mt-4 max-w-3xl
-              text-sm leading-8
-              text-slate-400
-            "
-          >
-            {assessment.description}
-          </p>
-
           <div
             className="
-              mt-6 grid gap-3
-              sm:grid-cols-2
-              lg:grid-cols-4
+              rounded-2xl
+              border
+              border-[#D7E5E2]
+              bg-white
+              p-5
+              shadow-sm
             "
           >
-            <IntroMetric
-              icon={Clock3}
-              label="زمان تقریبی"
-              value={`${numberFormatter.format(
-                assessment.estimatedMinutes,
-              )} دقیقه`}
-            />
+            <p
+              className="
+                text-xs
+                font-black
+                text-[#0F172A]
+              "
+            >
+              آماده شروعی؟
+            </p>
 
-            <IntroMetric
-              icon={ListChecks}
-              label="بانک سؤال"
-              value={`${numberFormatter.format(
-                assessment.questionCount,
-              )} سؤال`}
-            />
+            <p
+              className="
+                mt-2
+                text-xs
+                leading-6
+                text-[#64748B]
+              "
+            >
+              سطح شروع پیشنهادی تو{" "}
+              <strong
+                className="
+                  text-[#00685F]
+                "
+              >
+                {startingLevel}
+              </strong>{" "}
+              است. موتور آزمون در صورت
+              نیاز سطح را بالا یا پایین
+              می‌برد.
+            </p>
 
-            <IntroMetric
-              icon={BrainCircuit}
-              label="مدل آزمون"
-              value={
-                assessment.mode ===
-                "adaptive"
-                  ? "Adaptive"
-                  : "Fixed"
-              }
-            />
+            <Link
+              href="/assessment/placement/run"
+              className="
+                mt-5
+                inline-flex
+                min-h-12
+                w-full
+                items-center
+                justify-center
+                gap-2
+                rounded-xl
+                bg-[#00685F]
+                px-5
+                text-sm
+                font-black
+                text-[#FFFFFF]
+                transition
+                hover:bg-[#005A52]
+              "
+            >
+              شروع تعیین سطح
 
-            <IntroMetric
-              icon={Sparkles}
-              label="سطح شروع"
-              value={startingLevel}
-            />
+              <ArrowLeft
+                aria-hidden="true"
+                className="h-4 w-4"
+              />
+            </Link>
           </div>
         </div>
-      </section>
-
-      <Card className="p-5 sm:p-6">
-        <h2
-          className="
-            text-xl font-bold
-            text-white
-          "
-        >
-          مهارت‌های این آزمون
-        </h2>
-
-        <p
-          className="
-            mt-2 text-sm
-            leading-7 text-slate-500
-          "
-        >
-          نسخه اول آزمون روی Grammar،
-          Vocabulary و Reading تمرکز
-          دارد. Listening در مرحله
-          اتصال Audio Engine اضافه
-          خواهد شد.
-        </p>
 
         <div
           className="
-            mt-5 grid gap-3
-            md:grid-cols-3
+            relative
+            mt-7
+            grid
+            gap-3
+            sm:grid-cols-2
+            lg:grid-cols-4
           "
         >
-          {[...assessment.sections]
-            .sort(
-              (
-                firstSection,
-                secondSection,
-              ) =>
-                firstSection.order -
-                secondSection.order,
-            )
-            .map(
-              (section) => (
-                <div
-                  key={section.id}
-                  className="
-                    rounded-2xl border
-                    border-white/[0.07]
-                    bg-white/[0.025]
-                    p-4
-                  "
-                >
-                  <div
-                    className="
-                      flex items-center
-                      justify-between
-                      gap-3
-                    "
-                  >
-                    <span
-                      className="
-                        flex h-9 w-9
-                        items-center
-                        justify-center
-                        rounded-xl
-                        bg-cyan-400/10
-                        text-cyan-300
-                      "
-                    >
-                      <CheckCircle2
-                        aria-hidden="true"
-                        className="h-4 w-4"
-                      />
-                    </span>
+          <IntroMetric
+            icon={Clock3}
+            label="زمان تقریبی"
+            value={`${numberFormatter.format(
+              assessment.estimatedMinutes,
+            )} دقیقه`}
+          />
 
-                    <span
-                      className="
-                        text-[10px]
-                        text-slate-600
-                      "
-                    >
-                      {numberFormatter.format(
-                        section
-                          .questionIds
-                          .length,
-                      )}{" "}
-                      سؤال
-                    </span>
-                  </div>
+          <IntroMetric
+            icon={ListChecks}
+            label="تعداد سؤال"
+            value={`${numberFormatter.format(
+              config.minimumQuestions,
+            )} تا ${numberFormatter.format(
+              config.maximumQuestions,
+            )}`}
+          />
 
-                  <h3
-                    className="
-                      mt-4 font-bold
-                      text-white
-                    "
-                  >
-                    {
-                      ASSESSMENT_SKILL_LABELS[
-                        section.skill
-                      ]
-                    }
-                  </h3>
+          <IntroMetric
+            icon={Gauge}
+            label="هدف Confidence"
+            value={`${numberFormatter.format(
+              config.targetConfidence,
+            )}٪`}
+          />
 
-                  <p
-                    className="
-                      mt-2 text-xs
-                      leading-6
-                      text-slate-600
-                    "
-                  >
-                    {
-                      section.description
-                    }
-                  </p>
-                </div>
-              ),
-            )}
+          <IntroMetric
+            icon={BrainCircuit}
+            label="سطح شروع"
+            value={startingLevel}
+          />
         </div>
-      </Card>
+      </section>
 
-      <Card
+      <section
         className="
-          border-cyan-400/15
-          bg-cyan-400/[0.035]
-          p-5 sm:p-6
+          rounded-3xl
+          border
+          border-[#DFE8E6]
+          bg-white
+          p-5
+          shadow-[0_8px_28px_rgba(15,23,42,0.04)]
+          sm:p-6
         "
       >
         <div
           className="
-            flex items-start gap-3
+            flex
+            items-center
+            gap-3
           "
         >
-          <Info
+          <span
+            className="
+              flex
+              h-10
+              w-10
+              items-center
+              justify-center
+              rounded-xl
+              bg-[#E7F4F2]
+              text-[#00685F]
+            "
+          >
+            <ShieldCheck
+              aria-hidden="true"
+              className="h-5 w-5"
+            />
+          </span>
+
+          <div>
+            <h2
+              className="
+                text-lg
+                font-black
+                text-[#0F172A]
+              "
+            >
+              چه چیزهایی سنجیده می‌شوند؟
+            </h2>
+
+            <p
+              className="
+                mt-1
+                text-xs
+                text-[#64748B]
+              "
+            >
+              موتور تلاش می‌کند بین مهارت‌ها
+              Evidence متعادل جمع کند.
+            </p>
+          </div>
+        </div>
+
+        <div
+          className="
+            mt-5
+            grid
+            gap-4
+            sm:grid-cols-2
+            xl:grid-cols-4
+          "
+        >
+          {orderedSections.map(
+            (section) => (
+              <article
+                key={section.id}
+                className="
+                  rounded-2xl
+                  border
+                  border-[#E2E8F0]
+                  bg-[#FAFCFC]
+                  p-4
+                "
+              >
+                <div
+                  className="
+                    flex
+                    items-center
+                    justify-between
+                    gap-3
+                  "
+                >
+                  <span
+                    className="
+                      flex
+                      h-9
+                      w-9
+                      items-center
+                      justify-center
+                      rounded-xl
+                      bg-[#E7F4F2]
+                      text-[#00685F]
+                    "
+                  >
+                    {section.skill ===
+                    "listening" ? (
+                      <Ear
+                        aria-hidden="true"
+                        className="h-4 w-4"
+                      />
+                    ) : (
+                      <CheckCircle2
+                        aria-hidden="true"
+                        className="h-4 w-4"
+                      />
+                    )}
+                  </span>
+
+                  <span
+                    className="
+                      text-[10px]
+                      font-bold
+                      text-[#94A3B8]
+                    "
+                  >
+                    بانک{" "}
+                    {numberFormatter.format(
+                      section.questionIds
+                        .length,
+                    )}
+                  </span>
+                </div>
+
+                <h3
+                  className="
+                    mt-4
+                    text-sm
+                    font-black
+                    text-[#0F172A]
+                  "
+                >
+                  {
+                    ASSESSMENT_SKILL_LABELS[
+                      section.skill
+                    ]
+                  }
+                </h3>
+
+                <p
+                  className="
+                    mt-2
+                    text-xs
+                    leading-6
+                    text-[#64748B]
+                  "
+                >
+                  {section.description}
+                </p>
+              </article>
+            ),
+          )}
+        </div>
+      </section>
+
+      <section
+        className="
+          rounded-2xl
+          border
+          border-[#E4DCF7]
+          bg-[#F8F5FF]
+          p-5
+        "
+      >
+        <div
+          className="
+            flex
+            items-start
+            gap-3
+          "
+        >
+          <Sparkles
             aria-hidden="true"
             className="
-              mt-0.5 h-5 w-5
+              mt-0.5
+              h-5
+              w-5
               shrink-0
-              text-cyan-300
+              text-[#712AE2]
             "
           />
 
           <div>
             <h2
               className="
-                font-bold text-white
+                text-sm
+                font-black
+                text-[#0F172A]
               "
             >
-              موتور اجرای آزمون
+              چرا نمی‌توانی به سؤال قبلی برگردی؟
             </h2>
 
             <p
               className="
-                mt-2 text-sm
-                leading-7 text-slate-500
+                mt-2
+                text-xs
+                leading-7
+                text-[#64748B]
               "
             >
-              تعریف آزمون و بانک سؤال
-              آماده است. مرحله بعد
-              Create Attempt، ذخیره
-              Answer، نمایش سؤال
-              Client-safe و Resume
-              کردن آزمون را پیاده
-              می‌کنیم.
+              در آزمون تطبیقی، پاسخ هر سؤال
+              ورودی انتخاب سؤال بعدی است.
+              تغییر جواب قبلی بعد از مشاهده
+              سؤال بعدی اعتبار Adaptive
+              Algorithm را کاهش می‌دهد؛ برای
+              همین هر پاسخ پس از ثبت نهایی
+              می‌شود.
             </p>
           </div>
         </div>
-      </Card>
+      </section>
     </main>
+  );
+}
+
+function FeaturePill({
+  children,
+}: Readonly<{
+  children:
+    ReactNode;
+}>) {
+  return (
+    <span
+      className="
+        rounded-full
+        border
+        border-[#CAE1DD]
+        bg-white/80
+        px-3
+        py-1.5
+        text-[11px]
+        font-medium
+        text-[#52615F]
+      "
+    >
+      {children}
+    </span>
   );
 }
 
@@ -348,32 +577,39 @@ function IntroMetric({
   label,
   value,
 }: Readonly<{
-  icon: typeof Clock3;
+  icon:
+    typeof Clock3;
 
-  label: string;
-  value: string;
+  label:
+    string;
+
+  value:
+    string;
 }>) {
   return (
     <div
       className="
-        rounded-2xl border
-        border-white/[0.07]
-        bg-black/10
+        rounded-2xl
+        border
+        border-[#DCE7E5]
+        bg-white/90
         p-4
       "
     >
       <Icon
         aria-hidden="true"
         className="
-          h-4 w-4
-          text-violet-300
+          h-4
+          w-4
+          text-[#00685F]
         "
       />
 
       <p
         className="
-          mt-3 text-[10px]
-          text-slate-600
+          mt-3
+          text-[10px]
+          text-[#64748B]
         "
       >
         {label}
@@ -381,8 +617,9 @@ function IntroMetric({
 
       <p
         className="
-          mt-1 font-bold
-          text-white
+          mt-1
+          font-black
+          text-[#0F172A]
         "
       >
         {value}

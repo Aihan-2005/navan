@@ -4,19 +4,23 @@ import {
 
 import {
   auth,
-} from "../../../../auth";
+} from "../../../../../auth";
 
 import {
   getAssessmentDefinition,
-} from "../../../../features/assessment/api/get-assessment-definition";
+} from "../../../../../features/assessment/api/get-assessment-definition";
+
+import {
+  normalizeAssessmentSubmissionResult,
+} from "../../../../../features/assessment/engine/normalize-assessment-submission-result";
 
 import {
   scoreAssessmentSubmission,
-} from "../../../../features/assessment/engine/score-assessment-submission";
+} from "../../../../../features/assessment/engine/score-assessment-submission";
 
 import {
   assessmentSubmissionSchema,
-} from "../../../../features/assessment/schemas/assessment-runner.schema";
+} from "../../../../../features/assessment/schemas/assessment-runner.schema";
 
 export const runtime =
   "nodejs";
@@ -55,7 +59,7 @@ export async function POST(
     }
 
     let payload:
-       unknown;
+      unknown;
 
     try {
       payload =
@@ -102,7 +106,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "سرویس Backend ثبت و ارزیابی آزمون هنوز به این Route متصل نشده است.",
+            "سرویس Backend ثبت و ارزیابی آزمون هنوز متصل نشده است.",
         },
         {
           status:
@@ -113,7 +117,7 @@ export async function POST(
 
     const assessment =
       await getAssessmentDefinition(
-     inputResult.data
+        inputResult.data
           .assessmentId,
       );
 
@@ -130,21 +134,35 @@ export async function POST(
       );
     }
 
+    if (
+      assessment.type ===
+        "placement" &&
+      assessment.mode ===
+        "adaptive"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "آزمون تعیین سطح تطبیقی باید از Adaptive Placement API ثبت شود.",
+        },
+        {
+          status:
+            409,
+        },
+      );
+    }
+
     const allowedQuestionIds =
       new Set(
         assessment.questions.map(
-          (
-            question,
-          ) =>
+          (question) =>
             question.id,
         ),
       );
 
     const invalidAnswer =
       inputResult.data.answers.find(
-        (
-          answer,
-        ) =>
+        (answer) =>
           !allowedQuestionIds.has(
             answer.questionId,
           ),
@@ -165,10 +183,15 @@ export async function POST(
       );
     }
 
-    const result =
+    const rawResult =
       scoreAssessmentSubmission(
         assessment,
         inputResult.data,
+      );
+
+    const result =
+      normalizeAssessmentSubmissionResult(
+        rawResult,
       );
 
     return NextResponse.json(
@@ -178,9 +201,7 @@ export async function POST(
           200,
       },
     );
-  } catch (
-    error
-  ) {
+  } catch (error) {
     console.error(
       "Assessment submission failed:",
       error,
@@ -198,3 +219,4 @@ export async function POST(
     );
   }
 }
+

@@ -1,10 +1,14 @@
 import {
+  adaptivePlacementAssessmentMock,
+} from "../mocks/adaptive-placement-assessment.mock";
+
+import {
   miniQuizAssessmentsMock,
 } from "../mocks/mini-quiz-assessments.mock";
 
 import {
-  placementAssessmentMock,
-} from "../mocks/placement-assessment.mock";
+  skillCheckAssessmentsMock,
+} from "../mocks/skill-check-assessments.mock";
 
 import {
   assessmentDefinitionSchema,
@@ -55,7 +59,8 @@ function parseAssessmentDefinition(
       payload,
     );
 
-  if (!result.success
+  if (
+    !result.success
   ) {
     console.error(
       "Invalid Assessment definition:",
@@ -74,16 +79,19 @@ function findMockAssessment(
   identifier:
     string,
 ): AssessmentDefinition | null {
-  const assessments = [
-    placementAssessmentMock,
-    ...miniQuizAssessmentsMock,
-  ];
+  const assessments:
+    readonly AssessmentDefinition[] =
+    [
+      adaptivePlacementAssessmentMock,
+
+      ...miniQuizAssessmentsMock,
+
+      ...skillCheckAssessmentsMock,
+    ];
 
   const assessment =
     assessments.find(
-      (
-        candidate,
-      ) =>
+      (candidate) =>
         candidate.id ===
           identifier ||
         candidate.slug ===
@@ -110,7 +118,8 @@ export async function getAssessmentDefinition(
 
   if (
     shouldUseMockData()
-  ) { return findMockAssessment(
+  ) {
+    return findMockAssessment(
       identifier,
     );
   }
@@ -157,7 +166,7 @@ export async function getAssessmentDefinition(
 
   const payload:
     unknown =
-      await response.json();
+    await response.json();
 
   return parseAssessmentDefinition(
     payload,
