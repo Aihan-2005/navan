@@ -1,30 +1,51 @@
-import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import type {
+  Metadata,
+} from "next";
+
+import type {
+  ReactNode,
+} from "react";
+
+import {
+  Providers,
+} from "../../components/auth/providers";
 
 import DashboardShell from "../../components/ui/dashboard-shell";
 
-export const metadata: Metadata = {
+import {
+  getOptionalSession,
+} from "../../lib/auth/get-optional-session";
+
+export const metadata:
+  Metadata = {
   title: {
-    default: "پنل یادگیری",
-    template: "%s | MeowLingo AI",
+    default:
+      "پنل یادگیری",
+
+    template:
+      "%s | Navan AI",
   },
+
   description:
     "پنل شخصی یادگیری زبان، تمرین مکالمه و تحلیل هوشمند مهارت‌ها",
 };
 
-type UserLayoutProps = Readonly<{
-  children: ReactNode;
-}>;
+type UserLayoutProps =
+  Readonly<{
+    children: ReactNode;
+  }>;
 
-/**
- * Shared layout for authenticated application routes.
- *
- * All user-facing features such as dashboard, speaking,
- * listening, writing and assessments are rendered inside
- * the same application shell.
- */
-export default function UserLayout({
+export default async function UserLayout({
   children,
 }: UserLayoutProps) {
-  return <DashboardShell>{children}</DashboardShell>;
+  const session =
+    await getOptionalSession();
+
+  return (
+    <Providers session={session}>
+      <DashboardShell>
+        {children}
+      </DashboardShell>
+    </Providers>
+  );
 }

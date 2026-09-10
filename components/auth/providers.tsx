@@ -1,23 +1,33 @@
 "use client";
 
 import type {
-  ReactNode,
-} from "react";
+  Session,
+} from "next-auth";
 
 import {
   SessionProvider,
 } from "next-auth/react";
 
+import type {
+  ReactNode,
+} from "react";
+
 type ProvidersProps =
   Readonly<{
     children: ReactNode;
+    session: Session | null;
   }>;
 
 export function Providers({
   children,
+  session,
 }: ProvidersProps) {
   return (
-    <SessionProvider>
+    <SessionProvider
+      session={session}
+      refetchInterval={0}
+      refetchOnWindowFocus={false}
+    >
       {children}
     </SessionProvider>
   );

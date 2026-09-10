@@ -32,6 +32,12 @@ import type {
   ClassroomRoomTransportStatus,
 } from "../realtime/classroom-room-transport";
 
+export type ClassroomRoomViewer =
+  Readonly<{
+    id: string;
+    name: string;
+  }>;
+
 type ClassroomRoomState =
   Readonly<{
     participants:
@@ -43,6 +49,7 @@ type ClassroomRoomState =
     sharedItems:
       readonly ClassroomSharedItem[];
   }>;
+
 type ClassroomRoomStateAction =
   | Readonly<{
       type:
@@ -62,9 +69,17 @@ type ClassroomRoomStateAction =
         boolean;
     }>;
 
+type ClassroomRoomInitialState =
+  Readonly<{
+    room:
+      ClassroomRoom;
+
+    viewer:
+      ClassroomRoomViewer | null;
+  }>;
+
 function createClientId(
-  prefix:
-    string,
+  prefix: string,
 ): string {
   if (
     typeof crypto !==
@@ -80,44 +95,6 @@ function createClientId(
     .slice(2)}`;
 }
 
-function upsertParticipant(
-  participants:
-    readonly ClassroomParticipant[],
-
-  participant:
-    ClassroomParticipant,
-): readonly ClassroomParticipant[] {
-  const existingIndex =
-    participants.findIndex(
-      (
-        candidate,
-      ) =>
-        candidate.id ===
-        participant.id,
-    );
-
-  if (
-    existingIndex ===
-    -1
-  ) {
-    return [
-      ...participants,
-      participant,
-    ];
-  }
-
-  return participants.map(
-    (
-      candidate,
-      index,
-    ) =>
-      index ===
-      existingIndex
-        ? participant
-        : candidate,
-  );
-}
-
 function updateParticipant(
   participants:
     readonly ClassroomParticipant[],
@@ -129,9 +106,7 @@ function updateParticipant(
     Partial<ClassroomParticipant>,
 ): readonly ClassroomParticipant[] {
   return participants.map(
-    (
-      participant,
-    ) =>
+    (participant) =>
       participant.id ===
       participantId
         ? {
@@ -143,16 +118,15 @@ function updateParticipant(
 }
 
 function appendMessage(
-  messages: readonly ClassroomChatMessage[],
+  messages:
+    readonly ClassroomChatMessage[],
 
   message:
     ClassroomChatMessage,
 ): readonly ClassroomChatMessage[] {
   if (
     messages.some(
-      (
-        candidate,
-      ) =>
+      (candidate) =>
         candidate.id ===
         message.id,
     )
@@ -175,9 +149,7 @@ function prependSharedItem(
 ): readonly ClassroomSharedItem[] {
   if (
     sharedItems.some(
-      (
-        candidate,
-      ) =>
+      (candidate) =>
         candidate.id ===
         item.id,
     )
@@ -239,7 +211,8 @@ function classroomRoomReducer(
     case "resource.shared":
       return {
         ...state,
-sharedItems:
+
+        sharedItems:
           prependSharedItem(
             state.sharedItems,
             event.payload,
@@ -247,38 +220,34 @@ sharedItems:
       };
 
     case "participant.microphone.updated":
-  return {
-    ...state,
+      return {
+        ...state,
 
-    participants:
-      state.participants.map(
-        (
-          participant,
-        ) => {
-          if (
-            participant.id !==
-            event.payload
-              .participantId
-          ) {
-            return participant;
-          }
+        participants:
+          state.participants.map(
+            (participant) => {
+              if (
+                participant.id !==
+                event.payload.participantId
+              ) {
+                return participant;
+              }
 
-          return {
-            ...participant,
+              return {
+                ...participant,
 
-            isMuted:
-              event.payload
-                .isMuted,
+                isMuted:
+                  event.payload.isMuted,
 
-            isSpeaking:
-              event.payload
-                .isMuted
-                ? false
-                : participant.isSpeaking,
-          };
-        },
-      ),
-  };
+                isSpeaking:
+                  event.payload.isMuted
+                    ? false
+                    : participant.isSpeaking,
+              };
+            },
+          ),
+      };
+
     case "participant.hand.updated":
       return {
         ...state,
@@ -286,12 +255,10 @@ sharedItems:
         participants:
           updateParticipant(
             state.participants,
-            event.payload
-              .participantId,
+            event.payload.participantId,
             {
               handRaised:
-                event.payload
-                  .handRaised,
+                event.payload.handRaised,
             },
           ),
       };
@@ -299,15 +266,14 @@ sharedItems:
     case "participant.speaking.updated":
       return {
         ...state,
-participants:
+
+        participants:
           updateParticipant(
             state.participants,
-            event.payload
-              .participantId,
+            event.payload.participantId,
             {
               isSpeaking:
-                event.payload
-                  .isSpeaking,
+                event.payload.isSpeaking,
             },
           ),
       };
@@ -318,13 +284,80 @@ participants:
 }
 
 function buildInitialState(
-  room:
-    ClassroomRoom,
+  input:
+    ClassroomRoomInitialState,
 ): ClassroomRoomState {
+  const {
+    room,
+    viewer,
+  } =
+    input;
+
+  const participants:
+    ClassroomParticipant[] =
+    room.participants.map(
+      (participant) => ({
+        ...participant,
+
+        isSelf:
+          viewer
+            ? participant.id ===
+              viewer.id
+            : false,
+
+        name:
+          viewer &&
+          participant.id ===
+            viewer.id
+            ? viewer.name
+            : participant.name,
+      }),
+    );
+
+  if (
+    viewer &&
+    !participants.some(
+      (participant) =>
+        participant.id ===
+        viewer.id,
+    )
+  ) {
+    participants.push({
+      id:
+        viewer.id,
+
+      name:
+        viewer.name,
+
+      avatarUrl:
+        null,
+
+      role:
+        "member",
+
+      isSelf:
+        true,
+
+      isMuted:
+        true,
+
+      isSpeaking:
+        false,
+
+      handRaised:
+        false,
+
+      connectionQuality:
+        "good",
+
+      joinedAt:
+        new Date()
+          .toISOString(),
+    });
+  }
+
   return {
-    participants: [
-      ...room.participants,
-    ],
+    participants,
 
     messages: [
       ...room.messages,
@@ -339,14 +372,22 @@ function buildInitialState(
 export function useClassroomRoom(
   room:
     ClassroomRoom,
+
+  viewer:
+    ClassroomRoomViewer | null,
 ) {
   const [
     state,
     dispatch,
   ] =
     useReducer(
-  classroomRoomReducer,
-      room,
+      classroomRoomReducer,
+
+      {
+        room,
+        viewer,
+      },
+
       buildInitialState,
     );
 
@@ -367,12 +408,11 @@ export function useClassroomRoom(
     useMemo(
       () =>
         state.participants.find(
-          (
-            participant,
-          ) =>
+          (participant) =>
             participant.isSelf,
         ) ??
         null,
+
       [
         state.participants,
       ],
@@ -389,22 +429,19 @@ export function useClassroomRoom(
 
     const unsubscribeEvents =
       transport.subscribe(
-        (
-          event,
-        ) => {
+        (event) => {
           dispatch({
             type:
               "room.event",
- event,
+
+            event,
           });
         },
       );
 
     const unsubscribeStatus =
       transport.subscribeStatus(
-        (
-          status,
-        ) => {
+        (status) => {
           setTransportStatus(
             status,
           );
@@ -437,16 +474,11 @@ export function useClassroomRoom(
         event:
           ClassroomRoomEvent,
       ): void => {
-        /*
-         * BroadcastChannel پیام خود فرستنده
-         * را به همان Channel object برنمی‌گرداند.
-         *
-         * بنابراین ابتدا Local State را Update
-         * می‌کنیم و سپس Event را Publish می‌کنیم.
-         */
         dispatch({
           type:
-            "room.event", event,
+            "room.event",
+
+          event,
         });
 
         transportRef.current?.publish(
@@ -482,48 +514,49 @@ export function useClassroomRoom(
 
         const message:
           ClassroomChatMessage =
-          {
-            id:
-              createClientId(
-                "chat",
-              ),
+        {
+          id:
+            createClientId(
+              "chat",
+            ),
 
-            kind:
-              "text",
+          kind:
+            "text",
 
-            senderId:
-              currentParticipant.id,
+          senderId:
+            currentParticipant.id,
 
-            senderName:
-                            currentParticipant.name,
- body:
-              parsed.data.body,
+          senderName:
+            currentParticipant.name,
 
-            createdAt,
-          };
+          body:
+            parsed.data.body,
+
+          createdAt,
+        };
 
         const event:
           ClassroomRoomEvent =
-          {
-            eventId:
-              createClientId(
-                "event",
-              ),
+        {
+          eventId:
+            createClientId(
+              "event",
+            ),
 
-            roomId:
-              room.id,
+          roomId:
+            room.id,
 
-            actorId:
-              currentParticipant.id,
+          actorId:
+            currentParticipant.id,
 
-            type:
-              "chat.message.created",
+          type:
+            "chat.message.created",
 
-            payload:
-              message,
+          payload:
+            message,
 
-            createdAt,
-          };
+          createdAt,
+        };
 
         publishEvent(
           event,
@@ -537,7 +570,8 @@ export function useClassroomRoom(
         room.id,
       ],
     );
-const shareItem =
+
+  const shareItem =
     useCallback(
       (
         input:
@@ -561,47 +595,47 @@ const shareItem =
 
         const item:
           ClassroomSharedItem =
-          {
+        {
+          id:
+            createClientId(
+              "resource",
+            ),
+
+          ...parsed.data,
+
+          createdBy: {
             id:
-              createClientId(
-                "resource",
-              ),
+              currentParticipant.id,
 
-            ...parsed.data,
+            name:
+              currentParticipant.name,
+          },
 
-            createdBy: {
-              id:
-                currentParticipant.id,
-
-              name:
-                currentParticipant.name,
-            },
-
-            createdAt,
-          };
+          createdAt,
+        };
 
         const event:
           ClassroomRoomEvent =
-          {
-            eventId:
-              createClientId(
-                "event",
-              ),
+        {
+          eventId:
+            createClientId(
+              "event",
+            ),
 
-            roomId:
-              room.id,
+          roomId:
+            room.id,
 
-            actorId:
-              currentParticipant.id,
+          actorId:
+            currentParticipant.id,
 
-            type:
-              "resource.shared",
+          type:
+            "resource.shared",
 
-            payload:
-              item,
+          payload:
+            item,
 
-            createdAt,
-          };
+          createdAt,
+        };
 
         publishEvent(
           event,
@@ -630,7 +664,8 @@ const shareItem =
 
         const nextMutedState =
           !enabled;
-if (
+
+        if (
           currentParticipant.isMuted ===
           nextMutedState
         ) {
@@ -707,13 +742,13 @@ if (
               currentParticipant.id,
 
             handRaised:
-              !currentParticipant
-                .handRaised,
+              !currentParticipant.handRaised,
           },
 
           createdAt,
         });
-      }, [
+      },
+      [
         currentParticipant,
         publishEvent,
         room.id,
@@ -734,13 +769,6 @@ if (
           return;
         }
 
-        /*
-         * فعلاً Audio Level فقط Local است.
-         *
-         * بعد از WebRTC/WebSocket، Speaking State
-         * را می‌توانیم با throttling برای دیگران
-         * نیز Publish کنیم.
-         */
         dispatch({
           type:
             "participant.local-speaking",
@@ -765,7 +793,8 @@ if (
 
     sharedItems:
       state.sharedItems,
-currentParticipant,
+
+    currentParticipant,
 
     transportStatus,
 

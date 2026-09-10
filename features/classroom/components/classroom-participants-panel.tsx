@@ -9,12 +9,9 @@ import {
 } from "lucide-react";
 
 import {
-  Card,
-} from "../../../components/ui/card";
-
-import {
   cn,
 } from "../../../lib/utils/cn";
+
 
 import type {
   ClassroomParticipant,
@@ -27,38 +24,54 @@ type ClassroomParticipantsPanelProps =
   }>;
 
 function getInitials(
-  name:
-    string,
+  name: string,
 ): string {
-  return name
-    .trim()
-    .split(
-      /\s+/u,
-    )
-    .slice(
-      0,
-      2,
-    )
-    .map(
-      (
-        part,
-      ) =>
-        part
-          .charAt(
-            0,
-          )
-          .toUpperCase(),
-    )
-    .join("");
+  return (
+    name
+      .trim()
+      .split(/\s+/u)
+      .slice(0, 2)
+      .map(
+        (part) =>
+          part
+            .charAt(0)
+            .toUpperCase(),
+      )
+      .join("") ||
+    "U"
+  );
+}
+
+function getConnectionLabel(
+  quality:
+    ClassroomParticipant[
+      "connectionQuality"
+    ],
+): string {
+  switch (quality) {
+    case "good":
+      return "اتصال خوب";
+
+    case "fair":
+      return "اتصال متوسط";
+
+    default:
+      return "اتصال ضعیف";
+  }
 }
 
 export function ClassroomParticipantsPanel({
   participants,
 }: ClassroomParticipantsPanelProps) {
-  return (<Card
+  return (
+    <section
       className="
         overflow-hidden
-        p-0
+        rounded-2xl
+        border
+        border-[#DCE7E5]
+        bg-white
+        shadow-[0_6px_20px_rgba(15,23,42,0.035)]
       "
     >
       <div
@@ -68,8 +81,8 @@ export function ClassroomParticipantsPanel({
           justify-between
           gap-4
           border-b
-          border-white/[0.06]
-          px-5
+          border-[#E6ECEB]
+          px-4
           py-4
         "
       >
@@ -85,15 +98,15 @@ export function ClassroomParticipantsPanel({
             className="
               h-4
               w-4
-              text-violet-300
+              text-[#00685F]
             "
           />
 
           <h2
             className="
               text-sm
-              font-bold
-              text-white
+              font-black
+              text-[#172321]
             "
           >
             افراد حاضر
@@ -102,8 +115,13 @@ export function ClassroomParticipantsPanel({
 
         <span
           className="
-            text-xs
-            text-slate-600
+            rounded-full
+            bg-[#F1F5F4]
+            px-2.5
+            py-1
+            text-[10px]
+            font-bold
+            text-[#64748B]
           "
         >
           {participants.length}
@@ -112,15 +130,14 @@ export function ClassroomParticipantsPanel({
 
       <div
         className="
-          max-h-[360px]
+          max-h-[390px]
           overflow-y-auto
           p-3
-        " >
+        "
+      >
         <div className="space-y-1">
           {participants.map(
-            (
-              participant,
-            ) => (
+            (participant) => (
               <article
                 key={
                   participant.id
@@ -132,14 +149,15 @@ export function ClassroomParticipantsPanel({
                   "rounded-xl",
                   "px-3",
                   "py-2.5",
+                  "transition",
 
                   participant.isSpeaking
                     ? [
-                        "bg-emerald-400/[0.06]",
+                        "bg-[#ECFDF5]",
                         "ring-1",
-                        "ring-emerald-400/15",
+                        "ring-[#A7F3D0]",
                       ]
-                    : "hover:bg-white/[0.025]",
+                    : "hover:bg-[#F8FAF9]",
                 )}
               >
                 <div
@@ -153,16 +171,16 @@ export function ClassroomParticipantsPanel({
                     "justify-center",
                     "rounded-full",
                     "text-xs",
-                    "font-bold",
+                    "font-black",
 
                     participant.isSpeaking
                       ? [
-                          "bg-emerald-400/15",
-                          "text-emerald-200",
+                          "bg-[#D1FAE5]",
+                          "text-[#047857]",
                         ]
                       : [
-                          "bg-violet-400/10",
-                          "text-violet-200",
+                          "bg-[#F4EFFF]",
+                          "text-[#712AE2]",
                         ],
                   )}
                 >
@@ -174,14 +192,14 @@ export function ClassroomParticipantsPanel({
                     aria-hidden="true"
                     className="
                       absolute
-                       bottom-0
+                      bottom-0
                       right-0
                       h-2.5
                       w-2.5
                       rounded-full
                       border-2
-                      border-[#07111f]
-                      bg-emerald-400
+                      border-[#FFFFFF]
+                      bg-[#10B981]
                     "
                   />
                 </div>
@@ -203,8 +221,8 @@ export function ClassroomParticipantsPanel({
                       className="
                         truncate
                         text-sm
-                        font-medium
-                        text-slate-200
+                        font-bold
+                        text-[#334155]
                       "
                     >
                       {participant.name}
@@ -222,7 +240,7 @@ export function ClassroomParticipantsPanel({
                           h-3.5
                           w-3.5
                           shrink-0
-                          text-amber-300
+                          text-[#D97706]
                         "
                       />
                     ) : null}
@@ -233,9 +251,9 @@ export function ClassroomParticipantsPanel({
                         aria-label="مدیر"
                         className="
                           h-3.5
-                 w-3.5
+                          w-3.5
                           shrink-0
-                          text-cyan-300
+                          text-[#00685F]
                         "
                       />
                     ) : null}
@@ -246,9 +264,9 @@ export function ClassroomParticipantsPanel({
                       mt-1
                       flex
                       items-center
-                      gap-2
-                      text-[10px]
-                      text-slate-600
+                      gap-1.5
+                      text-[9px]
+                      text-[#7C8987]
                     "
                   >
                     <Signal
@@ -256,13 +274,9 @@ export function ClassroomParticipantsPanel({
                       className="h-3 w-3"
                     />
 
-                    {participant.connectionQuality ===
-                    "good"
-                      ? "اتصال خوب"
-                      : participant.connectionQuality ===
-                          "fair"
-                        ? "اتصال متوسط"
-                        : "اتصال ضعیف"}
+                    {getConnectionLabel(
+                      participant.connectionQuality,
+                    )}
                   </div>
                 </div>
 
@@ -280,11 +294,10 @@ export function ClassroomParticipantsPanel({
                       className="
                         h-4
                         w-4
-                        text-amber-300
+                        text-[#D97706]
                       "
                     />
                   ) : null}
-
 
                   {participant.isMuted ? (
                     <MicOff
@@ -292,7 +305,7 @@ export function ClassroomParticipantsPanel({
                       className="
                         h-4
                         w-4
-                        text-slate-600
+                        text-[#94A3B8]
                       "
                     />
                   ) : (
@@ -303,8 +316,8 @@ export function ClassroomParticipantsPanel({
                         "w-4",
 
                         participant.isSpeaking
-                          ? "text-emerald-300"
-                          : "text-slate-400",
+                          ? "text-[#10B981]"
+                          : "text-[#64748B]",
                       )}
                     />
                   )}
@@ -314,6 +327,6 @@ export function ClassroomParticipantsPanel({
           )}
         </div>
       </div>
-    </Card>
+    </section>
   );
 }

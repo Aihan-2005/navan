@@ -6,10 +6,6 @@ import type {
   ReactNode,
 } from "react";
 
-import {
-  Providers,
-} from "../components/auth/providers";
-
 import "../styles/globals.css";
 
 export const metadata:
@@ -49,9 +45,7 @@ export default function RootLayout({
           antialiased
         "
       >
-        <Providers>
-          {children}
-        </Providers>
+        {children}
       </body>
     </html>
   );

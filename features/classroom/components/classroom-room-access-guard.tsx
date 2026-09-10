@@ -10,17 +10,9 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-import {
-  useSession,
-} from "next-auth/react";
-
 import type {
   ReactNode,
 } from "react";
-
-import {
-  Card,
-} from "../../../components/ui/card";
 
 import {
   useClassroomRoomAccess,
@@ -28,6 +20,9 @@ import {
 
 type ClassroomRoomAccessGuardProps =
   Readonly<{
+    viewerId:
+      string | null;
+
     roomId:
       string;
 
@@ -42,32 +37,20 @@ type ClassroomRoomAccessGuardProps =
   }>;
 
 export function ClassroomRoomAccessGuard({
+  viewerId,
   roomId,
   roomTitle,
-  enabled =
-    true,
-  children,}: ClassroomRoomAccessGuardProps) {
-  const {
-    data:
-      session,
-
-    status:
-      sessionStatus,
-  } =
-    useSession();
-
-  const userId =
-    session?.user?.id ??
-    session?.user?.email ??
-    null;
-
+  enabled = true,
+  children,
+}: ClassroomRoomAccessGuardProps) {
   const {
     status,
     blockingLease,
     retry,
   } =
     useClassroomRoomAccess({
-      userId,
+      userId:
+        viewerId,
 
       roomId,
 
@@ -75,85 +58,120 @@ export function ClassroomRoomAccessGuard({
 
       enabled:
         enabled &&
-        sessionStatus ===
-          "authenticated",
+        Boolean(
+          viewerId,
+        ),
     });
 
-  if (
-    !enabled
-  ) {
+  if (!enabled) {
     return children;
   }
 
-  if (
-    sessionStatus ===
-      "loading" ||
-    (
-      sessionStatus ===
-        "authenticated" &&
-      status ===
-        "checking"
-    )
-  ) {return (
+  if (!viewerId) {
+    const callbackUrl =
+      `/classroom/rooms/${encodeURIComponent(
+        roomId,
+      )}`;
+
+    return (
       <main
         className="
           mx-auto
           flex
           min-h-[60vh]
           w-full
-          max-w-3xl
+          max-w-xl
           items-center
           justify-center
         "
       >
-        <Card
+        <section
           className="
             w-full
-            p-8
+            rounded-[24px]
+            border
+            border-[#E5D9C8]
+            bg-[#FFFBF5]
+            p-7
             text-center
+            shadow-[0_10px_32px_rgba(15,23,42,0.05)]
           "
         >
-          <LoaderCircle
-            aria-hidden="true"
+          <span
             className="
               mx-auto
-              h-7
-              w-7
-              animate-spin
-              text-violet-300
+              flex
+              h-14
+              w-14
+              items-center
+              justify-center
+              rounded-2xl
+              bg-[#FFF1E8]
+              text-[#F97316]
             "
-          />
+          >
+            <LockKeyhole
+              aria-hidden="true"
+              className="h-6 w-6"
+            />
+          </span>
 
           <h1
             className="
               mt-5
-              text-lg
-              font-bold
-              text-white
+              text-xl
+              font-black
+              text-[#172321]
             "
           >
-            در حال بررسی وضعیت کلاس
+            برای ورود به بحث آزاد وارد حساب شو
           </h1>
 
           <p
             className="
-              mt-2
+              mx-auto
+              mt-3
+              max-w-md
               text-sm
-     leading-7
-              text-slate-500
+              leading-7
+              text-[#6D7A77]
             "
           >
-            بررسی می‌کنیم که Session فعال دیگری برای این حساب وجود نداشته باشد.
+            حضور در اتاق، چت، دفترچه،
+            میکروفون و دستیار هوشمند به
+            حساب کاربری متصل هستند.
           </p>
-        </Card>
+
+          <Link
+            href={`/login?callbackUrl=${encodeURIComponent(
+              callbackUrl,
+            )}`}
+            className="
+              mt-6
+              inline-flex
+              min-h-11
+              items-center
+              justify-center
+              rounded-xl
+              bg-[#00685F]
+              px-6
+              text-sm
+              font-black
+              text-[#FFFFFF]
+              transition
+              hover:bg-[#005A52]
+            "
+          >
+            ورود به حساب
+          </Link>
+        </section>
       </main>
     );
   }
 
   if (
-    sessionStatus !==
-      "authenticated" ||
-    !userId
+    status ===
+    "checking"
   ) {
     return (
       <main
@@ -162,60 +180,57 @@ export function ClassroomRoomAccessGuard({
           flex
           min-h-[60vh]
           w-full
-          max-w-3xl
+          max-w-xl
           items-center
           justify-center
         "
       >
-        <Card
+        <section
           className="
             w-full
+            rounded-[24px]
+            border
+            border-[#DCE7E5]
+            bg-white
             p-8
             text-center
+            shadow-[0_10px_32px_rgba(15,23,42,0.05)]
           "
         >
-          <LockKeyhole
+          <LoaderCircle
             aria-hidden="true"
             className="
               mx-auto
               h-8
               w-8
-              text-amber-300
+              animate-spin
+              text-[#00685F]
             "
           />
 
-           <h1
+          <h1
             className="
               mt-5
-              text-xl
-              font-bold
-              text-white
+              text-lg
+              font-black
+              text-[#172321]
             "
           >
-            برای ورود به کلاس باید وارد حساب شوید
+            در حال آماده‌سازی اتاق
           </h1>
 
-          <Link
-            href="/login"
+          <p
             className="
-              mt-6
-              inline-flex
-              min-h-11
-              items-center
-              justify-center
-              rounded-xl
-              bg-violet-400
-              px-5
+              mt-2
               text-sm
-              font-bold
-              text-slate-950
-              transition
-              hover:bg-violet-300
+              leading-7
+              text-[#6D7A77]
             "
           >
-            ورود به حساب
-          </Link>
-        </Card>
+            وضعیت Session فعال این حساب
+            بررسی می‌شود.
+          </p>
+        </section>
       </main>
     );
   }
@@ -232,215 +247,195 @@ export function ClassroomRoomAccessGuard({
     return (
       <main
         className="
-           mx-auto
+          mx-auto
           flex
           min-h-[65vh]
           w-full
-          max-w-3xl
+          max-w-2xl
           items-center
           justify-center
         "
       >
-        <Card
+        <section
           className="
-            relative
             w-full
-            overflow-hidden
-            border-amber-400/15
+            rounded-[24px]
+            border
+            border-[#F2D2A4]
+            bg-[#FFFBF5]
             p-7
-            sm:p-9
+            shadow-[0_12px_36px_rgba(15,23,42,0.055)]
+            sm:p-8
           "
         >
-          <div
-            aria-hidden="true"
+          <span
             className="
-              pointer-events-none
-              absolute
-              -left-24
-              -top-24
-              h-64
-              w-64
-              rounded-full
-              bg-amber-400/[0.07]
-              blur-3xl
+              flex
+              h-14
+              w-14
+              items-center
+              justify-center
+              rounded-2xl
+              bg-[#FFF1E8]
+              text-[#F97316]
             "
-          />
+          >
+            <LockKeyhole
+              aria-hidden="true"
+              className="h-6 w-6"
+            />
+          </span>
 
-          <div className="relative">
+          <h1
+            className="
+              mt-5
+              text-2xl
+              font-black
+              text-[#172321]
+            "
+          >
+            فقط یک اتاق می‌تواند فعال باشد
+          </h1>
+
+          <p
+            className="
+              mt-3
+              text-sm
+              leading-8
+              text-[#6D7A77]
+            "
+          >
+            {sameRoom
+              ? "همین اتاق در یک تب یا پنجره دیگر فعال است. برای جلوگیری از چند Session هم‌زمان ورود دوم مسدود شده."
+              : "در حال حاضر داخل یک اتاق دیگر هستی. ابتدا از جلسه فعلی خارج شو و بعد وارد این اتاق شو."}
+          </p>
+
+          <div
+            className="
+              mt-6
+              rounded-2xl
+              border
+              border-[#CDE4DF]
+              bg-[#F1FAF8]
+              p-4
+            "
+          >
             <div
               className="
                 flex
-                h-14
-                w-14
                 items-center
-                justify-center
-                rounded-2xl
-                border
-                border-amber-300/15
-                bg-amber-400/[0.07]
-                text-amber-300
-              "
-            >
-                 <LockKeyhole
-                aria-hidden="true"
-                className="h-6 w-6"
-              />
-            </div>
-
-            <h1
-              className="
-                mt-6
-                text-2xl
+                gap-2
+                text-xs
                 font-bold
-                text-white
+                text-[#047857]
               "
             >
-              فقط یک کلاس می‌تواند هم‌زمان فعال باشد
-            </h1>
+              <Radio
+                aria-hidden="true"
+                className="h-4 w-4"
+              />
+
+              جلسه فعال
+            </div>
 
             <p
+              dir="ltr"
               className="
-                mt-3
-                max-w-2xl
-                text-sm
-                leading-8
-                text-slate-400
+                mt-2
+                text-left
+                text-base
+                font-black
+                text-[#172321]
               "
             >
-              {sameRoom
-                ? "همین کلاس برای حساب شما در یک پنجره یا تب دیگر فعال است. برای جلوگیری از ایجاد چند Session هم‌زمان، ورود دوم مسدود شده است."
-                : "حساب شما در حال حاضر داخل یک کلاس دیگر حضور دارد. ابتدا باید از کلاس فعال خارج شوید و بعد وارد کلاس جدید شوید."}
+              {blockingLease.roomTitle}
             </p>
-
-            <div
-              className="
-                mt-6
-                rounded-2xl
-                border
-                border-white/[0.06]
-                bg-white/[0.025]
-                p-5
-              "
-            >
-              <div
-                className="
-                  flex
-                  items-center
-                  gap-2text-xs
-                  text-emerald-300
-                "
-              >
-                <Radio
-                  aria-hidden="true"
-                  className="h-3.5 w-3.5"
-                />
-
-                کلاس فعال
-              </div>
-
-              <p
-                dir="ltr"
-                className="
-                  mt-2
-                  text-left
-                  text-lg
-                  font-bold
-                  text-white
-                "
-              >
-                {
-                  blockingLease.roomTitle
-                }
-              </p>
-            </div>
-
-            <div
-              className="
-                mt-7
-                flex
-                flex-wrap
-                gap-3
-              "
-            >
-              <Link
-                href={`/classroom/rooms/${encodeURIComponent(
-                  blockingLease.roomId,
-                )}`}
-                className="
-                  inline-flex
-                  min-h-11
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  bg-violet-400
-                  px-5text-sm
-                  font-bold
-                  text-slate-950
-                  transition
-                  hover:bg-violet-300
-                "
-              >
-                <DoorOpen
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                />
-
-                بازگشت به کلاس فعال
-              </Link>
-
-              <button
-                type="button"
-                onClick={
-                  retry
-                }
-                className="
-                  inline-flex
-                  min-h-11
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  border
-                  border-white/[0.07]
-                  bg-white/[0.025]
-                  px-5
-                  text-sm
-                  font-medium
-                  text-slate-300
-                  transition
-                  hover:bg-white/[0.06]
-                  hover:text-white
-                "
-              >
-                <RefreshCw
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                />
-
-                بررسی دوباره
-              </button>
-
-              <Link
-                 href="/classroom"
-                className="
-                  inline-flex
-                  min-h-11
-                  items-center
-                  justify-center
-                  rounded-xl
-                  px-4
-                  text-sm
-                  text-slate-500
-                  transition
-                  hover:text-white
-                "
-              >
-                بازگشت به لیست کلاس‌ها
-              </Link>
-            </div>
           </div>
-        </Card>
+
+          <div
+            className="
+              mt-6
+              flex
+              flex-wrap
+              gap-3
+            "
+          >
+            <Link
+              href={`/classroom/rooms/${encodeURIComponent(
+                blockingLease.roomId,
+              )}`}
+              className="
+                inline-flex
+                min-h-11
+                items-center
+                justify-center
+                gap-2
+             rounded-xl
+                bg-[#00685F]
+                px-5
+                text-sm
+                font-black
+                text-[#FFFFFF]
+                transition
+                hover:bg-[#005A52]
+              "
+            >
+              <DoorOpen
+                aria-hidden="true"
+                className="h-4 w-4"
+              />
+
+              بازگشت به جلسه
+            </Link>
+
+            <button
+              type="button"
+              onClick={retry}
+              className="
+                inline-flex
+                min-h-11
+                items-center
+                justify-center
+                gap-2
+                rounded-xl
+                border
+                border-[#D5DFDD]
+                bg-white
+                px-5
+                text-sm
+                font-bold
+                text-[#52615F]
+                transition
+                hover:bg-[#F8FAF9]
+              "
+            >
+              <RefreshCw
+                aria-hidden="true"
+                className="h-4 w-4"
+              />
+
+              بررسی دوباره
+            </button>
+
+            <Link
+              href="/classroom"
+              className="
+                inline-flex
+                min-h-11
+                items-center
+                justify-center
+                px-3
+                text-sm
+                font-medium
+                text-[#64748B]
+                transition
+                hover:text-[#00685F]
+              "
+            >
+              لیست اتاق‌ها
+            </Link>
+          </div>
+        </section>
       </main>
     );
   }

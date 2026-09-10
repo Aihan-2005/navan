@@ -3,16 +3,12 @@
 import Link from "next/link";
 
 import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
   ArrowRight,
   Check,
   Clipboard,
   Copy,
   Hand,
+  Info,
   LoaderCircle,
   LogOut,
   Mic,
@@ -25,8 +21,9 @@ import {
 } from "lucide-react";
 
 import {
-  Card,
-} from "../../../components/ui/card";
+  useEffect,
+  useState,
+} from "react";
 
 import {
   cn,
@@ -38,6 +35,7 @@ import {
 
 import {
   useClassroomRoom,
+  type ClassroomRoomViewer,
 } from "../hooks/use-classroom-room";
 
 import {
@@ -49,7 +47,8 @@ import type {
   ClassroomRoom,
 } from "../types/classroom.types";
 
-import type {ClassroomRoomTransportStatus,
+import type {
+  ClassroomRoomTransportStatus,
 } from "../realtime/classroom-room-transport";
 
 import {
@@ -64,42 +63,50 @@ type ClassroomLiveRoomProps =
   Readonly<{
     room:
       ClassroomRoom;
+
+    viewer:
+      ClassroomRoomViewer | null;
   }>;
 
+const microphoneBars =
+  [
+    0.35,
+    0.55,
+    0.8,
+    1,
+    0.65,
+    0.9,
+    0.45,
+    0.7,
+  ] as const;
+
 function getInitials(
-  name:
-    string,
+  name: string,
 ): string {
-  return name
-    .trim()
-    .split(
-      /\s+/u,
-    )
-    .slice(
-      0,
-      2,
-    )
-    .map(
-      (
-        part,
-      ) =>
-        part
-          .charAt(
-            0,
-          )
-          .toUpperCase(),
-    )
-    .join("");
+  const initials =
+    name
+      .trim()
+      .split(/\s+/u)
+      .slice(0, 2)
+      .map(
+        (part) =>
+          part
+            .charAt(0)
+            .toUpperCase(),
+      )
+      .join("");
+
+  return initials ||
+    "U";
 }
 
 function getTransportLabel(
   status:
     ClassroomRoomTransportStatus,
 ): string {
-  switch (
-    status
-  ) {case "connected":
-      return "Local realtime فعال";
+  switch (status) {
+    case "connected":
+      return "Realtime متصل";
 
     case "connecting":
       return "در حال اتصال";
@@ -108,22 +115,26 @@ function getTransportLabel(
       return "حالت Local";
 
     case "error":
-      return "خطای Realtime";
+      return "خطای اتصال";
 
     case "idle":
     default:
-      return "Realtime غیرفعال";
+      return "Realtime آماده نیست";
   }
 }
 
-function getFallbackParticipant():
-  ClassroomParticipant {
+function getFallbackParticipant(
+  viewer:
+    ClassroomRoomViewer | null,
+): ClassroomParticipant {
   return {
     id:
-      "local-demo-user",
+      viewer?.id ??
+      "local-classroom-user",
 
     name:
-      "Demo User",
+      viewer?.name ??
+      "Language Learner",
 
     avatarUrl:
       null,
@@ -149,14 +160,17 @@ function getFallbackParticipant():
     joinedAt:
       new Date()
         .toISOString(),
-  };}
+  };
+}
 
 export function ClassroomLiveRoom({
   room,
+  viewer,
 }: ClassroomLiveRoomProps) {
   const roomSession =
     useClassroomRoom(
       room,
+      viewer,
     );
 
   const {
@@ -185,22 +199,27 @@ export function ClassroomLiveRoom({
     useState(0);
 
   const currentUser =
-    roomSession
-      .currentParticipant ??
-    getFallbackParticipant();
+    roomSession.currentParticipant ??
+    getFallbackParticipant(
+      viewer,
+    );
 
   const isMicrophoneEnabled =
     microphoneStatus ===
     "enabled";
 
   const isRequestingMicrophone =
- microphoneStatus ===
+    microphoneStatus ===
     "requesting";
 
   const isLocallySpeaking =
     isMicrophoneEnabled &&
     inputLevel >=
       CLASSROOM_SPEAKING_ACTIVITY_THRESHOLD;
+
+  const realtimeConnected =
+    roomSession.transportStatus ===
+    "connected";
 
   useEffect(() => {
     roomSession.setMicrophoneEnabled(
@@ -222,7 +241,9 @@ export function ClassroomLiveRoom({
 
   async function copyInvite(): Promise<void> {
     const inviteUrl =
-      `${window.location.origin}/classroom/rooms/${room.inviteCode}`;
+      `${window.location.origin}/classroom/rooms/${encodeURIComponent(
+        room.inviteCode,
+      )}`;
 
     try {
       await navigator.clipboard.writeText(
@@ -243,7 +264,8 @@ export function ClassroomLiveRoom({
       );
     } catch {
       setCopied(
-        false, );
+        false,
+      );
     }
   }
 
@@ -256,57 +278,55 @@ export function ClassroomLiveRoom({
     }
 
     setActivePromptIndex(
-      (
-        current,
-      ) =>
+      (current) =>
         (
           current +
           1
         ) %
-        room
-          .conversationPrompts
-          .length,
+        room.conversationPrompts.length,
     );
   }
 
-  const realtimeConnected =
-    roomSession
-      .transportStatus ===
-    "connected";
-
   return (
     <main
+      dir="rtl"
+      aria-labelledby="live-room-title"
       className="
         mx-auto
         w-full
-        max-w-[1500px]
+        max-w-[1450px]
         space-y-5
+        pb-12
       "
-      aria-labelledby="live-room-title"
     >
       <header
         className="
           flex
           flex-col
           gap-4
+          rounded-2xl
+          border
+          border-[#DCE7E5]
+          bg-white
+          p-5
+          shadow-[0_8px_26px_rgba(15,23,42,0.04)]
           xl:flex-row
           xl:items-center
           xl:justify-between
- "
+        "
       >
         <div
           className="
             flex
             min-w-0
             items-start
-            gap-4
+            gap-3
           "
         >
           <Link
             href="/classroom"
-            aria-label="بازگشت به اتاق‌های گفتگو"
+            aria-label="بازگشت به بحث آزاد"
             className="
-              mt-1
               flex
               h-10
               w-10
@@ -315,12 +335,13 @@ export function ClassroomLiveRoom({
               justify-center
               rounded-xl
               border
-              border-white/[0.07]
-              bg-white/[0.025]
-              text-slate-400
+              border-[#DCE7E5]
+              bg-[#F8FAF9]
+              text-[#64748B]
               transition
-              hover:bg-white/[0.06]
-              hover:text-white
+              hover:border-[#B9D7D1]
+              hover:bg-[#F0F8F6]
+              hover:text-[#00685F]
             "
           >
             <ArrowRight
@@ -333,7 +354,7 @@ export function ClassroomLiveRoom({
             <div
               className="
                 flex
-                 flex-wrap
+                flex-wrap
                 items-center
                 gap-2
               "
@@ -344,12 +365,12 @@ export function ClassroomLiveRoom({
                   items-center
                   gap-1.5
                   rounded-full
-                  bg-emerald-400/10
+                  bg-[#ECFDF5]
                   px-2.5
                   py-1
                   text-[10px]
-                  font-medium
-                  text-emerald-300
+                  font-black
+                  text-[#047857]
                 "
               >
                 <Radio
@@ -364,11 +385,12 @@ export function ClassroomLiveRoom({
                 dir="ltr"
                 className="
                   rounded-full
-                  bg-violet-400/10
+                  bg-[#F4EFFF]
                   px-2.5
                   py-1
                   text-[10px]
-                  text-violet-300
+                  font-black
+                  text-[#712AE2]
                 "
               >
                 {room.cefrLevel}
@@ -379,9 +401,9 @@ export function ClassroomLiveRoom({
                   inline-flex
                   items-center
                   gap-1
-                  text-xs
-                  text-slate-600
-               "
+                  text-[10px]
+                  text-[#64748B]
+                "
               >
                 <UsersRound
                   aria-hidden="true"
@@ -410,14 +432,14 @@ export function ClassroomLiveRoom({
 
                   realtimeConnected
                     ? [
-                        "border-cyan-400/15",
-                        "bg-cyan-400/[0.05]",
-                        "text-cyan-300",
+                        "border-[#B8E3DA]",
+                        "bg-[#F0FBF8]",
+                        "text-[#047857]",
                       ]
                     : [
-                        "border-white/[0.05]",
-                        "bg-white/[0.02]",
-                        "text-slate-600",
+                        "border-[#E2E8F0]",
+                        "bg-[#F8FAFC]",
+                        "text-[#64748B]",
                       ],
                 )}
               >
@@ -426,15 +448,15 @@ export function ClassroomLiveRoom({
                     aria-hidden="true"
                     className="h-3 w-3"
                   />
-                ) : ( <WifiOff
+                ) : (
+                  <WifiOff
                     aria-hidden="true"
                     className="h-3 w-3"
                   />
                 )}
 
                 {getTransportLabel(
-                  roomSession
-                    .transportStatus,
+                  roomSession.transportStatus,
                 )}
               </span>
             </div>
@@ -447,8 +469,8 @@ export function ClassroomLiveRoom({
                 truncate
                 text-left
                 text-xl
-                font-bold
-                text-white
+                font-black
+                text-[#172321]
                 sm:text-2xl
               "
             >
@@ -459,7 +481,8 @@ export function ClassroomLiveRoom({
               className="
                 mt-1
                 text-sm
-                text-slate-500
+                font-medium
+                text-[#00685F]
               "
             >
               {room.topic}
@@ -471,9 +494,11 @@ export function ClassroomLiveRoom({
           className="
             flex
             flex-wrap
+            items-center
             gap-2
           "
-        > <button
+        >
+          <button
             type="button"
             onClick={() => {
               void copyInvite();
@@ -486,13 +511,14 @@ export function ClassroomLiveRoom({
               gap-2
               rounded-xl
               border
-              border-white/[0.07]
-              bg-white/[0.025]
+              border-[#DCE7E5]
+              bg-white
               px-4
               text-xs
-              text-slate-300
+              font-medium
+              text-[#52615F]
               transition
-              hover:bg-white/[0.06]
+              hover:bg-[#F8FAF9]
             "
           >
             {copied ? (
@@ -501,7 +527,7 @@ export function ClassroomLiveRoom({
                 className="
                   h-4
                   w-4
-                  text-emerald-300
+                  text-[#047857]
                 "
               />
             ) : (
@@ -524,12 +550,11 @@ export function ClassroomLiveRoom({
               items-center
               gap-2
               rounded-xl
-              border
-              border-white/[0.07]
-              bg-black/15
+              bg-[#F1F6F5]
               px-3
               text-xs
-              text-slate-500
+              font-bold
+              text-[#52615F]
             "
           >
             <Clipboard
@@ -546,30 +571,37 @@ export function ClassroomLiveRoom({
         className="
           grid
           gap-5
-          2xl:grid-cols-[240px_minmax(0,1fr)_360px]
+          xl:grid-cols-[250px_minmax(0,1fr)_360px]
         "
       >
         <aside
           className="
             order-2
             space-y-5
-            2xl:order-1
+            xl:order-1
           "
         >
           <ClassroomParticipantsPanel
             participants={
-              roomSession
-                .participants
+              roomSession.participants
             }
           />
 
-          <Card className="p-5">
+          <section
+            className="
+              rounded-2xl
+              border
+              border-[#F1DEB4]
+              bg-[#FFFBF2]
+              p-5
+            "
+          >
             <div
               className="
                 flex
                 items-center
-                           gap-2
-                text-amber-300
+                gap-2
+                text-[#D97706]
               "
             >
               <Sparkles
@@ -580,7 +612,7 @@ export function ClassroomLiveRoom({
               <h2
                 className="
                   text-xs
-                  font-bold
+                  font-black
                 "
               >
                 قوانین کوتاه
@@ -594,31 +626,27 @@ export function ClassroomLiveRoom({
               "
             >
               {room.rules.map(
-                (
-                  rule,
-                ) => (
+                (rule) => (
                   <li
-                    key={
-                      rule
-                    }
+                    key={rule}
                     className="
                       flex
                       items-start
                       gap-2
                       text-xs
-                         leading-6
-                      text-slate-600
+                      leading-6
+                      text-[#6D6253]
                     "
                   >
                     <span
                       aria-hidden="true"
                       className="
                         mt-2.5
-                        h-1
-                        w-1
+                        h-1.5
+                        w-1.5
                         shrink-0
                         rounded-full
-                        bg-amber-300
+                        bg-[#F59E0B]
                       "
                     />
 
@@ -627,23 +655,27 @@ export function ClassroomLiveRoom({
                 ),
               )}
             </ul>
-          </Card>
+          </section>
         </aside>
 
         <div
           className="
             order-1
             min-w-0
-            space-y-5
-            2xl:order-2
+            space-y-4
+            xl:order-2
           "
         >
-          <Card
+          <section
             className="
               relative
-              min-h-[520px]
               overflow-hidden
+              rounded-[24px]
+              border
+              border-[#CDE2DE]
+              bg-[linear-gradient(180deg,#F6FBFA_0%,#FFFFFF_100%)]
               p-5
+              shadow-[0_10px_30px_rgba(15,23,42,0.045)]
               sm:p-6
             "
           >
@@ -653,39 +685,34 @@ export function ClassroomLiveRoom({
                 pointer-events-none
                 absolute
                 left-1/2
-                top-1/2
-                h-[420px]
-                w-[420px]
+                top-[45%]
+                h-[380px]
+                w-[380px]
                 -translate-x-1/2
                 -translate-y-1/2
                 rounded-full
-                bg-violet-500/[0.05]
+                bg-[#14B8A6]/[0.055]
                 blur-3xl
               "
             />
 
-            <div
-              className="
-                relative
-                flex
-                min-h-[470px]
-                flex-col
-              "
-            >
+            <div className="relative">
               <div
                 className="
                   flex
-                  items-center
-                  justify-between
-                  gap-4
+                  flex-col
+                  gap-3
+                  sm:flex-row
+                  sm:items-start
+                  sm:justify-between
                 "
               >
                 <div>
                   <p
                     className="
                       text-xs
-                      font-medium
-                      text-violet-300
+                      font-black
+                      text-[#00685F]
                     "
                   >
                     فضای مکالمه
@@ -695,32 +722,38 @@ export function ClassroomLiveRoom({
                     className="
                       mt-1
                       text-[11px]
-                      text-slate-700
-                    " >
-                    Chat و Room State اکنون Transport مستقل دارند؛ Audio هنوز برای ارسال به دیگران WebRTC نشده است.
+                      leading-6
+                      text-[#64748B]
+                    "
+                  >
+                    میکروفون و Activity
+                    Meter آماده‌اند. انتقال
+                    صدای چندکاربره در نسخه
+                    production باید به
+                    WebRTC backend متصل شود.
                   </p>
                 </div>
 
                 <span
                   className="
+                    w-fit
                     rounded-full
-                    border
-                    border-white/[0.05]
-                    bg-white/[0.025]
+                    bg-[#E7F4F2]
                     px-3
                     py-1.5
                     text-[10px]
-                    text-slate-600
+                    font-bold
+                    text-[#00685F]
                   "
                 >
-                  WebRTC مرحله بعد
+                  Free Discussion
                 </span>
               </div>
 
               <div
                 className="
                   flex
-                  flex-1
+                  min-h-[360px]
                   flex-col
                   items-center
                   justify-center
@@ -737,28 +770,28 @@ export function ClassroomLiveRoom({
                     "items-center",
                     "justify-center",
                     "rounded-full",
-                    "border",
+                    "border-4",
                     "text-2xl",
-                    "font-bold",
-                    "transition",
+                    "font-black",
+                    "transition-all",
 
                     isLocallySpeaking
                       ? [
-                          "border-emerald-300/35",
-                          "bg-emerald-400/15",
-                          "text-emerald-100",
-                          "shadow-[0_0_90px_rgba(52,211,153,0.16)]",
+                          "border-[#6EE7B7]",
+                          "bg-[#D1FAE5]",
+                          "text-[#047857]",
+                          "shadow-[0_0_60px_rgba(16,185,129,0.20)]",
                         ]
                       : isMicrophoneEnabled
                         ? [
-                            "border-emerald-300/20",
-                            "bg-emerald-400/10",
-                            "text-emerald-100",
+                            "border-[#A7F3D0]",
+                            "bg-[#ECFDF5]",
+                            "text-[#047857]",
                           ]
                         : [
-                            "border-violet-300/15",
-                            "bg-violet-400/10",
-                            "text-violet-100",
+                            "border-[#DDD4F4]",
+                            "bg-[#F6F2FF]",
+                            "text-[#712AE2]",
                           ],
                   )}
                 >
@@ -771,11 +804,11 @@ export function ClassroomLiveRoom({
                       aria-hidden="true"
                       className="
                         absolute
-                        inset-0
+                        inset-[-10px]
                         animate-ping
                         rounded-full
                         border
-                        border-emerald-400/10
+                        border-[#10B981]/20
                       "
                     />
                   ) : null}
@@ -785,78 +818,72 @@ export function ClassroomLiveRoom({
                   className="
                     mt-5
                     text-lg
-                    font-bold
-                    text-white
+                    font-black
+                    text-[#172321]
                   "
                 >
                   {currentUser.name}
                 </h2>
 
-                 <p
+                <p
                   className={cn(
                     "mt-2",
                     "text-sm",
+                    "font-medium",
 
                     isMicrophoneEnabled
-                      ? "text-emerald-300"
-                      : "text-slate-600",
+                      ? "text-[#047857]"
+                      : "text-[#64748B]",
                   )}
                 >
                   {isLocallySpeaking
                     ? "در حال صحبت"
                     : isMicrophoneEnabled
                       ? "میکروفون آماده است"
-                      : "میکروفون بسته است"}
+                      : "میکروفون خاموش است"}
                 </p>
 
                 <div
-                  aria-label="سطح میکروفون"
+                  aria-label="سطح ورودی میکروفون"
                   className="
                     mt-5
                     flex
-                    h-9
-                    items-center
-                    gap-1
+                    h-10
+                    items-end
+                    gap-1.5
                   "
                 >
-                  {[
-                    0.35,
-                    0.55,
-                    0.8,
-                    1,
-                    0.65,
-                    0.9,
-                    0.45,
-                    0.7,
-                  ].map(
+                  {microphoneBars.map(
                     (
                       factor,
                       index,
                     ) => (
                       <span
-                        key={`${factor}-${index}`}
+                        key={
+                          factor
+                        }
                         className={cn(
-                          "w-1",
+                          "w-1.5",
                           "rounded-full",
                           "transition-[height]",
 
                           isMicrophoneEnabled
-                            ? "bg-emerald-300"
-                            : "bg-white/[0.08]",
-                      )}
+                            ? "bg-[#10B981]"
+                            : "bg-[#D7E0DE]",
+                        )}
                         style={{
                           height:
-                            `${
+                            `${Math.max(
+                              6,
                               isMicrophoneEnabled
-                                ? Math.max(
-                                    5,
-                                    5 +
-                                      inputLevel *
-                                        28 *
-                                        factor,
-                                  )
-                                : 5
-                            }px`,
+                                ? 6 +
+                                  inputLevel *
+                                    30 *
+                                    factor
+                                : 6 +
+                                  index
+                                    % 2,
+                            )}px`,
                         }}
                       />
                     ),
@@ -868,8 +895,8 @@ export function ClassroomLiveRoom({
                 className="
                   rounded-2xl
                   border
-                  border-violet-400/10
-                  bg-violet-400/[0.035]
+                  border-[#DDD3F4]
+                  bg-[#F9F7FE]
                   p-4
                 "
               >
@@ -878,13 +905,14 @@ export function ClassroomLiveRoom({
                     flex
                     items-center
                     justify-between
-                    gap-4
+                    gap-3
                   "
                 >
                   <span
                     className="
                       text-xs
-                      text-violet-300
+                      font-black
+                      text-[#712AE2]
                     "
                   >
                     موضوع پیشنهادی
@@ -893,12 +921,14 @@ export function ClassroomLiveRoom({
                   <button
                     type="button"
                     onClick={
-                      showNextPrompt }
+                      showNextPrompt
+                    }
                     className="
                       text-[10px]
-                      text-slate-600
+                      font-bold
+                      text-[#64748B]
                       transition
-                      hover:text-white
+                      hover:text-[#712AE2]
                     "
                   >
                     موضوع بعدی
@@ -912,17 +942,18 @@ export function ClassroomLiveRoom({
                     text-left
                     text-sm
                     leading-7
-                    text-slate-200
+                    text-[#334155]
                   "
                 >
-                  {room.conversationPrompts[
+                  {room
+                    .conversationPrompts[
                     activePromptIndex
                   ] ??
                     "Start talking about any topic you like."}
                 </p>
               </div>
             </div>
-          </Card>
+          </section>
 
           {microphoneError ? (
             <div
@@ -930,25 +961,32 @@ export function ClassroomLiveRoom({
               className="
                 rounded-xl
                 border
-                border-red-400/15
-                bg-red-400/[0.05]
+                border-[#FECACA]
+                bg-[#FEF2F2]
                 px-4
                 py-3
                 text-sm
-                text-red-200
+                leading-6
+                text-[#B91C1C]
               "
             >
               {microphoneError}
             </div>
           ) : null}
 
-          <Card
+          <section
             className="
-              flexflex-wrap
+              flex
+              flex-wrap
               items-center
               justify-center
               gap-3
+              rounded-2xl
+              border
+              border-[#DCE7E5]
+              bg-white
               p-4
+              shadow-[0_6px_20px_rgba(15,23,42,0.035)]
             "
           >
             <button
@@ -962,33 +1000,34 @@ export function ClassroomLiveRoom({
               className={cn(
                 "inline-flex",
                 "h-12",
-                "min-w-32",
+                "min-w-36",
                 "items-center",
                 "justify-center",
                 "gap-2",
                 "rounded-xl",
                 "px-4",
                 "text-sm",
-                "font-bold",
+                "font-black",
                 "transition",
 
                 isMicrophoneEnabled
                   ? [
-                      "bg-emerald-400",
-                      "text-slate-950",
-                      "hover:bg-emerald-300",
+                      "bg-[#10B981]",
+                      "text-[#FFFFFF]",
+                      "hover:bg-[#059669]",
                     ]
                   : [
-                      "bg-white/[0.07]",
-                      "text-slate-300",
-                      "hover:bg-white/[0.1]",
+                      "bg-[#00685F]",
+                      "text-[#FFFFFF]",
+                      "hover:bg-[#005A52]",
                     ],
               )}
             >
               {isRequestingMicrophone ? (
                 <LoaderCircle
                   aria-hidden="true"
-                  className="h-4
+                  className="
+                    h-4
                     w-4
                     animate-spin
                   "
@@ -1008,15 +1047,14 @@ export function ClassroomLiveRoom({
               {isRequestingMicrophone
                 ? "در حال اتصال..."
                 : isMicrophoneEnabled
-                  ? "میکروفون باز"
-                  : "باز کردن میکروفون"}
+                  ? "میکروفون روشن"
+                  : "روشن کردن میکروفون"}
             </button>
 
             <button
               type="button"
               onClick={
-                roomSession
-                  .toggleHandRaised
+                roomSession.toggleHandRaised
               }
               className={cn(
                 "inline-flex",
@@ -1028,20 +1066,20 @@ export function ClassroomLiveRoom({
                 "border",
                 "px-4",
                 "text-sm",
-                "font-medium",
+                "font-bold",
                 "transition",
 
                 currentUser.handRaised
                   ? [
-                      "border-amber-300/20",
-                      "bg-amber-400/10",
-                      "text-amber-200",
+                      "border-[#F6D391]",
+                      "bg-[#FFF8E8]",
+                      "text-[#B45309]",
                     ]
                   : [
-                      "border-white/[0.07]",
-                      "bg-white/[0.025]",
-                      "text-slate-400",
-                      "hover:bg-white/[0.06]",
+                      "border-[#DCE7E5]",
+                      "bg-white",
+                      "text-[#52615F]",
+                      "hover:bg-[#F8FAF9]",
                     ],
               )}
             >
@@ -1065,23 +1103,64 @@ export function ClassroomLiveRoom({
                 gap-2
                 rounded-xl
                 border
-                border-red-400/15
-                bg-red-400/[0.05]
+                border-[#FECACA]
+                bg-[#FEF2F2]
                 px-4
                 text-sm
-                font-medium
-                text-red-300
+                font-bold
+                text-[#B91C1C]
                 transition
-                hover:bg-red-400/10
+                hover:bg-[#FEE2E2]
               "
-            > <LogOut
+            >
+              <LogOut
                 aria-hidden="true"
                 className="h-4 w-4"
               />
 
               خروج از اتاق
             </Link>
-          </Card>
+          </section>
+
+          <div
+            className="
+              flex
+              items-start
+              gap-2
+              rounded-xl
+              border
+              border-[#CDE4DF]
+              bg-[#F1FAF8]
+              px-4
+              py-3
+            "
+          >
+            <Info
+              aria-hidden="true"
+              className="
+                mt-0.5
+                h-4
+                w-4
+                shrink-0
+                text-[#00685F]
+              "
+            />
+
+            <p
+              className="
+                text-[11px]
+                leading-6
+                text-[#52615F]
+              "
+            >
+              Chat و Room State با
+              Transport مستقل کار می‌کنند.
+              برای انتقال صدای واقعی بین
+              کاربران باید WebRTC و
+              Signalling Server در Backend
+              متصل شوند.
+            </p>
+          </div>
         </div>
 
         <aside
@@ -1095,12 +1174,10 @@ export function ClassroomLiveRoom({
               room.id
             }
             messages={
-              roomSession
-                .messages
+              roomSession.messages
             }
             sharedItems={
-              roomSession
-                .sharedItems
+              roomSession.sharedItems
             }
             currentUser={{
               id:
@@ -1110,12 +1187,10 @@ export function ClassroomLiveRoom({
                 currentUser.name,
             }}
             onSendMessage={
-              roomSession
-                .sendChatMessage
+              roomSession.sendChatMessage
             }
             onShareItem={
-              roomSession
-                .shareItem
+              roomSession.shareItem
             }
           />
         </aside>
