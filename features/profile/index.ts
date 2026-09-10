@@ -1,37 +1,17 @@
-import type {
-  Metadata,
-} from "next";
-
-import {
-  getDashboardOverview,
-} from "../../../features/dashboard";
-
-import {
-  buildProfileProgress,
+export {
   ProfileProgressOverview,
-} from "../../../features/profile";
+} from "./components/profile-progress-overview";
 
-export const metadata:
-  Metadata = {
-  title:
-    "پیشرفت من",
+export {
+  buildProfileProgress,
+} from "./lib/build-profile-progress";
 
-  description:
-    "مشاهده روند پیشرفت، مهارت‌ها، زمان یادگیری و فعالیت‌های اخیر",
-};
-
-export default async function ProfilePage() {
-  const dashboard =
-    await getDashboardOverview();
-
-  const progress =
-    buildProfileProgress(
-      dashboard,
-    );
-
-  return (
-    <ProfileProgressOverview
-      data={progress}
-    />
-  );
-}
+export type {
+  ProfileBarPoint,
+  ProfileCoreSkill,
+  ProfileProgressViewModel,
+  ProfileRecentActivityViewModel,
+  ProfileSkillTone,
+  ProfileSkillViewModel,
+  ProfileTrendPoint,
+} from "./lib/build-profile-progress";

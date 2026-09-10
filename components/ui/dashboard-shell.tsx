@@ -47,6 +47,13 @@ const WIDE_CONTENT_NAMESPACES = [
   "/vocabulary",
 ] as const;
 
+  
+const WIDE_CONTENT_EXACT_ROUTES = [
+  "/daily-practice",
+  "/speaking",
+  "/profile",
+] as const;
+
 function isRouteWithin(
   pathname: string,
   rootPath: string,
@@ -79,6 +86,16 @@ function resolveDashboardAppearance(
 function isWideContentRoute(
   pathname: string,
 ): boolean {
+  const isExactWideRoute =
+    WIDE_CONTENT_EXACT_ROUTES.some(
+      (route) =>
+        pathname === route,
+    );
+
+  if (isExactWideRoute) {
+    return true;
+  }
+
   return WIDE_CONTENT_NAMESPACES.some(
     (rootPath) =>
       isRouteWithin(
