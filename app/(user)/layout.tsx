@@ -2,6 +2,10 @@ import type {
   Metadata,
 } from "next";
 
+import {
+  connection,
+} from "next/server";
+
 import type {
   ReactNode,
 } from "react";
@@ -32,17 +36,26 @@ export const metadata:
 
 type UserLayoutProps =
   Readonly<{
-    children: ReactNode;
+    children:
+      ReactNode;
   }>;
 
 export default async function UserLayout({
   children,
 }: UserLayoutProps) {
+
+  
+  await connection();
+
   const session =
     await getOptionalSession();
 
   return (
-    <Providers session={session}>
+    <Providers
+      session={
+        session
+      }
+    >
       <DashboardShell>
         {children}
       </DashboardShell>

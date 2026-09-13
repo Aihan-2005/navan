@@ -6,129 +6,183 @@ import {
   listeningAttemptAnalysisSchema,
 } from "../schemas/listening-analysis.schema";
 
+import {
+  getMockListeningAttemptDraft,
+} from "../server/listening-mock-attempt-store";
+
 import type {
   ListeningAttemptAnalysis,
 } from "../types/listening.types";
 
+import {
+  parseListeningApiResponse,
+} from "./listening-api-client";
+
+import {
+  fetchListeningBackend,
+} from "./listening-server-client";
+
+
 const LISTENING_ATTEMPTS_ENDPOINT =
   "/api/v1/listening/attempts";
 
+
 function shouldUseMockData(): boolean {
-  return process.env.USE_MOCKS !== "false";
+
+  return (
+    process.env.USE_MOCKS !== "false"
+  );
+
 }
 
-function getApiBaseUrl(): string {
-  const apiBaseUrl =
-    process.env.API_BASE_URL?.trim();
-
-  if (!apiBaseUrl) {
-    throw new Error(
-      "API_BASE_URL is required when USE_MOCKS is disabled.",
-    );
-  }
-
-  try {
-    return new URL(
-      apiBaseUrl,
-    ).toString();
-  } catch {
-    throw new Error(
-      "API_BASE_URL is not a valid URL.",
-    );
-  }
-}
 
 function parseListeningAttempt(
   payload: unknown,
 ): ListeningAttemptAnalysis {
+
   const result =
     listeningAttemptAnalysisSchema.safeParse(
       payload,
     );
 
+
   if (!result.success) {
+
     console.error(
       "Invalid listening attempt payload:",
       result.error.flatten(),
     );
 
+
     throw new Error(
       "Listening attempt payload is invalid.",
     );
+
   }
 
+
   return result.data;
+
 }
+
+
 
 export async function getListeningAttempt(
   attemptId: string,
 ): Promise<ListeningAttemptAnalysis | null> {
+
+
   const normalizedAttemptId =
     attemptId.trim();
 
+
+
   if (!normalizedAttemptId) {
+
     return null;
+
   }
 
   if (shouldUseMockData()) {
-    const attempt =
+
+
+    const draftAttempt =
+      getMockListeningAttemptDraft(
+        normalizedAttemptId,
+      );
+
+    if (draftAttempt) {
+
+      return parseListeningAttempt({
+
+        attemptId:
+          draftAttempt.attemptId,
+
+        contentId:
+          draftAttempt.contentId,
+
+        status:
+          draftAttempt.status,
+
+        transcript:
+          draftAttempt.transcript,
+
+        score:
+          0,
+
+        feedback:
+          [],
+
+      });
+
+    }
+
+
+
+    const staticAttempt =
       listeningAnalysisMock.find(
         (item) =>
           item.attemptId ===
           normalizedAttemptId,
       );
 
-    if (!attempt) {
+    if (!staticAttempt) {
+
       return null;
+
     }
 
     return parseListeningAttempt(
-      attempt,
+      staticAttempt,
     );
+
+
   }
 
-  const requestUrl = new URL(
-    `${LISTENING_ATTEMPTS_ENDPOINT}/${encodeURIComponent(
-      normalizedAttemptId,
-    )}`,
-    getApiBaseUrl(),
-  );
+  const response =
+    await fetchListeningBackend(
 
-  const response = await fetch(
-    requestUrl,
-    {
-      method: "GET",
+      `${LISTENING_ATTEMPTS_ENDPOINT}/${encodeURIComponent(
+        normalizedAttemptId,
+      )}`,
 
-      headers: {
-        Accept: "application/json",
+      {
+
+        method:
+          "GET",
+
+        cache:
+          "no-store",
+
       },
 
-      cache: "no-store",
-    },
-  );
+      {
 
-  if (response.status === 404) {
+        requireAuthentication:
+          true,
+
+      },
+
+    );
+
+
+
+  if (
+    response.status === 404
+  ) {
+
     return null;
+
   }
 
-  if (!response.ok) {
-    throw new Error(
-      `Listening attempt request failed with status ${response.status}.`,
-    );
-  }
+  return parseListeningApiResponse(
 
-  let payload: unknown;
+    response,
 
-  try {
-    payload =
-      await response.json();
-  } catch {
-    throw new Error(
-      "Listening attempt response is not valid JSON.",
-    );
-  }
+    listeningAttemptAnalysisSchema,
 
-  return parseListeningAttempt(
-    payload,
+    "دریافت نتیجه Listening ناموفق بود.",
+
   );
+
 }

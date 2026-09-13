@@ -3,8 +3,15 @@
 import Link from "next/link";
 
 import {
+  useRouter,
+} from "next/navigation";
+
+import {
+  type ReactNode,
   useCallback,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -16,12 +23,23 @@ import {
   Clock3,
   Headphones,
   Lightbulb,
+  LoaderCircle,
+  LockKeyhole,
+  Save,
   Send,
 } from "lucide-react";
 
 import {
-  Card,
-} from "../../../../components/ui/card";
+  createListeningAttempt,
+} from "../../api/create-listening-attempt";
+
+import {
+  submitListeningAttempt,
+} from "../../api/submit-listening-attempt";
+
+import {
+  updateListeningDraft,
+} from "../../api/update-listening-draft";
 
 import {
   LISTENING_ACCENT_LABELS,
@@ -61,7 +79,15 @@ type ListeningPracticeWorkspaceProps =
   Readonly<{
     content:
       ListeningContentDetail;
-  }>;const numberFormatter =
+  }>;
+
+type RemoteSaveStatus =
+  | "idle"
+  | "saving"
+  | "saved"
+  | "error";
+
+const numberFormatter =
   new Intl.NumberFormat(
     "fa-IR",
   );
@@ -81,33 +107,69 @@ const ANSWER_SOURCE_LABELS = {
 >;
 
 const INITIAL_PLAYBACK_SNAPSHOT:
-  ListeningPlaybackSnapshot =
-    {
-      isReady:
-        false,
+  ListeningPlaybackSnapshot = {
+    isReady:
+      false,
 
-      isPlaying:
-        false,
+    isPlaying:
+      false,
 
-      currentTime:
-        0,
+    currentTime:
+      0,
 
-      duration:
-        0,
+    duration:
+      0,
 
-      playbackRate:
-        1,
+    playbackRate:
+      1,
 
-      progressPercent:
-        0,
-    };
+    progressPercent:
+      0,
+  };
 
 const LISTEN_ONLY_INSTRUCTIONS = [
-  "بار اول بدون توقف و بدون نگاه‌کردن به متن، فقط برای فهم ایده اصلی گوش بده.",
+  "بار اول بدون توقف فقط برای فهم ایده اصلی گوش بده.",
   "در بار دوم روی جزئیات، اعداد، نام‌ها و کلمات کلیدی تمرکز کن.",
-  "اگر بخش خاصی سخت بود، فقط همان چند ثانیه را دوباره گوش بده.",
-  "بعد از شنیدن، میزان درکت را ثبت کن و نکات مهم را کوتاه یادداشت کن.",
+  "برای بخش سخت فقط همان چند ثانیه را تکرار کن.",
+  "در پایان میزان درکت را ثبت کن.",
 ] as const;
+
+const TRANSCRIPT_ANALYSIS_MODES:
+  readonly ListeningPracticeMode[] = [
+    "full_dictation",
+    "guided_dictation",
+  ];
+
+const BACKEND_TASK_MODES:
+  readonly ListeningPracticeMode[] = [
+    "fill_in_the_blank",
+    "comprehension",
+    "shadowing",
+  ];
+
+const MODE_DESCRIPTIONS:
+  Record<
+    ListeningPracticeMode,
+    string
+  > = {
+  listen_only:
+    "گوش دادن فعال بدون نیاز به نوشتن.",
+
+  full_dictation:
+    "هر چیزی را که می‌شنوی به‌صورت کامل بنویس.",
+
+  guided_dictation:
+    "Dictation همراه با Hint و راهنمای واژگان.",
+
+  fill_in_the_blank:
+    "جمله یا Transcript ناقص از Backend دریافت می‌شود و جاهای خالی تکمیل می‌شوند.",
+
+  comprehension:
+    "سؤال‌های درک مطلب براساس Audio Task از Backend دریافت می‌شوند.",
+
+  shadowing:
+    "تکرار هم‌زمان با گوینده و ارسال Audio Response برای Speech Analysis.",
+};
 
 function getWordCount(
   value:
@@ -127,7 +189,8 @@ function getWordCount(
       /\s+/u,
     )
     .filter(
-      Boolean, )
+      Boolean,
+    )
     .length;
 }
 
@@ -141,22 +204,35 @@ function mapUploadResultToAnswerSource(
     : "document";
 }
 
+function isTranscriptAnalysisMode(
+  mode:
+    ListeningPracticeMode,
+): boolean {
+  return TRANSCRIPT_ANALYSIS_MODES.includes(
+    mode,
+  );
+}
+
+function requiresBackendTask(
+  mode:
+    ListeningPracticeMode,
+): boolean {
+  return BACKEND_TASK_MODES.includes(
+    mode,
+  );
+}
+
 export function ListeningPracticeWorkspace({
   content,
 }: ListeningPracticeWorkspaceProps) {
-  /**
-   * Listen Only یک قابلیت عمومی Player است
-   * و برای تمام Contentهای آماده قابل استفاده است.
-   */
+  const router =
+    useRouter();
+
   const availablePracticeModes =
-    useMemo<
-      ListeningPracticeMode[]
-    >(
+    useMemo<ListeningPracticeMode[]>(
       () => {
         const modes =
-          new Set<
-            ListeningPracticeMode
-          >([
+          new Set<ListeningPracticeMode>([
             "listen_only",
             ...content.availablePracticeModes,
           ]);
@@ -187,22 +263,80 @@ export function ListeningPracticeWorkspace({
     );
 
   const [
-    submissionReady,
-    setSubmissionReady,
-  ] =
-    useState(false);
-
-  const [
     playbackSnapshot,
     setPlaybackSnapshot,
   ] =
     useState<ListeningPlaybackSnapshot>(
       INITIAL_PLAYBACK_SNAPSHOT,
-    ); const [
+    );
+
+  const [
     completedListenPasses,
     setCompletedListenPasses,
   ] =
-    useState(0);
+    useState(
+      0,
+    );
+
+  const [
+    attemptId,
+    setAttemptId,
+  ] =
+    useState<string | null>(
+      null,
+    );
+
+  const [
+    remoteSaveStatus,
+    setRemoteSaveStatus,
+  ] =
+    useState<RemoteSaveStatus>(
+      "idle",
+    );
+
+  const [
+    submissionError,
+    setSubmissionError,
+  ] =
+    useState<string | null>(
+      null,
+    );
+
+  const [
+    isSubmitting,
+    setIsSubmitting,
+  ] =
+    useState(
+      false,
+    );
+
+  /**
+   * مانع ایجاد چند Attempt هم‌زمان
+   * هنگام چند کلیک یا چند عملیات async می‌شود.
+   */
+  const createPromiseRef =
+    useRef<Promise<string> | null>(
+      null,
+    );
+
+  /**
+   * آخرین request مربوط به autosave.
+   * قبل از request جدید cancel می‌شود.
+   */
+  const remoteSaveAbortRef =
+    useRef<AbortController | null>(
+      null,
+    );
+
+  /**
+   * Playback را جدا از state نگه می‌داریم
+   * تا autosave مجبور نباشد با هر tick پلیر
+   * دوباره schedule شود.
+   */
+  const playbackSnapshotRef =
+    useRef<ListeningPlaybackSnapshot>(
+      INITIAL_PLAYBACK_SNAPSHOT,
+    );
 
   const {
     transcript,
@@ -234,10 +368,21 @@ export function ListeningPracticeWorkspace({
     practiceMode ===
     "listen_only";
 
+  const transcriptMode =
+    isTranscriptAnalysisMode(
+      practiceMode,
+    );
+
+  const backendTaskRequired =
+    requiresBackendTask(
+      practiceMode,
+    );
+
   const canSubmit =
-    !isListenOnly &&
+    transcriptMode &&
     wordCount >=
-      content.minimumTranscriptWords;
+      content.minimumTranscriptWords &&
+    !isSubmitting;
 
   const instructions =
     isListenOnly
@@ -250,6 +395,9 @@ export function ListeningPracticeWorkspace({
         snapshot:
           ListeningPlaybackSnapshot,
       ): void => {
+        playbackSnapshotRef.current =
+          snapshot;
+
         setPlaybackSnapshot(
           snapshot,
         );
@@ -262,7 +410,7 @@ export function ListeningPracticeWorkspace({
       (): void => {
         setCompletedListenPasses(
           (
-        current,
+            current,
           ) =>
             current +
             1,
@@ -271,13 +419,172 @@ export function ListeningPracticeWorkspace({
       [],
     );
 
-  function invalidateSubmission(): void {
+  useEffect(() => {
+    return () => {
+      remoteSaveAbortRef.current?.abort();
+    };
+  }, []);
+
+  /**
+   * Remote autosave
+   *
+   * نکته:
+   * contentId متعلق به Attempt است و بعد از create
+   * دیگر در PATCH ارسال نمی‌شود.
+   */
+  useEffect(() => {
     if (
-      submissionReady
+      !attemptId ||
+      !transcriptMode
     ) {
-      setSubmissionReady(
-        false,
+      return;
+    }
+
+    const timeoutId =
+      window.setTimeout(
+        () => {
+          remoteSaveAbortRef.current?.abort();
+
+          const controller =
+            new AbortController();
+
+          remoteSaveAbortRef.current =
+            controller;
+
+          const currentPlayback =
+            playbackSnapshotRef.current;
+
+          setRemoteSaveStatus(
+            "saving",
+          );
+
+          void updateListeningDraft(
+            attemptId,
+            {
+              practiceMode,
+
+              answerSource,
+
+              transcript,
+
+              currentPositionSeconds:
+                currentPlayback.currentTime,
+
+              playbackRate:
+                currentPlayback.playbackRate,
+            },
+            controller.signal,
+          )
+            .then(
+              () => {
+                if (
+                  controller.signal.aborted
+                ) {
+                  return;
+                }
+
+                setRemoteSaveStatus(
+                  "saved",
+                );
+              },
+            )
+            .catch(
+              (error) => {
+                if (
+                  controller.signal.aborted
+                ) {
+                  return;
+                }
+
+                console.error(
+                  "Listening remote autosave failed:",
+                  error,
+                );
+
+                setRemoteSaveStatus(
+                  "error",
+                );
+              },
+            );
+        },
+        1500,
       );
+
+    return () => {
+      window.clearTimeout(
+        timeoutId,
+      );
+    };
+  }, [
+    answerSource,
+    attemptId,
+    practiceMode,
+    transcript,
+    transcriptMode,
+  ]);
+
+  /**
+   * Attempt فقط با فیلدهای immutable موردنیاز
+   * create می‌شود.
+   *
+   * Draft data بلافاصله بعد از create
+   * از طریق PATCH ذخیره می‌شود.
+   */
+  async function ensureAttempt(): Promise<string> {
+    if (
+      attemptId
+    ) {
+      return attemptId;
+    }
+
+    if (
+      createPromiseRef.current
+    ) {
+      return createPromiseRef.current;
+    }
+
+    const promise =
+      createListeningAttempt({
+        contentId:
+          content.id,
+
+        practiceMode,
+      }).then(
+        (
+          result,
+        ) => {
+          const createdAttemptId =
+            result.attemptId?.trim();
+
+          if (
+            !createdAttemptId
+          ) {
+            throw new Error(
+              "Backend شناسه Attempt معتبری برنگرداند.",
+            );
+          }
+
+          setAttemptId(
+            createdAttemptId,
+          );
+
+          return createdAttemptId;
+        },
+      );
+
+    createPromiseRef.current =
+      promise;
+
+    try {
+      return await promise;
+    } finally {
+      if (
+        createPromiseRef.current ===
+        promise
+      ) {
+        createPromiseRef.current =
+          null;
+      }
     }
   }
 
@@ -285,12 +592,32 @@ export function ListeningPracticeWorkspace({
     mode:
       ListeningPracticeMode,
   ): void {
+    if (
+      mode ===
+      practiceMode
+    ) {
+      return;
+    }
+
+    remoteSaveAbortRef.current?.abort();
+
     setPracticeMode(
       mode,
     );
 
-    setSubmissionReady(
-      false,
+    /**
+     * هر Practice Mode یک Attempt مستقل دارد.
+     */
+    setAttemptId(
+      null,
+    );
+
+    setRemoteSaveStatus(
+      "idle",
+    );
+
+    setSubmissionError(
+      null,
     );
   }
 
@@ -302,7 +629,14 @@ export function ListeningPracticeWorkspace({
       value,
     );
 
-    invalidateSubmission();
+    if (
+      answerSource !==
+      "typed"
+    ) {
+      setAnswerSource(
+        "typed",
+      );
+    }
   }
 
   function handleReplaceTranscript(
@@ -319,10 +653,7 @@ export function ListeningPracticeWorkspace({
     setAnswerSource(
       mapUploadResultToAnswerSource(
         result,
-      ),);
-
-    setSubmissionReady(
-      false,
+      ),
     );
   }
 
@@ -333,26 +664,19 @@ export function ListeningPracticeWorkspace({
     result:
       ListeningNotesUploadResult,
   ): void {
-    const normalizedCurrentTranscript =
+    const normalizedCurrent =
       transcript.trim();
 
-    const nextTranscript =
-      normalizedCurrentTranscript
-        ? `${normalizedCurrentTranscript}\n\n${text}`
-        : text;
-
     setTranscript(
-      nextTranscript,
+      normalizedCurrent
+        ? `${normalizedCurrent}\n\n${text}`
+        : text,
     );
 
     setAnswerSource(
       mapUploadResultToAnswerSource(
         result,
       ),
-    );
-
-    setSubmissionReady(
-      false,
     );
   }
 
@@ -363,33 +687,179 @@ export function ListeningPracticeWorkspace({
       "typed",
     );
 
-    setSubmissionReady(
-      false,
+    setSubmissionError(
+      null,
     );
   }
 
-  function handlePrepareAnalysis(): void {
+  async function handleSaveDraft(): Promise<void> {
+    saveNow();
+
+    if (
+      !transcriptMode
+    ) {
+      return;
+    }
+
+    setSubmissionError(
+      null,
+    );
+
+    try {
+      setRemoteSaveStatus(
+        "saving",
+      );
+
+      const id =
+        await ensureAttempt();
+
+      const currentPlayback =
+        playbackSnapshotRef.current;
+
+      await updateListeningDraft(
+        id,
+        {
+          practiceMode,
+
+          answerSource,
+
+          transcript,
+
+          currentPositionSeconds:
+            currentPlayback.currentTime,
+
+          playbackRate:
+            currentPlayback.playbackRate,
+        },
+      );
+
+      setRemoteSaveStatus(
+        "saved",
+      );
+    } catch (error) {
+      console.error(
+        "Listening draft save failed:",
+        error,
+      );
+
+      setRemoteSaveStatus(
+        "error",
+      );
+
+      setSubmissionError(
+        error instanceof Error
+          ? error.message
+          : "ذخیره Draft ناموفق بود.",
+      );
+    }
+  }
+
+  async function handleSubmit(): Promise<void> {
     if (
       !canSubmit
     ) {
       return;
     }
 
-    saveNow();
+    setSubmissionError(
+      null,
+    );
 
-    setSubmissionReady(
+    setIsSubmitting(
       true,
     );
+
+    saveNow();
+
+    try {
+      const id =
+        await ensureAttempt();
+
+      const currentPlayback =
+        playbackSnapshotRef.current;
+
+      /**
+       * قبل از submit آخرین Draft را sync می‌کنیم.
+       */
+      await updateListeningDraft(
+        id,
+        {
+          practiceMode,
+
+          answerSource,
+
+          transcript,
+
+          currentPositionSeconds:
+            currentPlayback.currentTime,
+
+          playbackRate:
+            currentPlayback.playbackRate,
+        },
+      );
+
+      /**
+       * Submit contract:
+       *
+       * completedListenPasses و clientCompletedAt
+       * فعلاً جزو schema نیستند.
+       * وقتی Backend این metadataها را پشتیبانی کند
+       * باید ابتدا schema/type گسترش داده شود.
+       */
+      await submitListeningAttempt(
+        id,
+        {
+          contentId:
+            content.id,
+
+          practiceMode,
+
+          answerSource,
+
+          transcript,
+
+          currentPositionSeconds:
+            currentPlayback.currentTime,
+
+          playbackRate:
+            currentPlayback.playbackRate,
+        },
+      );
+
+      router.push(
+        `/listening/attempts/${encodeURIComponent(
+          id,
+        )}`,
+      );
+    } catch (error) {
+      console.error(
+        "Listening submit failed:",
+        error,
+      );
+
+      setSubmissionError(
+        error instanceof Error
+          ? error.message
+          : "ارسال تمرین برای تحلیل ناموفق بود.",
+      );
+    } finally {
+      setIsSubmitting(
+        false,
+      );
+    }
   }
 
   return (
     <main
-      className=" mx-auto
-        w-full
-        max-w-7xl
-        space-y-6
-      "
+      dir="rtl"
       aria-labelledby="listening-practice-title"
+      className="
+        mx-auto
+        w-full
+        max-w-[1180px]
+        space-y-6
+        pb-14
+      "
     >
       <Link
         href="/listening"
@@ -398,9 +868,10 @@ export function ListeningPracticeWorkspace({
           items-center
           gap-2
           text-sm
-          text-slate-400
+          font-medium
+          text-[#64748B]
           transition
-          hover:text-white
+          hover:text-[#00685F]
         "
       >
         <ArrowRight
@@ -415,11 +886,12 @@ export function ListeningPracticeWorkspace({
         className="
           relative
           overflow-hidden
-          rounded-3xl
+          rounded-[28px]
           border
-          border-cyan-400/15
-          bg-white/[0.035]
+          border-[#CBE3DF]
+          bg-[linear-gradient(135deg,#EAF8F5_0%,#FFFFFF_56%,#F6F1FF_100%)]
           p-6
+          shadow-[0_14px_40px_rgba(15,23,42,0.055)]
           sm:p-8
         "
       >
@@ -433,9 +905,9 @@ export function ListeningPracticeWorkspace({
             h-64
             w-64
             rounded-full
-            bg-cyan-500/15
-                        blur-3xl
-  "
+            bg-[#14B8A6]/10
+            blur-3xl
+          "
         />
 
         <div className="relative">
@@ -447,68 +919,30 @@ export function ListeningPracticeWorkspace({
               gap-2
             "
           >
-            <span
-              className="
-                rounded-full
-                bg-cyan-400/10
-                px-3
-                py-1
-                text-xs
-                text-cyan-200
-              "
-            >
+            <Badge tone="teal">
               {
                 LISTENING_CONTENT_TYPE_LABELS[
                   content.contentType
                 ]
               }
-            </span>
+            </Badge>
 
-            <span
-              className="
-                rounded-full
-                bg-white/[0.05]
-                px-3
-                py-1
-                text-xs
-                text-slate-400
-              "
-            >
+            <Badge tone="purple">
               سطح{" "}
               {
                 content.cefrLevel
               }
-            </span>
+            </Badge>
 
-            <span
-              className="
-                rounded-full
-                bg-white/[0.05]
-                px-3  py-1
-                text-xs
-                text-slate-400
-              "
-            >
+            <Badge tone="neutral">
               {
                 LISTENING_ACCENT_LABELS[
                   content.accent
                 ]
               }
-            </span>
+            </Badge>
 
-            <span
-              className="
-                inline-flex
-                items-center
-                gap-1.5
-                rounded-full
-                bg-white/[0.05]
-                px-3
-                py-1
-                text-xs
-                text-slate-400
-              "
-            >
+            <Badge tone="neutral">
               <Clock3
                 aria-hidden="true"
                 className="h-3.5 w-3.5"
@@ -519,7 +953,7 @@ export function ListeningPracticeWorkspace({
                 content.estimatedPracticeMinutes,
               )}{" "}
               دقیقه
-            </span>
+            </Badge>
           </div>
 
           <h1
@@ -527,21 +961,23 @@ export function ListeningPracticeWorkspace({
             className="
               mt-5
               text-3xl
-              font-bold
+              font-black
               leading-tight
-              text-white
+              text-[#172321]
               sm:text-4xl
             "
           >
             {content.title}
-          </h1>  {content.description ? (
+          </h1>
+
+          {content.description ? (
             <p
               className="
                 mt-4
                 max-w-3xl
                 text-sm
                 leading-8
-                text-slate-400
+                text-[#5F6D6A]
                 sm:text-base
               "
             >
@@ -557,45 +993,47 @@ export function ListeningPracticeWorkspace({
         className="
           grid
           gap-6
-          xl:grid-cols-12
+          xl:grid-cols-[300px_minmax(0,1fr)]
         "
       >
-        <aside
-          className="
-            space-y-6
-            xl:col-span-4
-          "
-        >
-          <Card className="p-5 sm:p-6">
+        <aside className="space-y-5">
+          <section
+            className="
+              rounded-2xl
+              border
+              border-[#DCE7E5]
+              bg-white
+              p-5
+            "
+          >
             <div
               className="
                 flex
                 items-center
                 gap-2
-                text-violet-300
               "
             >
               <BookOpenCheck
                 aria-hidden="true"
-                className="h-5 w-5"
+                className="
+                  h-5
+                  w-5
+                  text-[#712AE2]
+                "
               />
 
               <h2
                 className="
-                   text-sm
-                  font-medium
+                  text-sm
+                  font-black
+                  text-[#172321]
                 "
               >
                 نوع تمرین
               </h2>
             </div>
 
-            <div
-              className="
-                mt-4
-                space-y-2
-              "
-            >
+            <div className="mt-4 space-y-2">
               {availablePracticeModes.map(
                 (
                   mode,
@@ -604,11 +1042,14 @@ export function ListeningPracticeWorkspace({
                     practiceMode ===
                     mode;
 
+                  const backendMode =
+                    requiresBackendTask(
+                      mode,
+                    );
+
                   return (
                     <button
-                      key={
-                        mode
-                      }
+                      key={mode}
                       type="button"
                       onClick={() => {
                         handlePracticeModeChange(
@@ -616,78 +1057,134 @@ export function ListeningPracticeWorkspace({
                         );
                       }}
                       className={`
-                        flex
                         w-full
-                        items-center
-                        justify-between
                         rounded-xl
                         border
                         px-4
                         py-3
                         text-right
-                        text-sm
                         transition
                         ${
                           active
-                            ? "border-cyan-300/20 bg-cyan-400/10 text-cyan-100"
-                            : "border-white/[0.06] bg-white/[0.025] text-slate-400 hover:bg-white/[0.05]"
+                            ? "border-[#A9D4CD] bg-[#EAF7F5]"
+                            : "border-[#E2E8E6] bg-[#FAFCFB] hover:border-[#B9D7D1]"
                         }
                       `}
                     >
-                      <span>
+                      <div
+                        className="
+                          flex
+                          items-center
+                          justify-between
+                          gap-3
+                        "
+                      >
+                        <span
+                          className={`
+                            text-sm
+                            font-bold
+                            ${
+                              active
+                                ? "text-[#00685F]"
+                                : "text-[#334155]"
+                            }
+                          `}
+                        >
+                          {
+                            LISTENING_PRACTICE_MODE_LABELS[
+                              mode
+                            ]
+                          }
+                        </span>
+
+                        {active ? (
+                          <CheckCircle2
+                            aria-hidden="true"
+                            className="
+                              h-4
+                              w-4
+                              text-[#00685F]
+                            "
+                          />
+                        ) : null}
+                      </div>
+
+                      <p
+                        className="
+                          mt-2
+                          text-[10px]
+                          leading-5
+                          text-[#64748B]
+                        "
+                      >
                         {
-                          LISTENING_PRACTICE_MODE_LABELS[
+                          MODE_DESCRIPTIONS[
                             mode
                           ]
                         }
-                      </span>
+                      </p>
 
-                      {active ? (
-                        <CheckCircle2
-                          aria-hidden="true"
+                      {backendMode ? (
+                        <span
                           className="
-                            h-4 w-4
-                            text-cyan-300
+                            mt-2
+                            inline-flex
+                            rounded-full
+                            bg-[#F4EFFF]
+                            px-2
+                            py-0.5
+                            text-[9px]
+                            font-bold
+                            text-[#712AE2]
                           "
-                        />
+                        >
+                          Backend Task
+                        </span>
                       ) : null}
                     </button>
                   );
                 },
               )}
             </div>
-          </Card>
+          </section>
 
-          <Card className="p-5 sm:p-6">
+          <section
+            className="
+              rounded-2xl
+              border
+              border-[#DCE7E5]
+              bg-white
+              p-5
+            "
+          >
             <div
               className="
                 flex
                 items-center
                 gap-2
-                text-cyan-300
               "
             >
               <Headphones
                 aria-hidden="true"
-                className="h-5 w-5"
+                className="
+                  h-5
+                  w-5
+                  text-[#00685F]
+                "
               />
 
               <h2
                 className="
                   text-sm
-                  font-medium
+                  font-black
+                  text-[#172321]
                 "
               >
                 روش انجام تمرین
               </h2>
             </div>
 
-            <ol
-              className="
-                mt-4
-                space-y-4
-              "
-            >
+            <ol className="mt-4 space-y-4">
               {instructions.map(
                 (
                   instruction,
@@ -701,7 +1198,7 @@ export function ListeningPracticeWorkspace({
                       gap-3
                       text-sm
                       leading-7
-                      text-slate-400
+                      text-[#64748B]
                     "
                   >
                     <span
@@ -714,9 +1211,10 @@ export function ListeningPracticeWorkspace({
                         items-center
                         justify-center
                         rounded-lg
-                        bg-white/[0.05]
+                        bg-[#F1F5F4]
                         text-[10px]
-                        text-slate-500
+                        font-black
+                        text-[#52615F]
                       "
                     >
                       {numberFormatter.format(
@@ -726,26 +1224,33 @@ export function ListeningPracticeWorkspace({
                     </span>
 
                     <span>
-                      {
-                        instruction
-                      }
+                      {instruction}
                     </span>
                   </li>
                 ),
               )}
             </ol>
-          </Card>
+          </section>
 
-          {!isListenOnly &&
+          {practiceMode ===
+            "guided_dictation" &&
           content.hintWords.length >
             0 ? (
-            <Card className="p-5 sm:p-6">
+            <section
+              className="
+                rounded-2xl
+                border
+                border-[#F4D8A5]
+                bg-[#FFF9EC]
+                p-5
+              "
+            >
               <div
                 className="
                   flex
                   items-center
                   gap-2
-                  text-amber-300
+                  text-[#B45309]
                 "
               >
                 <Lightbulb
@@ -756,9 +1261,10 @@ export function ListeningPracticeWorkspace({
                 <h2
                   className="
                     text-sm
-                    font-medium
+                    font-black
                   "
-                > واژگان راهنما
+                >
+                  واژه‌های راهنما
                 </h2>
               </div>
 
@@ -768,7 +1274,6 @@ export function ListeningPracticeWorkspace({
                   mt-4
                   flex
                   flex-wrap
-                  justify-end
                   gap-2
                 "
               >
@@ -777,18 +1282,17 @@ export function ListeningPracticeWorkspace({
                     word,
                   ) => (
                     <span
-                      key={
-                        word
-                      }
+                      key={word}
                       className="
                         rounded-lg
                         border
-                        border-amber-400/10
-                        bg-amber-400/[0.05]
-                        px-3
+                        border-[#E8C98E]
+                        bg-white
+                        px-2.5
                         py-1.5
                         text-xs
-                        text-amber-100/80
+                        font-medium
+                        text-[#7C5B28]
                       "
                     >
                       {word}
@@ -796,16 +1300,11 @@ export function ListeningPracticeWorkspace({
                   ),
                 )}
               </div>
-            </Card>
+            </section>
           ) : null}
         </aside>
 
-        <div
-          className="
-            space-y-6
-            xl:col-span-8
-          "
-        >
+        <div className="min-w-0 space-y-5">
           <ListeningAudioPlayer
             audioUrl={
               content.audioUrl
@@ -823,7 +1322,8 @@ export function ListeningPracticeWorkspace({
             }
             onEnded={
               handleAudioEnded
-            } />
+            }
+          />
 
           {isListenOnly ? (
             <ListeningListenOnlySession
@@ -837,7 +1337,7 @@ export function ListeningPracticeWorkspace({
                 completedListenPasses
               }
             />
-          ) : (
+          ) : transcriptMode ? (
             <>
               <TranscriptionEditor
                 value={
@@ -852,12 +1352,15 @@ export function ListeningPracticeWorkspace({
                 lastSavedAt={
                   lastSavedAt
                 }
+                remoteStatus={
+                  remoteSaveStatus
+                }
                 onChange={
                   handleTranscriptChange
                 }
-                onSave={
-                  saveNow
-                }
+                onSave={() => {
+                  void handleSaveDraft();
+                }}
                 onClear={
                   handleClearTranscript
                 }
@@ -872,12 +1375,20 @@ export function ListeningPracticeWorkspace({
                 }
               />
 
-              <Card className="p-5 sm:p-6">
+              <section
+                className="
+                  rounded-2xl
+                  border
+                  border-[#DCE7E5]
+                  bg-white
+                  p-5
+                "
+              >
                 <div
                   className="
                     flex
                     flex-col
-                    gap-5
+                    gap-4
                     sm:flex-row
                     sm:items-center
                     sm:justify-between
@@ -889,7 +1400,7 @@ export function ListeningPracticeWorkspace({
                         flex
                         items-center
                         gap-2
-                        text-violet-300
+                        text-[#00685F]
                       "
                     >
                       <BrainCircuit
@@ -897,167 +1408,417 @@ export function ListeningPracticeWorkspace({
                         className="h-5 w-5"
                       />
 
-                      <span
+                      <h2
                         className="
                           text-sm
-                          font-medium
+                          font-black
+                          text-[#172321]
                         "
                       >
-                        تحلیل هوشمند
-                      </span>
-                    </div>
-
-                    <h2
-                      className="
-                        mt-2
-                        text-lg
-                        font-bold
-                        text-white
-                      "
-                    >
-                      پاسخ را برای بررسی آماده کن
-                    </h2>
-
-                    <div
-                      className="
-                        mt-2
-                        flex
-                        flex-wrap
-                        gap-3
-                        text-xs
-                        text-slate-500
-                      "
-                    >
-                      <span>
-                        روش پاسخ:{" "}
-                        <strong
-                          className="
-                            font-medium
-                            text-slate-300
-                          "
-                        >
-                          {
-                            ANSWER_SOURCE_LABELS[
-                               answerSource
-                            ]
-                          }
-                        </strong>
-                      </span>
-
-                      <span>
-                        تعداد کلمات:{" "}
-                        <strong
-                          className="
-                            font-medium
-                            text-slate-300
-                          "
-                          >
-
-{numberFormatter.format(
-                            wordCount,
-                          )}
-                        </strong>
-                      </span>
+                        آماده تحلیل
+                      </h2>
                     </div>
 
                     <p
                       className="
-                        mt-3
-                        max-w-xl
+                        mt-2
                         text-xs
                         leading-6
-                        text-slate-600
+                        text-[#64748B]
                       "
                     >
-                      در تحلیل جدید علاوه بر مقایسه Transcript، الگوهای شنیداری، connected speech، جزئیات ازدست‌رفته، کلمات دشوار و برنامه تمرین بعدی نیز بررسی می‌شوند.
+                      منبع پاسخ:{" "}
+                      {
+                        ANSWER_SOURCE_LABELS[
+                          answerSource
+                        ]
+                      }
+
+                      {" • "}
+
+                      {numberFormatter.format(
+                        wordCount,
+                      )}{" "}
+                      کلمه
+
+                      {" • "}
+
+                      {numberFormatter.format(
+                        completedListenPasses,
+                      )}{" "}
+                      بار شنیدن کامل
                     </p>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={
-                      handlePrepareAnalysis
-                    }
-                    disabled={
-                      !canSubmit
-                    }
-                    className="
-                      inline-flex
-                      min-h-11
-                      shrink-0
-                      items-center
-                      justify-center
-                      gap-2
-                      rounded-xl
-                      bg-cyan-400
-                      px-5
-                      py-2.5
-                      text-sm
-                      font-bold
-                      text-slate-950
-                      transition
-                      hover:bg-cyan-300
-                      disabled:cursor-not-allowed
-                      disabled:bg-white/[0.05]
-                      disabled:text-slate-600
-                    "
-                  >
-                    <Send
-                      aria-hidden="true"
-                      className="h-4 w-4"
-                    />
-
-                    آماده‌سازی تحلیل
-                  </button>
-                </div>
-
-                {submissionReady ? (
                   <div
-                    role="status"
                     className="
-                      mt-5
-                      rounded-2xl
-                      border
-                      border-emerald-400/15
-                      bg-emerald-400/[0.05]
-                      px-5 py-4
+                      flex
+                      flex-wrap
+                      gap-2
                     "
                   >
-                    <div
+                    <button
+                      type="button"
+                      disabled={
+                        isSubmitting
+                      }
+                      onClick={() => {
+                        void handleSaveDraft();
+                      }}
                       className="
-                        flex
+                        inline-flex
+                        min-h-11
                         items-center
+                        justify-center
                         gap-2
+                        rounded-xl
+                        border
+                        border-[#B8DCD6]
+                        bg-[#EEF8F6]
+                        px-4
                         text-sm
-                        font-medium
-                        text-emerald-200
+                        font-bold
+                        text-[#00685F]
+                        transition
+                        hover:bg-[#E1F2EF]
+                        disabled:cursor-not-allowed
+                        disabled:opacity-50
                       "
                     >
-                      <CheckCircle2
+                      <Save
                         aria-hidden="true"
                         className="h-4 w-4"
                       />
 
-                      Transcript آماده ارسال است
-                    </div>
+                      ذخیره Draft
+                    </button>
 
-                    <p
+                    <button
+                      type="button"
+                      disabled={
+                        !canSubmit
+                      }
+                      onClick={() => {
+                        void handleSubmit();
+                      }}
                       className="
-                        mt-2
-                        text-xs
-                        leading-6
-                        text-slate-500
+                        inline-flex
+                        min-h-11
+                        min-w-40
+                        items-center
+                        justify-center
+                        gap-2
+                        rounded-xl
+                        bg-[#00685F]
+                        px-5
+                        text-sm
+                        font-black
+                        text-white
+                        transition
+                        hover:bg-[#005A52]
+                        disabled:cursor-not-allowed
+                        disabled:opacity-40
                       "
                     >
-                      نوع تمرین، روش ثبت پاسخ و متن فعلی آماده ساخت Attempt و ارسال به سرویس تحلیل هستند.
-                    </p>
+                      {isSubmitting ? (
+                        <LoaderCircle
+                          aria-hidden="true"
+                          className="
+                            h-4
+                            w-4
+                            animate-spin
+                          "
+                        />
+                      ) : (
+                        <Send
+                          aria-hidden="true"
+                          className="h-4 w-4"
+                        />
+                      )}
+
+                      {isSubmitting
+                        ? "در حال تحلیل..."
+                        : "ارسال برای تحلیل"}
+                    </button>
+                  </div>
+                </div>
+
+                {!canSubmit &&
+                !isSubmitting ? (
+                  <p
+                    className="
+                      mt-4
+                      text-xs
+                      leading-6
+                      text-[#64748B]
+                    "
+                  >
+                    برای ارسال، حداقل{" "}
+                    {numberFormatter.format(
+                      content.minimumTranscriptWords,
+                    )}{" "}
+                    کلمه نیاز است.
+                  </p>
+                ) : null}
+
+                {submissionError ? (
+                  <div
+                    role="alert"
+                    className="
+                      mt-4
+                      rounded-xl
+                      border
+                      border-[#FECACA]
+                      bg-[#FEF2F2]
+                      px-4
+                      py-3
+                      text-xs
+                      leading-6
+                      text-[#B91C1C]
+                    "
+                  >
+                    {submissionError}
                   </div>
                 ) : null}
-              </Card>
+              </section>
             </>
-          )}
+          ) : backendTaskRequired ? (
+            <BackendPracticeModeCard
+              mode={
+                practiceMode
+              }
+            />
+          ) : null}
         </div>
       </section>
     </main>
+  );
+}
+
+function BackendPracticeModeCard({
+  mode,
+}: Readonly<{
+  mode:
+    ListeningPracticeMode;
+}>) {
+  return (
+    <section
+      className="
+        rounded-2xl
+        border
+        border-[#DED3F5]
+        bg-[#F9F7FF]
+        p-6
+      "
+    >
+      <div
+        className="
+          flex
+          items-start
+          gap-3
+        "
+      >
+        <span
+          className="
+            flex
+            h-11
+            w-11
+            shrink-0
+            items-center
+            justify-center
+            rounded-xl
+            bg-[#F0E8FF]
+            text-[#712AE2]
+          "
+        >
+          <LockKeyhole
+            aria-hidden="true"
+            className="h-5 w-5"
+          />
+        </span>
+
+        <div className="min-w-0 flex-1">
+          <div
+            className="
+              flex
+              flex-wrap
+              items-center
+              gap-2
+            "
+          >
+            <h2
+              className="
+                text-lg
+                font-black
+                text-[#172321]
+              "
+            >
+              {
+                LISTENING_PRACTICE_MODE_LABELS[
+                  mode
+                ]
+              }
+            </h2>
+
+            <span
+              className="
+                rounded-full
+                bg-[#E8DDFB]
+                px-2.5
+                py-1
+                text-[10px]
+                font-black
+                text-[#712AE2]
+              "
+            >
+              Backend-ready
+            </span>
+          </div>
+
+          <p
+            className="
+              mt-3
+              max-w-2xl
+              text-sm
+              leading-7
+              text-[#64748B]
+            "
+          >
+            UI این حالت آماده است، اما برای
+            شروع واقعی باید Backend،
+            Task Payload مخصوص همین Mode را
+            همراه Content برگرداند. تا قبل
+            از آن سؤال یا امتیاز ساختگی
+            نمایش داده نمی‌شود.
+          </p>
+
+          <div
+            className="
+              mt-5
+              rounded-xl
+              border
+              border-[#E2DBF1]
+              bg-white
+              p-4
+            "
+          >
+            <p
+              className="
+                text-xs
+                font-black
+                text-[#334155]
+              "
+            >
+              قرارداد مورد انتظار Backend
+            </p>
+
+            <ul
+              className="
+                mt-3
+                space-y-2
+                text-xs
+                leading-6
+                text-[#64748B]
+              "
+            >
+              {mode ===
+              "fill_in_the_blank" ? (
+                <>
+                  <li>
+                    • segmentId و start/end
+                    زمان صوت
+                  </li>
+
+                  <li>
+                    • متن Mask شده و شناسه
+                    Blankها
+                  </li>
+
+                  <li>
+                    • Answer Key فقط سمت
+                    Server
+                  </li>
+                </>
+              ) : mode ===
+                "comprehension" ? (
+                <>
+                  <li>
+                    • questionId، prompt و
+                    options
+                  </li>
+
+                  <li>
+                    • single/multiple choice
+                    capability
+                  </li>
+
+                  <li>
+                    • scoring و feedback سمت
+                    Backend
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    • Shadowing Segmentهای
+                    زمانی
+                  </li>
+
+                  <li>
+                    • Upload URL یا Audio
+                    Token
+                  </li>
+
+                  <li>
+                    • Pronunciation / Fluency
+                    analysis
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Badge({
+  tone,
+  children,
+}: Readonly<{
+  tone:
+    | "teal"
+    | "purple"
+    | "neutral";
+
+  children:
+    ReactNode;
+}>) {
+  const classes =
+    tone ===
+    "teal"
+      ? "bg-[#E7F4F2] text-[#00685F]"
+      : tone ===
+          "purple"
+        ? "bg-[#F4EFFF] text-[#712AE2]"
+        : "bg-[#F1F5F4] text-[#52615F]";
+
+  return (
+    <span
+      className={`
+        inline-flex
+        items-center
+        gap-1.5
+        rounded-full
+        px-3
+        py-1.5
+        text-xs
+        font-bold
+        ${classes}
+      `}
+    >
+      {children}
+    </span>
   );
 }

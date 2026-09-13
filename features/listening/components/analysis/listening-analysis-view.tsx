@@ -3,15 +3,13 @@ import Link from "next/link";
 import {
   ArrowRight,
   CheckCircle2,
+  ClipboardCheck,
   Headphones,
   RefreshCw,
   TriangleAlert,
   XCircle,
+  type LucideIcon,
 } from "lucide-react";
-
-import {
-  Card,
-} from "../../../../components/ui/card";
 
 import {
   cn,
@@ -40,89 +38,112 @@ type ListeningAnalysisViewProps =
       ListeningAttemptAnalysis;
   }>;
 
-const comparisonStyles = {
-  match: {
-    container:
-      "border-emerald-400/15 bg-emerald-400/[0.04]",
+type ComparisonStyle =
+  Readonly<{
+    label:
+      string;
 
+    icon:
+      LucideIcon;
+
+    surface:
+      string;
+
+    border:
+      string;
+
+    text:
+      string;
+  }>;
+
+const comparisonStyles:
+  Record<
+    ListeningComparisonKind,
+    ComparisonStyle
+  > = {
+  match: {
     label:
       "درست",
 
-    labelClass:
-      "text-emerald-300",
-
     icon:
       CheckCircle2,
+
+    surface:
+      "bg-[#F0FDF4]",
+
+    border:
+      "border-[#BBE8C9]",
+
+    text:
+      "text-[#15803D]",
   },
 
   omission: {
-    container:
-      "border-amber-400/15 bg-amber-400/[0.04]",
-
     label:
       "جاافتاده",
 
-    labelClass:
-      "text-amber-300",
+    icon:
+      TriangleAlert,
 
-    icon:      TriangleAlert,
+    surface:
+      "bg-[#FFFBEB]",
+
+    border:
+      "border-[#F5D997]",
+
+    text:
+      "text-[#B45309]",
   },
 
   substitution: {
-    container:
-      "border-red-400/15 bg-red-400/[0.04]",
-
     label:
       "جایگزینی",
 
-    labelClass:
-      "text-red-300",
-
     icon:
       XCircle,
+
+    surface:
+      "bg-[#FEF2F2]",
+
+    border:
+      "border-[#FECACA]",
+
+    text:
+      "text-[#B91C1C]",
   },
 
   addition: {
-    container:
-      "border-violet-400/15 bg-violet-400/[0.04]",
-
     label:
       "اضافه",
 
-    labelClass:
-      "text-violet-300",
-
     icon:
       TriangleAlert,
+
+    surface:
+      "bg-[#F8F5FF]",
+
+    border:
+      "border-[#DED2F6]",
+
+    text:
+      "text-[#712AE2]",
   },
-} satisfies Record<
-  ListeningComparisonKind,
-  {
-    container:
-      string;
-
-    label:
-      string;
-
-    labelClass:
-      string;
-
-    icon:
-      typeof CheckCircle2;
-  }
->;
+};
 
 export function ListeningAnalysisView({
   analysis,
 }: ListeningAnalysisViewProps) {
   return (
     <main
+      dir="rtl"
       className="
         mx-auto
         w-full
-        max-w-7xl
+        max-w-[1240px]
         space-y-6
-      "  aria-labelledby="listening-analysis-title"
+        pb-14
+      "
+      aria-labelledby="listening-analysis-title"
     >
       <Link
         href="/listening"
@@ -131,9 +152,10 @@ export function ListeningAnalysisView({
           items-center
           gap-2
           text-sm
-          text-slate-400
+          font-medium
+          text-[#64748B]
           transition
-          hover:text-white
+          hover:text-[#00685F]
         "
       >
         <ArrowRight
@@ -148,11 +170,12 @@ export function ListeningAnalysisView({
         className="
           relative
           overflow-hidden
-          rounded-3xl
+          rounded-[28px]
           border
-          border-cyan-400/15
-          bg-white/[0.035]
+          border-[#CBE1DD]
+          bg-[linear-gradient(135deg,#EAF8F5_0%,#FFFFFF_56%,#F7F3FF_100%)]
           p-6
+          shadow-[0_14px_40px_rgba(15,23,42,0.05)]
           sm:p-8
         "
       >
@@ -163,10 +186,10 @@ export function ListeningAnalysisView({
             absolute
             -left-24
             -top-24
-            h-64
-            w-64
+            h-72
+            w-72
             rounded-full
-            bg-cyan-500/15
+            bg-[#14B8A6]/10
             blur-3xl
           "
         />
@@ -180,16 +203,18 @@ export function ListeningAnalysisView({
               gap-2
             "
           >
-            <span  className="
+            <span
+              className="
                 inline-flex
                 items-center
                 gap-1.5
                 rounded-full
-                bg-cyan-400/10
+                bg-[#E7F4F2]
                 px-3
                 py-1
                 text-xs
-                text-cyan-200
+                font-black
+                text-[#00685F]
               "
             >
               <Headphones
@@ -203,11 +228,12 @@ export function ListeningAnalysisView({
             <span
               className="
                 rounded-full
-                bg-white/[0.05]
+                bg-[#F1F5F4]
                 px-3
                 py-1
                 text-xs
-                text-slate-400
+                font-medium
+                text-[#52615F]
               "
             >
               {
@@ -216,17 +242,25 @@ export function ListeningAnalysisView({
                 ]
               }
             </span>
-  <span
+
+            <span
               className={cn(
                 "rounded-full",
                 "px-3",
                 "py-1",
                 "text-xs",
+                "font-bold",
 
                 analysis.engine ===
                   "ai"
-                  ? "bg-violet-400/10 text-violet-200"
-                  : "bg-amber-400/10 text-amber-200",
+                  ? [
+                      "bg-[#F4EFFF]",
+                      "text-[#712AE2]",
+                    ]
+                  : [
+                      "bg-[#FFF7ED]",
+                      "text-[#C2410C]",
+                    ],
               )}
             >
               {analysis.engine ===
@@ -239,9 +273,9 @@ export function ListeningAnalysisView({
           <p
             className="
               mt-5
-              text-sm
-              font-medium
-              text-cyan-300
+              text-xs
+              font-black
+              text-[#00685F]
             "
           >
             نتیجه تمرین شنیداری
@@ -252,9 +286,9 @@ export function ListeningAnalysisView({
             className="
               mt-2
               text-3xl
-              font-bold
+              font-black
               leading-tight
-              text-white
+              text-[#0F172A]
               sm:text-4xl
             "
           >
@@ -268,14 +302,18 @@ export function ListeningAnalysisView({
               mt-4
               max-w-3xl
               text-sm
-              leading-7
-              text-slate-400
+              leading-8
+              text-[#64748B]
             "
           >
-            این گزارش فقط دقت رونویسی را نشان نمی‌دهد؛ نوع اطلاعاتی که شنیده‌ای، الگوهای خطا، بخش‌های دشوار و بهترین مسیر تمرین بعدی نیز بررسی شده‌اند.
+            علاوه بر نمره Dictation،
+            الگوهای شنیداری، بخش‌های دشوار،
+            واژگان از دست‌رفته و مسیر تمرین
+            بعدی نیز بررسی شده‌اند.
           </p>
         </div>
       </section>
+
       <ListeningScoreOverview
         score={
           analysis.score
@@ -286,35 +324,59 @@ export function ListeningAnalysisView({
         className="
           grid
           gap-6
-          xl:grid-cols-12
+          xl:grid-cols-[minmax(0,1fr)_340px]
         "
       >
-        <div
-          className="
-            space-y-6
-            xl:col-span-8
-          "
-        >
-          <Card className="p-5 sm:p-6">
-            <h2
+        <div className="space-y-6">
+          <section
+            className="
+              rounded-2xl
+              border
+              border-[#DCE5E3]
+              bg-white
+              p-5
+              shadow-[0_5px_20px_rgba(15,23,42,0.035)]
+              sm:p-6
+            "
+          >
+            <div
               className="
-                text-lg
-                font-bold
-                text-white
+                flex
+                items-center
+                gap-2
               "
             >
-              مقایسه پاسخ با متن اصلی
-            </h2>
+              <ClipboardCheck
+                aria-hidden="true"
+                className="
+                  h-5
+                  w-5
+                  text-[#00685F]
+                "
+              />
+
+              <h2
+                className="
+                  text-lg
+                  font-black
+                  text-[#0F172A]
+                "
+              >
+                مقایسه پاسخ با متن اصلی
+              </h2>
+            </div>
 
             <p
               className="
                 mt-2
                 text-xs
                 leading-6
-                text-slate-500
+                text-[#64748B]
               "
             >
-              تفاوت‌ها به چهار گروه درست، حذف، جایگزینی و اضافه تقسیم شده‌اند.
+              تفاوت‌ها به چهار گروه درست،
+              حذف، جایگزینی و اضافه تقسیم
+              شده‌اند.
             </p>
 
             <div
@@ -331,7 +393,8 @@ export function ListeningAnalysisView({
                     comparisonStyles[
                       segment.kind
                     ];
-const Icon =
+
+                  const Icon =
                     config.icon;
 
                   return (
@@ -343,7 +406,8 @@ const Icon =
                         "rounded-2xl",
                         "border",
                         "p-4",
-                        config.container,
+                        config.surface,
+                        config.border,
                       )}
                     >
                       <div
@@ -356,16 +420,17 @@ const Icon =
                         <Icon
                           aria-hidden="true"
                           className={cn(
-                            "h-4 w-4",
-                            config.labelClass,
+                            "h-4",
+                            "w-4",
+                            config.text,
                           )}
                         />
 
                         <span
                           className={cn(
                             "text-xs",
-                            "font-medium",
-                            config.labelClass,
+                            "font-black",
+                            config.text,
                           )}
                         >
                           {
@@ -385,13 +450,14 @@ const Icon =
                         "
                       >
                         <ComparisonText
-                          label="متن اصلی"
+                          label="Reference"
                           value={
                             segment.expected
                           }
                         />
- <ComparisonText
-                          label="پاسخ شما"
+
+                        <ComparisonText
+                          label="Your answer"
                           value={
                             segment.actual
                           }
@@ -402,18 +468,39 @@ const Icon =
                 },
               )}
             </div>
-          </Card>
+          </section>
 
-          <Card className="p-5 sm:p-6">
+          <section
+            className="
+              rounded-2xl
+              border
+              border-[#DCE5E3]
+              bg-white
+              p-5
+              shadow-[0_5px_20px_rgba(15,23,42,0.035)]
+              sm:p-6
+            "
+          >
             <h2
               className="
                 text-lg
-                font-bold
-                text-white
+                font-black
+                text-[#0F172A]
               "
             >
               Transcript کامل
             </h2>
+
+            <p
+              className="
+                mt-2
+                text-xs
+                text-[#64748B]
+              "
+            >
+              متن مرجع و پاسخ خودت را کنار
+              هم مقایسه کن.
+            </p>
 
             <div
               className="
@@ -423,106 +510,58 @@ const Icon =
                 lg:grid-cols-2
               "
             >
-              <div
-                className="
-                  rounded-2xl
-                  border
-                  border-emerald-400/10
-                  bg-emerald-400/[0.035]
-                  p-5
-                "
-              >
-                <p
-                  className="
-                    text-xs
-                    text-emerald-300
-                  "
-                >
-                  متن مرجع
-                </p>
+              <TranscriptPanel
+                label="متن مرجع"
+                value={
+                  analysis.referenceTranscript
+                }
+                tone="reference"
+              />
 
-                <p
-                  dir="ltr"
-                  className="
-                    mt-3
-                    text-left
-                    text-sm
-                    leading-8
-                    text-slate-300
-                  "
-                >
-                  {
-                    analysis.referenceTranscript
-                  }
-                </p> </div>
-
-              <div
-                className="
-                  rounded-2xl
-                  border
-                  border-cyan-400/10
-                  bg-cyan-400/[0.035]
-                  p-5
-                "
-              >
-                <p
-                  className="
-                    text-xs
-                    text-cyan-300
-                  "
-                >
-                  متن شما
-                </p>
-
-                <p
-                  dir="ltr"
-                  className="
-                    mt-3
-                    text-left
-                    text-sm
-                    leading-8
-                    text-slate-300
-                  "
-                >
-                  {
-                    analysis.submittedTranscript
-                  }
-                </p>
-              </div>
+              <TranscriptPanel
+                label="متن شما"
+                value={
+                  analysis.submittedTranscript
+                }
+                tone="answer"
+              />
             </div>
-          </Card>
+          </section>
         </div>
 
-        <aside
-          className="
-            space-y-6
-            xl:col-span-4
-          "
-        >
-          <Card className="p-5 sm:p-6">
-            <h2
+        <aside className="space-y-4">
+          <section
+            className="
+              rounded-2xl
+              border
+              border-[#DED2F6]
+              bg-[#F8F5FF]
+              p-5
+            "
+          >
+            <p
               className="
-                text-sm
-                font-medium
-                text-violet-300
+                text-xs
+                font-black
+                text-[#712AE2]
               "
-             >
+            >
               بازخورد مدرس
-            </h2>
+            </p>
 
             <p
               className="
-                mt-4
+                mt-3
                 text-sm
                 leading-8
-                text-slate-400
+                text-[#52615F]
               "
             >
               {
                 analysis.feedback.summary
               }
             </p>
-          </Card>
+          </section>
 
           <FeedbackCard
             title="نقاط قوت"
@@ -539,8 +578,11 @@ const Icon =
               analysis.feedback.priorities
             }
           />
- <Link
-            href={`/listening/practice/${analysis.contentId}`}
+
+          <Link
+            href={`/listening/practice/${encodeURIComponent(
+              analysis.contentId,
+            )}`}
             className="
               inline-flex
               min-h-11
@@ -549,13 +591,13 @@ const Icon =
               justify-center
               gap-2
               rounded-xl
-              bg-cyan-400
+              bg-[#00685F]
               px-5
               text-sm
-              font-bold
-              text-slate-950
+              font-black
+              text-white
               transition
-              hover:bg-cyan-300
+              hover:bg-[#005A52]
             "
           >
             <RefreshCw
@@ -591,29 +633,101 @@ function ComparisonText({
     <div
       className="
         rounded-xl
-        bg-black/10
+        border
+        border-black/[0.05]
+        bg-white/80
         p-3
       "
     >
       <p
         className="
           text-[10px]
+          font-bold
           uppercase
-          tracking-wider
-          text-slate-600
+          tracking-wide
+          text-[#94A3B8]
         "
       >
         {label}
-      </p>  <p
+      </p>
+
+      <p
         className="
           mt-2
           text-sm
-          leading-6
-          text-slate-300
+          leading-7
+          text-[#334155]
         "
       >
         {value ??
           "—"}
+      </p>
+    </div>
+  );
+}
+
+function TranscriptPanel({
+  label,
+  value,
+  tone,
+}: Readonly<{
+  label:
+    string;
+
+  value:
+    string;
+
+  tone:
+    "reference" |
+    "answer";
+}>) {
+  const reference =
+    tone ===
+    "reference";
+
+  return (
+    <div
+      className={cn(
+        "rounded-2xl",
+        "border",
+        "p-5",
+
+        reference
+          ? [
+              "border-[#B9E4D4]",
+              "bg-[#F0FDF7]",
+            ]
+          : [
+              "border-[#B9DDE8]",
+              "bg-[#F1FAFC]",
+            ],
+      )}
+    >
+      <p
+        className={cn(
+          "text-xs",
+          "font-black",
+
+          reference
+            ? "text-[#047857]"
+            : "text-[#0369A1]",
+        )}
+      >
+        {label}
+      </p>
+
+      <p
+        dir="ltr"
+        className="
+          mt-3
+          whitespace-pre-wrap
+          text-left
+          text-sm
+          leading-8
+          text-[#334155]
+        "
+      >
+        {value}
       </p>
     </div>
   );
@@ -628,24 +742,45 @@ function FeedbackCard({
     string;
 
   tone:
-    "success" | "warning";
+    "success" |
+    "warning";
 
   items:
     readonly string[];
 }>) {
+  const success =
+    tone ===
+    "success";
+
   return (
-    <Card className="p-5 sm:p-6">
+    <section
+      className={cn(
+        "rounded-2xl",
+        "border",
+        "p-5",
+
+        success
+          ? [
+              "border-[#B9E4D4]",
+              "bg-[#F0FDF7]",
+            ]
+          : [
+              "border-[#F4D9A4]",
+              "bg-[#FFFBEB]",
+            ],
+      )}
+    >
       <h2
         className={cn(
           "text-sm",
-          "font-medium",
+          "font-black",
 
-          tone ===
-            "success"
-            ? "text-emerald-300"
-            : "text-amber-300",
+          success
+            ? "text-[#047857]"
+            : "text-[#B45309]",
         )}
-      > {title}
+      >
+        {title}
       </h2>
 
       <ul
@@ -655,35 +790,30 @@ function FeedbackCard({
         "
       >
         {items.map(
-          (
-            item,
-          ) => (
+          (item) => (
             <li
-              key={
-                item
-              }
+              key={item}
               className="
                 flex
                 items-start
                 gap-3
-                text-sm
-                leading-7
-                text-slate-400
+                text-xs
+                leading-6
+                text-[#52615F]
               "
             >
               <span
                 aria-hidden="true"
                 className={cn(
-                  "mt-3",
+                  "mt-2.5",
                   "h-1.5",
                   "w-1.5",
                   "shrink-0",
                   "rounded-full",
 
-                  tone ===
-                    "success"
-                    ? "bg-emerald-300"
-                    : "bg-amber-300",
+                  success
+                    ? "bg-[#10B981]"
+                    : "bg-[#F59E0B]",
                 )}
               />
 
@@ -692,6 +822,6 @@ function FeedbackCard({
           ),
         )}
       </ul>
-    </Card>
+    </section>
   );
 }

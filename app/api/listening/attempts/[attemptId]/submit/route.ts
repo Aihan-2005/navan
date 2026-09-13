@@ -3,6 +3,14 @@ import {
 } from "next/server";
 
 import {
+  parseListeningApiResponse,
+} from "../../../../../../features/listening/api/listening-api-client";
+
+import {
+  fetchListeningBackend,
+} from "../../../../../../features/listening/api/listening-server-client";
+
+import {
   listeningAnalysisMock,
 } from "../../../../../../features/listening/mocks/listening-analysis.mock";
 
@@ -10,16 +18,31 @@ import {
   listeningAttemptAnalysisSchema,
 } from "../../../../../../features/listening/schemas/listening-analysis.schema";
 
-export const runtime = "nodejs";
+import {
+  submitListeningAttemptInputSchema,
+} from "../../../../../../features/listening/schemas/listening-bff.schema";
+
+import {
+  getMockListeningAttemptDraft,
+  markMockListeningAttemptSubmitted,
+} from "../../../../../../features/listening/server/listening-mock-attempt-store";
+
+export const runtime =
+  "nodejs";
+
+export const dynamic =
+  "force-dynamic";
 
 const BACKEND_ATTEMPTS_ENDPOINT =
   "/api/v1/listening/attempts";
 
 type ListeningAttemptSubmitRouteContext =
   Readonly<{
-    params: Promise<{
-      attemptId: string;
-    }>;
+    params:
+      Promise<{
+        attemptId:
+          string;
+      }>;
   }>;
 
 function shouldUseMockData(): boolean {
@@ -29,192 +52,49 @@ function shouldUseMockData(): boolean {
   );
 }
 
-function getApiBaseUrl(): string {
-  const apiBaseUrl =
-    process.env.API_BASE_URL?.trim();
-
-  if (!apiBaseUrl) {
-    throw new Error(
-      "API_BASE_URL is required when USE_MOCKS is disabled.",
-    );
-  }
-
-  try {
-    return new URL(
-      apiBaseUrl,
-    ).toString();
-  } catch {
-    throw new Error(
-      "API_BASE_URL is not a valid URL.",
-    );
-  }
-}
-
-function normalizeAttemptId(
-  attemptId: string,
-): string {
-  return attemptId.trim();
-}
-
-function getMockAnalysis(
-  attemptId: string,
+function getLegacyMockAnalysis(
+  attemptId:
+    string,
 ) {
-  const analysis =
+  return (
     listeningAnalysisMock.find(
-      (item) =>
-        item.attemptId ===
+      (analysis) =>
+        analysis.attemptId ===
         attemptId,
-    );
-
-  if (!analysis) {
-    return null;
-  }
-
-  const result =
-    listeningAttemptAnalysisSchema.safeParse(
-      analysis,
-    );
-
-  if (!result.success) {
-    console.error(
-      "Invalid Listening analysis mock:",
-      result.error.flatten(),
-    );
-
-    throw new Error(
-      "Listening analysis mock is invalid.",
-    );
-  }
-
-  return result.data;
+    ) ??
+    null
+  );
 }
 
-async function forwardSubmitToBackend(
-  request: Request,
-  attemptId: string,
+function getContentMockAnalysis(
+  contentId:
+    string,
 ) {
-  const backendUrl =
-    new URL(
-      `${BACKEND_ATTEMPTS_ENDPOINT}/${encodeURIComponent(
-        attemptId,
-      )}/submit`,
-      getApiBaseUrl(),
-    );
-
-  const requestBody =
-    await request.text();
-
-  const headers =
-    new Headers();
-
-  headers.set(
-    "Accept",
-    "application/json",
-  );
-
-  if (requestBody) {
-    headers.set(
-      "Content-Type",
-      request.headers.get(
-        "content-type",
-      ) ?? "application/json",
-    );
-  }
-
-  const response =
-    await fetch(
-      backendUrl,
-      {
-        method: "POST",
-
-        headers,
-
-        body:
-          requestBody ||
-          undefined,
-
-        cache: "no-store",
-      },
-    );
-
-  let payload: unknown = null;
-
-  try {
-    payload =
-      await response.json();
-  } catch {
-    payload = null;
-  }
-
-  if (!response.ok) {
-    const errorMessage =
-      typeof payload ===
-        "object" &&
-      payload !== null &&
-      "error" in payload &&
-      typeof payload.error ===
-        "string"
-        ? payload.error
-        : "Backend نتوانست Attempt را تحلیل کند.";
-
-    return NextResponse.json(
-      {
-        error: errorMessage,
-      },
-      {
-        status: response.status,
-      },
-    );
-  }
-
-  const parsedResult =
-    listeningAttemptAnalysisSchema.safeParse(
-      payload,
-    );
-
-  if (!parsedResult.success) {
-    console.error(
-      "Invalid Listening submit backend response:",
-      parsedResult.error.flatten(),
-    );
-
-    return NextResponse.json(
-      {
-        error:
-          "ساختار پاسخ تحلیل Listening از Backend معتبر نیست.",
-      },
-      {
-        status: 502,
-      },
-    );
-  }
-
-  return NextResponse.json(
-    parsedResult.data,
-    {
-      status: 200,
-
-      headers: {
-        "Cache-Control":
-          "no-store",
-      },
-    },
+  return (
+    listeningAnalysisMock.find(
+      (analysis) =>
+        analysis.contentId ===
+        contentId,
+    ) ??
+    null
   );
 }
 
 export async function POST(
-  request: Request,
-  context: ListeningAttemptSubmitRouteContext,
+  request:
+    Request,
+
+  context:
+    ListeningAttemptSubmitRouteContext,
 ) {
   try {
     const {
       attemptId,
-    } = await context.params;
+    } =
+      await context.params;
 
     const normalizedAttemptId =
-      normalizeAttemptId(
-        attemptId,
-      );
+      attemptId.trim();
 
     if (!normalizedAttemptId) {
       return NextResponse.json(
@@ -223,44 +103,212 @@ export async function POST(
             "شناسه Attempt معتبر نیست.",
         },
         {
-          status: 400,
+          status:
+            400,
         },
       );
     }
 
-    if (!shouldUseMockData()) {
-      return forwardSubmitToBackend(
-        request,
-        normalizedAttemptId,
-      );
+    let payload:
+      unknown;
+
+    try {
+      payload =
+        await request.json();
+    } catch {
+      payload =
+        null;
     }
 
-    const analysis =
-      getMockAnalysis(
-        normalizedAttemptId,
-      );
+    if (
+      !shouldUseMockData()
+    ) {
+      const inputResult =
+        submitListeningAttemptInputSchema.safeParse(
+          payload,
+        );
 
-    if (!analysis) {
+      if (
+        !inputResult.success
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              inputResult.error
+                .issues[0]
+                ?.message ??
+              "اطلاعات Submit معتبر نیست.",
+          },
+          {
+            status:
+              400,
+          },
+        );
+      }
+
+      const backendResponse =
+        await fetchListeningBackend(
+          `${BACKEND_ATTEMPTS_ENDPOINT}/${encodeURIComponent(
+            normalizedAttemptId,
+          )}/submit`,
+          {
+            method:
+              "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify(
+                inputResult.data,
+              ),
+
+            cache:
+              "no-store",
+          },
+          {
+            requireAuthentication:
+              true,
+          },
+        );
+
+      const analysis =
+        await parseListeningApiResponse(
+          backendResponse,
+          listeningAttemptAnalysisSchema,
+          "Backend نتوانست Attempt را تحلیل کند.",
+        );
+
       return NextResponse.json(
+        analysis,
         {
-          error:
-            "برای این Attempt داده Mock تحلیل وجود ندارد.",
+          status:
+            200,
+
+          headers: {
+            "Cache-Control":
+              "no-store",
+          },
         },
+      );
+    }
+
+    const inputResult =
+      submitListeningAttemptInputSchema.safeParse(
+        payload,
+      );
+
+    const storedAttempt =
+      getMockListeningAttemptDraft(
+        normalizedAttemptId,
+      );
+
+    if (
+      storedAttempt &&
+      inputResult.success
+    ) {
+      const template =
+        getContentMockAnalysis(
+          storedAttempt.contentId,
+        );
+
+      if (!template) {
+        return NextResponse.json(
+          {
+            error:
+              "برای این محتوای Mock هنوز نمونه تحلیل وجود ندارد. قرارداد Submit آماده است و با Backend واقعی برای همه محتواها کار خواهد کرد.",
+          },
+          {
+            status:
+              422,
+          },
+        );
+      }
+
+      markMockListeningAttemptSubmitted(
+        normalizedAttemptId,
+      );
+
+      const analysis =
+        listeningAttemptAnalysisSchema.parse(
+          {
+            ...template,
+
+            attemptId:
+              normalizedAttemptId,
+
+            contentId:
+              storedAttempt.contentId,
+
+            practiceMode:
+              inputResult.data
+                .practiceMode,
+
+            submittedTranscript:
+              inputResult.data
+                .transcript,
+
+            engine:
+              "mock",
+
+            createdAt:
+              storedAttempt
+                .createdAt,
+
+            completedAt:
+              new Date()
+                .toISOString(),
+          },
+        );
+
+      return NextResponse.json(
+        analysis,
         {
-          status: 404,
+          status:
+            200,
+
+          headers: {
+            "Cache-Control":
+              "no-store",
+          },
+        },
+      );
+    }
+
+    const legacyAnalysis =
+      getLegacyMockAnalysis(
+        normalizedAttemptId,
+      );
+
+    if (
+      legacyAnalysis
+    ) {
+      return NextResponse.json(
+        listeningAttemptAnalysisSchema.parse(
+          legacyAnalysis,
+        ),
+        {
+          status:
+            200,
+
+          headers: {
+            "Cache-Control":
+              "no-store",
+          },
         },
       );
     }
 
     return NextResponse.json(
-      analysis,
       {
-        status: 200,
-
-        headers: {
-          "Cache-Control":
-            "no-store",
-        },
+        error:
+          "Attempt Mock موردنظر پیدا نشد.",
+      },
+      {
+        status:
+          404,
       },
     );
   } catch (error) {
@@ -272,10 +320,13 @@ export async function POST(
     return NextResponse.json(
       {
         error:
-          "ارسال Attempt برای تحلیل با خطای غیرمنتظره مواجه شد.",
+          error instanceof Error
+            ? error.message
+            : "ارسال Attempt برای تحلیل با خطا مواجه شد.",
       },
       {
-        status: 500,
+        status:
+          500,
       },
     );
   }

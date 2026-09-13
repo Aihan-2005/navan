@@ -16,10 +16,6 @@ import {
 } from "lucide-react";
 
 import {
-  Card,
-} from "../../../../components/ui/card";
-
-import {
   cn,
 } from "../../../../lib/utils/cn";
 
@@ -63,7 +59,9 @@ type ListeningAudioPlayerProps =
 const numberFormatter =
   new Intl.NumberFormat(
     "fa-IR",
-  );function formatDuration(
+  );
+
+function formatDuration(
   totalSeconds:
     number,
 ): string {
@@ -124,7 +122,7 @@ export function ListeningAudioPlayer({
     isReady,
 
     currentTime,
-     duration,
+    duration,
 
     playbackRate,
 
@@ -178,7 +176,8 @@ export function ListeningAudioPlayer({
   useEffect(() => {
     onPlaybackSnapshot?.({
       isReady,
- isPlaying,
+
+      isPlaying,
 
       currentTime,
 
@@ -209,15 +208,18 @@ export function ListeningAudioPlayer({
     "listen_only";
 
   return (
-    <Card
-      className={cn(
-        "relative",
-        "overflow-hidden",
-        "p-5 sm:p-6",
-
-        isListenOnly &&
-          "border-cyan-400/20",
-      )}
+    <section
+      className="
+        relative
+        overflow-hidden
+        rounded-2xl
+        border
+        border-[#DCE7E5]
+        bg-white
+        p-5
+        shadow-[0_8px_28px_rgba(15,23,42,0.045)]
+        sm:p-6
+      "
     >
       <div
         aria-hidden="true"
@@ -229,22 +231,18 @@ export function ListeningAudioPlayer({
           h-56
           w-56
           rounded-full
-          bg-cyan-500/10
+          bg-[#14B8A6]/10
           blur-3xl
         "
       />
 
       <audio
-        ref={
-          audioRef
-        }
-        src={
-          audioUrl
-        }
+        ref={audioRef}
+        src={audioUrl}
         preload="metadata"
         onLoadedMetadata={
-                    handleLoadedMetadata
-  }
+          handleLoadedMetadata
+        }
         onTimeUpdate={
           handleTimeUpdate
         }
@@ -281,8 +279,8 @@ export function ListeningAudioPlayer({
                 items-center
                 gap-2
                 text-xs
-                font-medium
-                text-cyan-300
+                font-black
+                text-[#00685F]
               "
             >
               <Headphones
@@ -294,12 +292,13 @@ export function ListeningAudioPlayer({
                 ? "جلسه شنیدن متمرکز"
                 : "فایل تمرین"}
             </div>
-  <h2
+
+            <h2
               className="
                 mt-2
                 text-lg
-                font-bold
-                text-white
+                font-black
+                text-[#172321]
               "
             >
               {title}
@@ -311,12 +310,13 @@ export function ListeningAudioPlayer({
               className="
                 rounded-full
                 border
-                border-cyan-400/15
-                bg-cyan-400/[0.06]
+                border-[#B8DDD7]
+                bg-[#EEF9F7]
                 px-3
                 py-1.5
                 text-[11px]
-                text-cyan-200
+                font-medium
+                text-[#00685F]
               "
             >
               بدون Transcript اجباری
@@ -333,38 +333,22 @@ export function ListeningAudioPlayer({
             gap-4
           "
         >
-          <button
-            type="button"
+          <PlayerAction
+            label="پنج ثانیه عقب"
+            disabled={
+              !isReady
+            }
             onClick={() => {
               seekBy(
                 -5,
               );
             }}
-            disabled={
-              !isReady
-            }
-            aria-label="پنج ثانیه عقب"
-            className="
-              flex
-              h-12
-              w-12
-              items-center
-              justify-center
-              rounded-2xl
-              border
-              border-white/[0.08]
-              bg-white/[0.04]
-              text-slate-300
-              transition
-              hover:bg-white/[0.08]
-              disabled:cursor-not-allowed
-              disabled:opacity-40
-            "
-          >  <RotateCcw
+          >
+            <RotateCcw
               aria-hidden="true"
               className="h-5 w-5"
             />
-          </button>
+          </PlayerAction>
 
           <button
             type="button"
@@ -386,15 +370,14 @@ export function ListeningAudioPlayer({
               items-center
               justify-center
               rounded-full
-              bg-cyan-300
-              text-slate-950
-              shadow-lg
-              shadow-cyan-950/30
+              bg-[#00685F]
+              text-white
+              shadow-[0_10px_24px_rgba(0,104,95,0.22)]
               transition
               hover:scale-105
-              hover:bg-cyan-200
+              hover:bg-[#005A52]
               disabled:cursor-not-allowed
-              disabled:opacity-50
+              disabled:opacity-40
             "
           >
             {isPlaying ? (
@@ -414,38 +397,22 @@ export function ListeningAudioPlayer({
             )}
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              seekBy(
-                5,
-              ); }}
+          <PlayerAction
+            label="پنج ثانیه جلو"
             disabled={
               !isReady
             }
-            aria-label="پنج ثانیه جلو"
-            className="
-              flex
-              h-12
-              w-12
-              items-center
-              justify-center
-              rounded-2xl
-              border
-              border-white/[0.08]
-              bg-white/[0.04]
-              text-slate-300
-              transition
-              hover:bg-white/[0.08]
-              disabled:cursor-not-allowed
-              disabled:opacity-40
-            "
+            onClick={() => {
+              seekBy(
+                5,
+              );
+            }}
           >
             <RotateCw
               aria-hidden="true"
               className="h-5 w-5"
             />
-          </button>
+          </PlayerAction>
         </div>
 
         <div className="mt-7">
@@ -478,13 +445,14 @@ export function ListeningAudioPlayer({
               h-2
               w-full
               cursor-pointer
-              accent-cyan-300
+              accent-[#00685F]
               disabled:cursor-not-allowed
             "
             dir="ltr"
           />
 
           <div
+            dir="ltr"
             className="
               mt-2
               flex
@@ -492,9 +460,8 @@ export function ListeningAudioPlayer({
               justify-between
               text-xs
               tabular-nums
-              text-slate-500
+              text-[#64748B]
             "
-            dir="ltr"
           >
             <span>
               {formatDuration(
@@ -510,33 +477,28 @@ export function ListeningAudioPlayer({
           </div>
         </div>
 
-        {isListenOnly ? (
+        <div
+          className="
+            mt-5
+            h-1.5
+            overflow-hidden
+            rounded-full
+            bg-[#E7EFED]
+          "
+        >
           <div
             className="
-              mt-5
-              h-1.5
-              overflow-hidden
+              h-full
               rounded-full
-              bg-white/[0.05]
+              bg-[linear-gradient(90deg,#0D9488,#7C3AED)]
+              transition-[width]
             "
-            aria-label="پوشش فایل"
-          >
-            <div
-              className="
-                h-full
-                rounded-full
-                bg-gradient-to-r
-                 from-cyan-400
-                to-violet-400
-                transition-[width]
-              "
-              style={{
-                width:
-                  `${progressPercent}%`,
-              }}
-            />
-          </div>
-        ) : null}
+            style={{
+              width:
+                `${progressPercent}%`,
+            }}
+          />
+        </div>
 
         <div
           className="
@@ -544,7 +506,7 @@ export function ListeningAudioPlayer({
             grid
             gap-5
             border-t
-            border-white/[0.06]
+            border-[#E5ECEA]
             pt-5
             sm:grid-cols-2
           "
@@ -556,7 +518,8 @@ export function ListeningAudioPlayer({
                 items-center
                 gap-2
                 text-xs
-                text-slate-500
+                font-medium
+                text-[#64748B]
               "
             >
               <Gauge
@@ -584,9 +547,8 @@ export function ListeningAudioPlayer({
                     speed;
 
                   return (
-                    <button key={
-                        speed
-                      }
+                    <button
+                      key={speed}
                       type="button"
                       onClick={() => {
                         updatePlaybackRate(
@@ -599,19 +561,20 @@ export function ListeningAudioPlayer({
                         "px-3",
                         "py-1.5",
                         "text-xs",
+                        "font-bold",
                         "transition",
 
                         active
                           ? [
-                              "border-cyan-300/30",
-                              "bg-cyan-400/10",
-                              "text-cyan-200",
+                              "border-[#A9D4CD]",
+                              "bg-[#E7F4F2]",
+                              "text-[#00685F]",
                             ]
                           : [
-                              "border-white/[0.06]",
-                              "bg-white/[0.025]",
-                              "text-slate-500",
-                              "hover:bg-white/[0.05]",
+                              "border-[#DCE4E2]",
+                              "bg-white",
+                              "text-[#64748B]",
+                              "hover:bg-[#F8FAF9]",
                             ],
                       )}
                     >
@@ -630,7 +593,8 @@ export function ListeningAudioPlayer({
                 items-center
                 gap-2
                 text-xs
-                text-slate-500
+                font-medium
+                text-[#64748B]
               "
             >
               {isMuted ? (
@@ -650,7 +614,8 @@ export function ListeningAudioPlayer({
 
             <div
               className="
-                mt-3 flex
+                mt-3
+                flex
                 items-center
                 gap-3
               "
@@ -659,6 +624,11 @@ export function ListeningAudioPlayer({
                 type="button"
                 onClick={
                   toggleMute
+                }
+                aria-label={
+                  isMuted
+                    ? "فعال کردن صدا"
+                    : "بی‌صدا کردن"
                 }
                 className="
                   flex
@@ -669,18 +639,13 @@ export function ListeningAudioPlayer({
                   justify-center
                   rounded-lg
                   border
-                  border-white/[0.06]
-                  bg-white/[0.025]
-                  text-slate-400
+                  border-[#DCE4E2]
+                  bg-white
+                  text-[#52615F]
                   transition
-                  hover:bg-white/[0.05]
-                  hover:text-white
+                  hover:bg-[#F8FAF9]
+                  hover:text-[#00685F]
                 "
-                aria-label={
-                  isMuted
-                    ? "فعال کردن صدا"
-                    : "بی‌صدا کردن"
-                }
               >
                 {isMuted ? (
                   <VolumeX
@@ -716,11 +681,11 @@ export function ListeningAudioPlayer({
                   );
                 }}
                 aria-label="حجم صدا"
-                 className="
+                className="
                   h-2
                   w-full
                   cursor-pointer
-                  accent-cyan-300
+                  accent-[#00685F]
                 "
                 dir="ltr"
               />
@@ -735,19 +700,68 @@ export function ListeningAudioPlayer({
               mt-5
               rounded-xl
               border
-              border-red-400/15
-              bg-red-400/[0.05]
+              border-[#FECACA]
+              bg-[#FEF2F2]
               px-4
               py-3
               text-sm
               leading-6
-              text-red-200
+              text-[#B91C1C]
             "
           >
             {errorMessage}
           </div>
         ) : null}
       </div>
-    </Card>
+    </section>
   );
 }
+
+function PlayerAction({
+  label,
+  disabled,
+  onClick,
+  children,
+}: Readonly<{
+  label:
+    string;
+
+  disabled:
+    boolean;
+
+  onClick:
+    () => void;
+
+  children:
+    React.ReactNode;
+}>) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+      className="
+        flex
+        h-12
+        w-12
+        items-center
+        justify-center
+        rounded-2xl
+        border
+        border-[#DCE4E2]
+        bg-[#F8FAF9]
+        text-[#52615F]
+        transition
+        hover:border-[#ABD4CE]
+        hover:bg-[#EEF8F6]
+        hover:text-[#00685F]
+        disabled:cursor-not-allowed
+        disabled:opacity-40
+      "
+    >
+      {children}
+    </button>
+  );
+}
+

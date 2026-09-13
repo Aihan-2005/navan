@@ -12,10 +12,6 @@ import {
 } from "lucide-react";
 
 import {
-  Card,
-} from "../../../../components/ui/card";
-
-import {
   cn,
 } from "../../../../lib/utils/cn";
 
@@ -26,6 +22,7 @@ import {
 import type {
   ListeningAttemptAnalysis,
   ListeningErrorPatternSeverity,
+  ListeningSkillProfile,
 } from "../../types/listening.types";
 
 type ListeningAiDiagnosisPanelProps =
@@ -39,7 +36,13 @@ const numberFormatter =
     "fa-IR",
   );
 
-const SKILL_LABELS = {
+const SKILL_LABELS:
+  Readonly<
+    Record<
+      keyof ListeningSkillProfile,
+      string
+    >
+  > = {
   mainIdea:
     "ایده اصلی",
 
@@ -57,13 +60,14 @@ const SKILL_LABELS = {
 
   inference:
     "استنباط",
-} as const;
+};
 
 function getSeverityLabel(
   severity:
     ListeningErrorPatternSeverity,
 ): string {
-  switch (severity
+  switch (
+    severity
   ) {
     case "high":
       return "مهم";
@@ -84,13 +88,13 @@ function getSeverityClass(
     severity
   ) {
     case "high":
-      return "border-red-400/15 bg-red-400/[0.05] text-red-200";
+      return "border-[#FECACA] bg-[#FEF2F2] text-[#B91C1C]";
 
     case "medium":
-      return "border-amber-400/15 bg-amber-400/[0.05] text-amber-200";
+      return "border-[#F6D99B] bg-[#FFFBEB] text-[#B45309]";
 
     case "low":
-      return "border-cyan-400/15 bg-cyan-400/[0.05] text-cyan-200";
+      return "border-[#B9E4DC] bg-[#F0FDF9] text-[#047857]";
   }
 }
 
@@ -129,11 +133,12 @@ export function ListeningAiDiagnosisPanel({
     vocabularyDiscoveries,
     actionPlan,
     aiCoach,
-  } =  analysis;
+  } =
+    analysis;
 
   return (
     <section
-      aria-label="تحلیل عمیق هوش مصنوعی"
+      aria-label="تحلیل عمیق Listening"
       className="space-y-6"
     >
       {analysis.engine ===
@@ -142,26 +147,36 @@ export function ListeningAiDiagnosisPanel({
           className="
             rounded-xl
             border
-            border-amber-400/15
-            bg-amber-400/[0.04]
+            border-[#F3D7A1]
+            bg-[#FFFBEB]
             px-4
             py-3
             text-xs
             leading-6
-            text-amber-200
+            text-[#92400E]
           "
         >
-          این بخش فعلاً با داده Mock نمایش داده می‌شود. Contract نهایی برای اتصال AI آماده است و Backend واقعی بعداً باید همین ساختار را با `engine: "ai"` برگرداند.
+          داده‌های این گزارش در حالت Mock
+          هستند. Backend واقعی باید همین
+          Contract را با
+          {" "}
+          <code>engine: "ai"</code>
+          {" "}
+          برگرداند.
         </div>
       ) : null}
 
       {aiCoach ? (
-        <Card
+        <section
           className="
             relative
             overflow-hidden
-            border-violet-400/15
+            rounded-[24px]
+            border
+            border-[#DDD3F4]
+            bg-[linear-gradient(135deg,#F8F5FF_0%,#FFFFFF_72%)]
             p-6
+            shadow-[0_6px_22px_rgba(15,23,42,0.035)]
           "
         >
           <div
@@ -174,7 +189,7 @@ export function ListeningAiDiagnosisPanel({
               h-56
               w-56
               rounded-full
-              bg-violet-500/10
+              bg-[#8B5CF6]/10
               blur-3xl
             "
           />
@@ -196,7 +211,7 @@ export function ListeningAiDiagnosisPanel({
                     flex
                     items-center
                     gap-2
-                    text-violet-300
+                    text-[#712AE2]
                   "
                 >
                   <BrainCircuit
@@ -207,7 +222,7 @@ export function ListeningAiDiagnosisPanel({
                   <span
                     className="
                       text-sm
-                      font-medium
+                      font-black
                     "
                   >
                     تشخیص مربی AI
@@ -219,12 +234,14 @@ export function ListeningAiDiagnosisPanel({
                     mt-3
                     max-w-3xl
                     text-xl
-                    font-bold
+                    font-black
                     leading-8
-                    text-white
+                    text-[#0F172A]
                   "
                 >
-                  {aiCoach.headline}
+                  {
+                    aiCoach.headline
+                  }
                 </h2>
 
                 <p
@@ -233,10 +250,12 @@ export function ListeningAiDiagnosisPanel({
                     max-w-3xl
                     text-sm
                     leading-8
-                    text-slate-400
+                    text-[#64748B]
                   "
                 >
-                  {aiCoach.diagnosis}
+                  {
+                    aiCoach.diagnosis
+                  }
                 </p>
               </div>
 
@@ -245,18 +264,19 @@ export function ListeningAiDiagnosisPanel({
                   shrink-0
                   rounded-2xl
                   border
-                  border-white/[0.06]
-                  bg-white/[0.025]
+                  border-[#E0D6F7]
+                  bg-white
                   p-4
+                  shadow-sm
                 "
               >
                 <p
                   className="
                     text-xs
-                    text-slate-500
+                    text-[#64748B]
                   "
                 >
- سطح تخمینی Listening
+                  سطح تخمینی Listening
                 </p>
 
                 <div
@@ -270,10 +290,12 @@ export function ListeningAiDiagnosisPanel({
                   <strong
                     className="
                       text-3xl
-                      text-white
+                      font-black
+                      text-[#712AE2]
                     "
                   >
-                    {aiCoach.estimatedCefrLevel ??
+                    {aiCoach
+                      .estimatedCefrLevel ??
                       "—"}
                   </strong>
 
@@ -281,7 +303,7 @@ export function ListeningAiDiagnosisPanel({
                     className="
                       pb-1
                       text-xs
-                      text-slate-500
+                      text-[#64748B]
                     "
                   >
                     اطمینان{" "}
@@ -320,48 +342,63 @@ export function ListeningAiDiagnosisPanel({
                 value={
                   aiCoach.nextSessionGoal
                 }
-              /> </div>
+              />
+            </div>
 
             <div
               className="
                 mt-5
                 rounded-xl
                 border
-                border-violet-400/10
-                bg-violet-400/[0.04]
+                border-[#DDD3F4]
+                bg-[#F8F5FF]
                 px-4
                 py-3
                 text-sm
                 leading-7
-                text-violet-100/80
+                text-[#5B5270]
               "
             >
-              {aiCoach.encouragement}
+              {
+                aiCoach.encouragement
+              }
             </div>
           </div>
-        </Card>
+        </section>
       ) : null}
 
       {skillProfile ? (
-        <Card className="p-6">
+        <section
+          className="
+            rounded-2xl
+            border
+            border-[#DCE5E3]
+            bg-white
+            p-6
+            shadow-[0_5px_20px_rgba(15,23,42,0.035)]
+          "
+        >
           <div
             className="
               flex
               items-center
               gap-2
-              text-cyan-300
             "
           >
             <Ear
               aria-hidden="true"
-              className="h-5 w-5"
+              className="
+                h-5
+                w-5
+                text-[#00685F]
+              "
             />
 
             <h2
               className="
                 text-lg
-                font-bold
-                text-white
+                font-black
+                text-[#0F172A]
               "
             >
               پروفایل مهارت شنیداری
@@ -373,10 +410,12 @@ export function ListeningAiDiagnosisPanel({
               mt-2
               text-xs
               leading-6
-              text-slate-500
+              text-[#64748B]
             "
           >
-            این بخش فقط دقت نوشتن را نمی‌سنجد؛ نوع اطلاعاتی که در سیگنال صوتی تشخیص می‌دهی را جداگانه بررسی می‌کند.
+            نوع اطلاعاتی که در سیگنال صوتی
+            تشخیص می‌دهی به‌صورت جداگانه
+            بررسی شده است.
           </p>
 
           <div
@@ -387,65 +426,72 @@ export function ListeningAiDiagnosisPanel({
               sm:grid-cols-2
               xl:grid-cols-3
             "
-          > {Object.entries(
-              SKILL_LABELS,
+          >
+            {(
+              Object.keys(
+                SKILL_LABELS,
+              ) as
+                Array<
+                  keyof ListeningSkillProfile
+                >
             ).map(
-              ([
-                key,
-                label,
-              ]) => {
-                const typedKey =
-                  key as keyof typeof skillProfile;
-
-                const value =
-                  skillProfile[
-                    typedKey
-                  ];
-
-                return (
-                  <SkillMetric
-                    key={
+              (key) => (
+                <SkillMetric
+                  key={key}
+                  label={
+                    SKILL_LABELS[
                       key
-                    }
-                    label={
-                      label
-                    }
-                    value={
-                      value
-                    }
-                  />
-                );
-              },
+                    ]
+                  }
+                  value={
+                    skillProfile[
+                      key
+                    ]
+                  }
+                />
+              ),
             )}
           </div>
-        </Card>
+        </section>
       ) : null}
 
       {errorPatterns.length >
       0 ? (
-        <Card className="p-6">
+        <section
+          className="
+            rounded-2xl
+            border
+            border-[#DCE5E3]
+            bg-white
+            p-6
+            shadow-[0_5px_20px_rgba(15,23,42,0.035)]
+          "
+        >
           <div
             className="
               flex
               items-center
               gap-2
-              text-amber-300
             "
           >
             <MessageSquareWarning
               aria-hidden="true"
-              className="h-5 w-5"
+              className="
+                h-5
+                w-5
+                text-[#D97706]
+              "
             />
 
             <h2
               className="
                 text-lg
-                font-bold
-                text-white
+                font-black
+                text-[#0F172A]
               "
             >
               الگوهای خطای شنیداری
-             </h2>
+            </h2>
           </div>
 
           <div
@@ -465,8 +511,8 @@ export function ListeningAiDiagnosisPanel({
                   className="
                     rounded-2xl
                     border
-                    border-white/[0.06]
-                    bg-white/[0.025]
+                    border-[#E2E8F0]
+                    bg-[#FAFCFB]
                     p-5
                   "
                 >
@@ -481,11 +527,13 @@ export function ListeningAiDiagnosisPanel({
                   >
                     <h3
                       className="
-                        font-bold
-                        text-white
+                        font-black
+                        text-[#0F172A]
                       "
                     >
-                      {pattern.title}
+                      {
+                        pattern.title
+                      }
                     </h3>
 
                     <span
@@ -495,6 +543,7 @@ export function ListeningAiDiagnosisPanel({
                         "px-2.5",
                         "py-1",
                         "text-[10px]",
+                        "font-bold",
                         getSeverityClass(
                           pattern.severity,
                         ),
@@ -511,7 +560,7 @@ export function ListeningAiDiagnosisPanel({
                       mt-3
                       text-sm
                       leading-7
-                       text-slate-400
+                      text-[#64748B]
                     "
                   >
                     {
@@ -540,11 +589,13 @@ export function ListeningAiDiagnosisPanel({
                             className="
                               block
                               rounded-lg
-                              bg-black/15
+                              border
+                              border-[#E2E8F0]
+                              bg-white
                               px-3
                               py-2
                               text-xs
-                              text-slate-300
+                              text-[#334155]
                             "
                           >
                             {
@@ -555,19 +606,20 @@ export function ListeningAiDiagnosisPanel({
                       )}
                     </div>
                   ) : null}
-<div
+
+                  <div
                     className="
                       mt-4
                       flex
                       items-start
                       gap-2
                       rounded-xl
-                      bg-cyan-400/[0.04]
+                      bg-[#EFFAF8]
                       px-3
                       py-3
                       text-xs
                       leading-6
-                      text-cyan-100/70
+                      text-[#52615F]
                     "
                   >
                     <Lightbulb
@@ -577,7 +629,7 @@ export function ListeningAiDiagnosisPanel({
                         h-4
                         w-4
                         shrink-0
-                        text-cyan-300
+                        text-[#00685F]
                       "
                     />
 
@@ -589,36 +641,49 @@ export function ListeningAiDiagnosisPanel({
               ),
             )}
           </div>
-        </Card>
+        </section>
       ) : null}
 
       {difficultSegments.length >
       0 ? (
-        <Card className="p-6">
+        <section
+          className="
+            rounded-2xl
+            border
+            border-[#DCE5E3]
+            bg-white
+            p-6
+            shadow-[0_5px_20px_rgba(15,23,42,0.035)]
+          "
+        >
           <div
             className="
               flex
               items-center
               gap-2
-              text-fuchsia-300
             "
           >
             <Volume2
               aria-hidden="true"
-              className="h-5 w-5"
+              className="
+                h-5
+                w-5
+                text-[#7C3AED]
+              "
             />
 
             <h2
               className="
                 text-lg
-                font-bold
-                text-white
+                font-black
+                text-[#0F172A]
               "
             >
               بخش‌های دشوار صوت
             </h2>
           </div>
-<div
+
+          <div
             className="
               mt-5
               grid
@@ -637,14 +702,15 @@ export function ListeningAiDiagnosisPanel({
                   className="
                     rounded-2xl
                     border
-                    border-white/[0.06]
-                    bg-white/[0.025]
+                    border-[#E2E8F0]
+                    bg-[#FAFCFB]
                     p-5
                   "
                 >
                   <div
                     className="
                       flex
+                      flex-wrap
                       items-center
                       justify-between
                       gap-3
@@ -657,11 +723,11 @@ export function ListeningAiDiagnosisPanel({
                         items-center
                         gap-1.5
                         rounded-full
-                        bg-white/[0.04]
+                        bg-[#F1F5F4]
                         px-2.5
                         py-1
                         text-xs
-                        text-slate-400
+                        text-[#52615F]
                       "
                     >
                       <Clock3
@@ -683,8 +749,10 @@ export function ListeningAiDiagnosisPanel({
                         dir="ltr"
                         className="
                           text-xs
-                          text-fuchsia-300
-                        "  >
+                          font-bold
+                          text-[#7C3AED]
+                        "
+                      >
                         {
                           segment.focusPhrase
                         }
@@ -698,9 +766,9 @@ export function ListeningAiDiagnosisPanel({
                       mt-4
                       text-left
                       text-sm
-                      font-medium
+                      font-bold
                       leading-7
-                      text-white
+                      text-[#0F172A]
                     "
                   >
                     {
@@ -713,7 +781,7 @@ export function ListeningAiDiagnosisPanel({
                       mt-4
                       text-xs
                       leading-6
-                      text-slate-500
+                      text-[#64748B]
                     "
                   >
                     {
@@ -726,23 +794,24 @@ export function ListeningAiDiagnosisPanel({
                       mt-3
                       rounded-xl
                       border
-                      border-fuchsia-400/10
-                      bg-fuchsia-400/[0.035]
+                      border-[#DDD3F4]
+                      bg-[#F8F5FF]
                       px-3
                       py-3
                       text-xs
                       leading-6
-                      text-fuchsia-100/70
+                      text-[#5B5270]
                     "
                   >
                     {
                       segment.tipFa
                     }
                   </div>
-                </article> ),
+                </article>
+              ),
             )}
           </div>
-        </Card>
+        </section>
       ) : null}
 
       <div
@@ -754,30 +823,25 @@ export function ListeningAiDiagnosisPanel({
       >
         {missedWords.length >
         0 ? (
-          <Card className="p-6">
-            <div
+          <section
+            className="
+              rounded-2xl
+              border
+              border-[#DCE5E3]
+              bg-white
+              p-6
+              shadow-[0_5px_20px_rgba(15,23,42,0.035)]
+            "
+          >
+            <h2
               className="
-                flex
-                items-center
-                gap-2
-                text-red-300
+                text-lg
+                font-black
+                text-[#0F172A]
               "
             >
-              <Target
-                aria-hidden="true"
-                className="h-5 w-5"
-              />
-
-              <h2
-                className="
-                  text-base
-                  font-bold
-                  text-white
-                "
-              >
-                کلمات ازدست‌رفته
-              </h2>
-            </div>
+              کلمات از دست‌رفته
+            </h2>
 
             <div
               className="
@@ -789,13 +853,13 @@ export function ListeningAiDiagnosisPanel({
                 (
                   item,
                 ) => (
-                  <div
+                  <article
                     key={`${item.word}-${item.heardAs ?? "none"}`}
                     className="
                       rounded-xl
                       border
-                      border-white/[0.06]
-                      bg-white/[0.025]
+                      border-[#E2E8F0]
+                      bg-[#FAFCFB]
                       p-4
                     "
                   >
@@ -804,19 +868,17 @@ export function ListeningAiDiagnosisPanel({
                         flex
                         flex-wrap
                         items-center
-                        gap-2
+                        gap-3
                       "
                     >
                       <strong
                         dir="ltr"
                         className="
                           text-sm
-                          text-white
+                          text-[#B91C1C]
                         "
                       >
-                        {
-                          item.word
-                        }
+                        {item.word}
                       </strong>
 
                       {item.heardAs ? (
@@ -824,13 +886,12 @@ export function ListeningAiDiagnosisPanel({
                           dir="ltr"
                           className="
                             text-xs
-                            text-red-300
+                            text-[#64748B]
                           "
                         >
-                              شنیدی:{" "}
-                          {
-                            item.heardAs
-                          }
+                          شنیده شد:
+                          {" "}
+                          {item.heardAs}
                         </span>
                       ) : null}
                     </div>
@@ -839,7 +900,8 @@ export function ListeningAiDiagnosisPanel({
                       className="
                         mt-2
                         text-xs
-                        text-cyan-200/70
+                        font-bold
+                        text-[#00685F]
                       "
                     >
                       {
@@ -852,45 +914,41 @@ export function ListeningAiDiagnosisPanel({
                         mt-2
                         text-xs
                         leading-6
-                        text-slate-500
+                        text-[#64748B]
                       "
                     >
                       {
                         item.reasonFa
                       }
                     </p>
-                  </div>
+                  </article>
                 ),
               )}
             </div>
-          </Card>
+          </section>
         ) : null}
 
         {vocabularyDiscoveries.length >
         0 ? (
-          <Card className="p-6">
-            <div
+          <section
+            className="
+              rounded-2xl
+              border
+              border-[#DCE5E3]
+              bg-white
+              p-6
+              shadow-[0_5px_20px_rgba(15,23,42,0.035)]
+            "
+          >
+            <h2
               className="
-                flex
-                items-center
-                gap-2
-                text-emerald-300
+                text-lg
+                font-black
+                text-[#0F172A]
               "
             >
-              <Sparkles
-                aria-hidden="true"
-                className="h-5 w-5"
-              />
- <h2
-                className="
-                  text-base
-                  font-bold
-                  text-white
-                "
-              >
-                واژگان کشف‌شده
-              </h2>
-            </div>
+              واژگان جدید از همین فایل
+            </h2>
 
             <div
               className="
@@ -902,21 +960,22 @@ export function ListeningAiDiagnosisPanel({
                 (
                   item,
                 ) => (
-                  <div
+                  <article
                     key={
                       item.word
                     }
                     className="
                       rounded-xl
                       border
-                      border-white/[0.06]
-                      bg-white/[0.025]
+                      border-[#E2E8F0]
+                      bg-[#FAFCFB]
                       p-4
                     "
                   >
                     <div
                       className="
                         flex
+                        flex-wrap
                         items-center
                         justify-between
                         gap-3
@@ -926,7 +985,7 @@ export function ListeningAiDiagnosisPanel({
                         dir="ltr"
                         className="
                           text-sm
-                          text-white
+                          text-[#0F172A]
                         "
                       >
                         {
@@ -937,26 +996,26 @@ export function ListeningAiDiagnosisPanel({
                       <span
                         className="
                           rounded-full
-                          bg-emerald-400/[0.07]
-                          px-2
+                          bg-[#E7F4F2]
+                          px-2.5
                           py-1
-                          text-[10px]
-                          text-emerald-300
+                          text-[9px]
+                          font-bold
+                          text-[#00685F]
                         "
                       >
-                        {item.masteryStatus ===
-                        "new"
-                          ? "جدید"
-                          : item.masteryStatus===
-                              "review"
-                            ? "مرور"
-                            : "آشنا"}
+                        {
+                          item.masteryStatus
+                        }
                       </span>
-                    </div>  <p
+                    </div>
+
+                    <p
                       className="
                         mt-2
                         text-xs
-                        text-cyan-200/70
+                        font-bold
+                        text-[#00685F]
                       "
                     >
                       {
@@ -970,57 +1029,67 @@ export function ListeningAiDiagnosisPanel({
                         mt-3
                         text-left
                         text-xs
-                        italic
                         leading-6
-                        text-slate-400
+                        text-[#334155]
                       "
                     >
-                      “
                       {
                         item.phrase
                       }
-                      ”
                     </p>
 
                     <p
                       className="
-                        mt-2
+                        mt-3
                         text-xs
                         leading-6
-                        text-slate-600
+                        text-[#64748B]
                       "
                     >
                       {
                         item.noteFa
                       }
                     </p>
-                  </div>
+                  </article>
                 ),
               )}
             </div>
-          </Card>
+          </section>
         ) : null}
-      </div> {actionPlan.length >
+      </div>
+
+      {actionPlan.length >
       0 ? (
-        <Card className="p-6">
+        <section
+          className="
+            rounded-[24px]
+            border
+            border-[#CBE1DD]
+            bg-[#F5FBF9]
+            p-6
+          "
+        >
           <div
             className="
               flex
               items-center
               gap-2
-              text-emerald-300
             "
           >
             <ListChecks
               aria-hidden="true"
-              className="h-5 w-5"
+              className="
+                h-5
+                w-5
+                text-[#00685F]
+              "
             />
 
             <h2
               className="
                 text-lg
-                font-bold
-                text-white
+                font-black
+                text-[#0F172A]
               "
             >
               برنامه تمرین بعدی
@@ -1055,8 +1124,8 @@ export function ListeningAiDiagnosisPanel({
                     className="
                       rounded-2xl
                       border
-                      border-white/[0.06]
-                      bg-white/[0.025]
+                      border-[#D8E5E2]
+                      bg-white
                       p-5
                     "
                   >
@@ -1066,33 +1135,41 @@ export function ListeningAiDiagnosisPanel({
                         items-center
                         justify-between
                         gap-3
-                     "
+                      "
                     >
                       <span
                         className="
                           flex
-                          h-7
-                          w-7
+                          h-8
+                          w-8
                           items-center
                           justify-center
-                          rounded-full
-                          bg-emerald-400/10
+                          rounded-lg
+                          bg-[#00685F]
                           text-xs
-                          font-bold
-                          text-emerald-300
+                          font-black
+                          text-white
                         "
                       >
-                        {
-                          item.priority
-                        }
+                        {numberFormatter.format(
+                          item.priority,
+                        )}
                       </span>
 
                       <span
                         className="
+                          inline-flex
+                          items-center
+                          gap-1
                           text-[10px]
-                          text-slate-500
+                          text-[#64748B]
                         "
                       >
+                        <Clock3
+                          aria-hidden="true"
+                          className="h-3 w-3"
+                        />
+
                         {numberFormatter.format(
                           item.durationMinutes,
                         )}{" "}
@@ -1103,20 +1180,22 @@ export function ListeningAiDiagnosisPanel({
                     <h3
                       className="
                         mt-4
-                        font-bold
-                        text-white
+                        text-sm
+                        font-black
+                        text-[#0F172A]
                       "
                     >
                       {
                         item.title
                       }
                     </h3>
- <p
+
+                    <p
                       className="
                         mt-2
                         text-xs
                         leading-6
-                        text-slate-500
+                        text-[#64748B]
                       "
                     >
                       {
@@ -1129,11 +1208,12 @@ export function ListeningAiDiagnosisPanel({
                         mt-4
                         inline-flex
                         rounded-full
-                        bg-cyan-400/[0.06]
+                        bg-[#F4EFFF]
                         px-2.5
                         py-1
                         text-[10px]
-                        text-cyan-300
+                        font-bold
+                        text-[#712AE2]
                       "
                     >
                       {
@@ -1146,9 +1226,71 @@ export function ListeningAiDiagnosisPanel({
                 ),
               )}
           </div>
-        </Card>
+        </section>
       ) : null}
     </section>
+  );
+}
+
+function DiagnosisItem({
+  icon: Icon,
+  label,
+  value,
+}: Readonly<{
+  icon:
+    typeof Sparkles;
+
+  label:
+    string;
+
+  value:
+    string;
+}>) {
+  return (
+    <div
+      className="
+        rounded-2xl
+        border
+        border-[#E2E8F0]
+        bg-white
+        p-4
+      "
+    >
+      <div
+        className="
+          flex
+          items-center
+          gap-2
+          text-[#712AE2]
+        "
+      >
+        <Icon
+          aria-hidden="true"
+          className="h-4 w-4"
+        />
+
+        <span
+          className="
+            text-xs
+            font-bold
+          "
+        >
+          {label}
+        </span>
+      </div>
+
+      <p
+        className="
+          mt-3
+          text-sm
+          font-medium
+          leading-7
+          text-[#334155]
+        "
+      >
+        {value}
+      </p>
+    </div>
   );
 }
 
@@ -1163,15 +1305,16 @@ function SkillMetric({
     number;
 }>) {
   return (
-    <div
+    <article
       className="
-        rounded-2xl
+        rounded-xl
         border
-        border-white/[0.06]
-        bg-white/[0.025]
+        border-[#E2E8F0]
+        bg-[#FAFCFB]
         p-4
       "
-    ><div
+    >
+      <div
         className="
           flex
           items-center
@@ -1182,7 +1325,8 @@ function SkillMetric({
         <span
           className="
             text-xs
-            text-slate-500
+            font-bold
+            text-[#52615F]
           "
         >
           {label}
@@ -1191,10 +1335,11 @@ function SkillMetric({
         <strong
           className="
             text-sm
-            text-white
+            font-black
+            text-[#00685F]
           "
         >
-          {Math.round(
+          {numberFormatter.format(
             value,
           )}
           ٪
@@ -1204,17 +1349,17 @@ function SkillMetric({
       <div
         className="
           mt-3
-          h-1.5
+          h-2
           overflow-hidden
           rounded-full
-          bg-white/[0.05]
+          bg-[#E5EEEC]
         "
       >
         <div
           className="
             h-full
             rounded-full
-            bg-cyan-400
+            bg-[#0D9488]
           "
           style={{
             width:
@@ -1222,60 +1367,6 @@ function SkillMetric({
           }}
         />
       </div>
-    </div>
-  );
-}
-function DiagnosisItem({
-  icon: Icon,
-  label,
-  value,
-}: Readonly<{
-  icon:
-    typeof Target;
-
-  label:
-    string;
-
-  value:
-    string;
-}>) {
-  return (
-    <div
-      className="
-        rounded-xl
-        border
-        border-white/[0.06]
-        bg-white/[0.025]
-        p-4
-      "
-    >
-      <div
-        className="
-          flex
-          items-center
-          gap-2
-          text-xs
-          text-slate-500
-        "
-      >
-        <Icon
-          aria-hidden="true"
-          className="h-4 w-4"
-        />
-
-        {label}
-      </div>
-
-      <p
-        className="
-          mt-2
-          text-sm
-          leading-6
-          text-slate-200
-        "
-      >
-        {value}
-      </p>
-    </div>
+    </article>
   );
 }

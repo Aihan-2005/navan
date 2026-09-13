@@ -7,13 +7,15 @@ import {
   UploadCloud,
   X,
 } from "lucide-react";
+
 import {
   useRef,
   useState,
 } from "react";
 
-import { Card } from "../../../../components/ui/card";
-import { cn } from "../../../../lib/utils/cn";
+import {
+  cn,
+} from "../../../../lib/utils/cn";
 
 import {
   LISTENING_NOTES_ACCEPT,
@@ -33,39 +35,55 @@ import {
 
 type ListeningNotesUploaderProps =
   Readonly<{
-    onReplaceTranscript: (
-      text: string,
-      result: ListeningNotesUploadResult,
-    ) => void;
+    onReplaceTranscript:
+      (
+        text:
+          string,
+        result:
+          ListeningNotesUploadResult,
+      ) => void;
 
-    onAppendTranscript: (
-      text: string,
-      result: ListeningNotesUploadResult,
-    ) => void;
+    onAppendTranscript:
+      (
+        text:
+          string,
+        result:
+          ListeningNotesUploadResult,
+      ) => void;
   }>;
 
 const numberFormatter =
-  new Intl.NumberFormat("fa-IR", {
-    maximumFractionDigits: 1,
-  });
+  new Intl.NumberFormat(
+    "fa-IR",
+    {
+      maximumFractionDigits:
+        1,
+    },
+  );
 
 function formatFileSize(
-  sizeBytes: number,
+  sizeBytes:
+    number,
 ): string {
   const sizeInMegabytes =
-    sizeBytes / (1024 * 1024);
+    sizeBytes /
+    (
+      1024 *
+      1024
+    );
 
-  if (sizeInMegabytes >= 1) {
+  if (
+    sizeInMegabytes >=
+    1
+  ) {
     return `${numberFormatter.format(
       sizeInMegabytes,
     )} مگابایت`;
   }
 
-  const sizeInKilobytes =
-    sizeBytes / 1024;
-
   return `${numberFormatter.format(
-    sizeInKilobytes,
+    sizeBytes /
+      1024,
   )} کیلوبایت`;
 }
 
@@ -79,10 +97,17 @@ export function ListeningNotesUploader({
     );
 
   const dragCounterRef =
-    useRef(0);
+    useRef(
+      0,
+    );
 
-  const [isDragging, setIsDragging] =
-    useState(false);
+  const [
+    isDragging,
+    setIsDragging,
+  ] =
+    useState(
+      false,
+    );
 
   const {
     status,
@@ -95,70 +120,124 @@ export function ListeningNotesUploader({
 
     upload,
     reset,
-  } = useListeningNotesUpload();
+  } =
+    useListeningNotesUpload();
 
   const isProcessing =
-    status === "uploading" ||
-    status === "extracting";
+    status ===
+      "uploading" ||
+    status ===
+      "extracting";
 
   function openFilePicker(): void {
     inputRef.current?.click();
   }
 
   function processFile(
-    file: File | undefined,
+    file:
+      File | undefined,
   ): void {
     if (!file) {
       return;
     }
 
-    void upload(file);
+    void upload(
+      file,
+    );
   }
 
   function handleReset(): void {
     reset();
 
-    if (inputRef.current) {
-      inputRef.current.value = "";
+    if (
+      inputRef.current
+    ) {
+      inputRef.current.value =
+        "";
     }
   }
 
   return (
-    <Card className="p-5 sm:p-6">
+    <section
+      className="
+        rounded-2xl
+        border
+        border-[#DCE7E5]
+        bg-white
+        p-5
+        shadow-[0_7px_24px_rgba(15,23,42,0.04)]
+        sm:p-6
+      "
+    >
       <div>
-        <div className="flex items-center gap-2 text-violet-300">
+        <div
+          className="
+            flex
+            items-center
+            gap-2
+            text-[#712AE2]
+          "
+        >
           <UploadCloud
             aria-hidden="true"
             className="h-5 w-5"
           />
 
-          <span className="text-sm font-medium">
+          <span
+            className="
+              text-sm
+              font-black
+            "
+          >
             آپلود نوشته
           </span>
         </div>
 
-        <h2 className="mt-2 text-xl font-bold text-white">
+        <h2
+          className="
+            mt-2
+            text-xl
+            font-black
+            text-[#172321]
+          "
+        >
           نوشته دستی یا فایل متنی را وارد کن
         </h2>
 
-        <p className="mt-2 text-xs leading-6 text-slate-500">
-          تصویر نوشته، فایل Word، PDF یا TXT را آپلود
-          کن. متن استخراج‌شده قبل از ورود به Transcript
-          قابل ویرایش خواهد بود.
+        <p
+          className="
+            mt-2
+            text-xs
+            leading-6
+            text-[#64748B]
+          "
+        >
+          تصویر، Word، PDF یا TXT را آپلود
+          کن. متن استخراج‌شده قبل از ورود
+          به Transcript قابل ویرایش است.
         </p>
       </div>
 
       <input
-        ref={inputRef}
+        ref={
+          inputRef
+        }
         type="file"
-        accept={LISTENING_NOTES_ACCEPT}
-        disabled={isProcessing}
-        onChange={(event) => {
+        accept={
+          LISTENING_NOTES_ACCEPT
+        }
+        disabled={
+          isProcessing
+        }
+        onChange={(
+          event,
+        ) => {
           processFile(
             event.target.files?.[0],
           );
 
-          event.target.value = "";
+          event.target.value =
+            "";
         }}
         className="sr-only"
         aria-label="انتخاب فایل نوشته"
@@ -169,70 +248,103 @@ export function ListeningNotesUploader({
           role="button"
           tabIndex={0}
           aria-label="محل رهاکردن فایل نوشته"
-          onClick={openFilePicker}
-          onKeyDown={(event) => {
+          onClick={
+            openFilePicker
+          }
+          onKeyDown={(
+            event,
+          ) => {
             if (
-              event.key === "Enter" ||
-              event.key === " "
+              event.key ===
+                "Enter" ||
+              event.key ===
+                " "
             ) {
               event.preventDefault();
+
               openFilePicker();
             }
           }}
-          onDragEnter={(event) => {
+          onDragEnter={(
+            event,
+          ) => {
             event.preventDefault();
 
-            dragCounterRef.current += 1;
+            dragCounterRef.current +=
+              1;
 
-            setIsDragging(true);
+            setIsDragging(
+              true,
+            );
           }}
-          onDragOver={(event) => {
+          onDragOver={(
+            event,
+          ) => {
             event.preventDefault();
 
             event.dataTransfer.dropEffect =
               "copy";
           }}
-          onDragLeave={(event) => {
+          onDragLeave={(
+            event,
+          ) => {
             event.preventDefault();
 
-            dragCounterRef.current -= 1;
+            dragCounterRef.current -=
+              1;
 
             if (
-              dragCounterRef.current <= 0
+              dragCounterRef.current <=
+              0
             ) {
-              dragCounterRef.current = 0;
-              setIsDragging(false);
+              dragCounterRef.current =
+                0;
+
+              setIsDragging(
+                false,
+              );
             }
           }}
-          onDrop={(event) => {
+          onDrop={(
+            event,
+          ) => {
             event.preventDefault();
 
-            dragCounterRef.current = 0;
-            setIsDragging(false);
+            dragCounterRef.current =
+              0;
+
+            setIsDragging(
+              false,
+            );
 
             processFile(
               event.dataTransfer.files[0],
             );
           }}
           className={cn(
-            "mt-5 cursor-pointer rounded-2xl",
-            "border-2 border-dashed",
-            "px-5 py-10 text-center",
-            "transition duration-200",
+            "mt-5",
+            "cursor-pointer",
+            "rounded-2xl",
+            "border-2",
+            "border-dashed",
+            "px-5",
+            "py-10",
+            "text-center",
+            "transition",
             "focus-visible:outline-none",
             "focus-visible:ring-2",
-            "focus-visible:ring-violet-300/60",
+            "focus-visible:ring-[#7C3AED]/30",
 
             isDragging
               ? [
-                  "border-violet-300/50",
-                  "bg-violet-400/10",
+                  "border-[#BDA7EC]",
+                  "bg-[#F6F1FF]",
                 ]
               : [
-                  "border-white/[0.09]",
-                  "bg-white/[0.02]",
-                  "hover:border-violet-300/25",
-                  "hover:bg-violet-400/[0.04]",
+                  "border-[#D8E2E0]",
+                  "bg-[#FAFCFB]",
+                  "hover:border-[#BDA7EC]",
+                  "hover:bg-[#F9F6FF]",
                 ],
 
             isProcessing &&
@@ -241,16 +353,25 @@ export function ListeningNotesUploader({
         >
           <div
             className="
-              mx-auto flex h-14 w-14
-              items-center justify-center
-              rounded-2xl bg-violet-400/10
-              text-violet-300
+              mx-auto
+              flex
+              h-14
+              w-14
+              items-center
+              justify-center
+              rounded-2xl
+              bg-[#F4EFFF]
+              text-[#712AE2]
             "
           >
             {isProcessing ? (
               <LoaderCircle
                 aria-hidden="true"
-                className="h-7 w-7 animate-spin"
+                className="
+                  h-7
+                  w-7
+                  animate-spin
+                "
               />
             ) : (
               <UploadCloud
@@ -260,21 +381,43 @@ export function ListeningNotesUploader({
             )}
           </div>
 
-          <p className="mt-4 text-sm font-semibold text-slate-200">
-            {status === "uploading"
+          <p
+            className="
+              mt-4
+              text-sm
+              font-black
+              text-[#334155]
+            "
+          >
+            {status ===
+            "uploading"
               ? "در حال آپلود فایل..."
-              : status === "extracting"
+              : status ===
+                  "extracting"
                 ? "در حال استخراج متن..."
                 : "فایل را اینجا رها کن"}
           </p>
 
           {!isProcessing ? (
             <>
-              <p className="mt-2 text-xs text-slate-500">
+              <p
+                className="
+                  mt-2
+                  text-xs
+                  text-[#64748B]
+                "
+              >
                 یا برای انتخاب فایل کلیک کن
               </p>
 
-              <p className="mt-4 text-[11px] leading-6 text-slate-700">
+              <p
+                className="
+                  mt-4
+                  text-[11px]
+                  leading-6
+                  text-[#94A3B8]
+                "
+              >
                 TXT، DOCX، PDF، JPG، PNG و WEBP
               </p>
             </>
@@ -282,21 +425,32 @@ export function ListeningNotesUploader({
         </div>
       ) : null}
 
-      {selectedFile && !result ? (
+      {selectedFile &&
+      !result ? (
         <div
           className="
-            mt-4 flex items-center gap-3
-            rounded-xl border
-            border-white/[0.07]
-            bg-white/[0.025] p-3
+            mt-4
+            flex
+            items-center
+            gap-3
+            rounded-xl
+            border
+            border-[#E2E8E6]
+            bg-[#F8FAF9]
+            p-3
           "
         >
           <div
             className="
-              flex h-10 w-10 shrink-0
-              items-center justify-center
-              rounded-xl bg-white/[0.05]
-              text-slate-400
+              flex
+              h-10
+              w-10
+              shrink-0
+              items-center
+              justify-center
+              rounded-xl
+              bg-white
+              text-[#64748B]
             "
           >
             {selectedFileKind ===
@@ -313,12 +467,30 @@ export function ListeningNotesUploader({
             )}
           </div>
 
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-medium text-slate-300">
+          <div
+            className="
+              min-w-0
+              flex-1
+            "
+          >
+            <p
+              className="
+                truncate
+                text-xs
+                font-bold
+                text-[#334155]
+              "
+            >
               {selectedFile.name}
             </p>
 
-            <p className="mt-1 text-[10px] text-slate-600">
+            <p
+              className="
+                mt-1
+                text-[10px]
+                text-[#94A3B8]
+              "
+            >
               {formatFileSize(
                 selectedFile.size,
               )}
@@ -327,14 +499,21 @@ export function ListeningNotesUploader({
 
           <button
             type="button"
-            onClick={handleReset}
+            onClick={
+              handleReset
+            }
             aria-label="لغو آپلود"
             className="
-              flex h-9 w-9 items-center
-              justify-center rounded-lg
-              text-slate-500 transition
-              hover:bg-white/[0.05]
-              hover:text-white
+              flex
+              h-9
+              w-9
+              items-center
+              justify-center
+              rounded-lg
+              text-[#64748B]
+              transition
+              hover:bg-white
+              hover:text-[#B91C1C]
             "
           >
             <X
@@ -349,25 +528,39 @@ export function ListeningNotesUploader({
         <div
           role="alert"
           className="
-            mt-4 flex items-start
-            justify-between gap-3
-            rounded-xl border
-            border-red-400/15
-            bg-red-400/[0.05]
-            px-4 py-3
+            mt-4
+            flex
+            items-start
+            justify-between
+            gap-3
+            rounded-xl
+            border
+            border-[#FECACA]
+            bg-[#FEF2F2]
+            px-4
+            py-3
           "
         >
-          <p className="text-xs leading-6 text-red-200">
+          <p
+            className="
+              text-xs
+              leading-6
+              text-[#B91C1C]
+            "
+          >
             {errorMessage}
           </p>
 
           <button
             type="button"
-            onClick={handleReset}
+            onClick={
+              handleReset
+            }
             className="
-              shrink-0 text-xs font-medium
-              text-red-300 transition
-              hover:text-red-100
+              shrink-0
+              text-xs
+              font-black
+              text-[#B91C1C]
             "
           >
             تلاش مجدد
@@ -377,16 +570,20 @@ export function ListeningNotesUploader({
 
       {result ? (
         <ExtractedNoteEditor
-          result={result}
+          result={
+            result
+          }
           onReplaceTranscript={
             onReplaceTranscript
           }
           onAppendTranscript={
             onAppendTranscript
           }
-          onReset={handleReset}
+          onReset={
+            handleReset
+          }
         />
       ) : null}
-    </Card>
+    </section>
   );
 }

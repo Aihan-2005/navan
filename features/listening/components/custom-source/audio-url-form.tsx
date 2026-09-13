@@ -6,9 +6,10 @@ import {
   RotateCcw,
   Send,
 } from "lucide-react";
-import { useState } from "react";
 
-import { Card } from "../../../../components/ui/card";
+import {
+  useState,
+} from "react";
 
 import {
   useCustomAudioUrlImport,
@@ -19,14 +20,25 @@ import {
 } from "./custom-source-result-card";
 
 export function AudioUrlForm() {
-  const [url, setUrl] =
+  const [
+    url,
+    setUrl,
+  ] =
     useState("");
 
-  const [title, setTitle] =
+  const [
+    title,
+    setTitle,
+  ] =
     useState("");
 
-  const [languageCode, setLanguageCode] =
-    useState("en");
+  const [
+    languageCode,
+    setLanguageCode,
+  ] =
+    useState(
+      "en",
+    );
 
   const {
     status,
@@ -35,133 +47,204 @@ export function AudioUrlForm() {
 
     submit,
     reset,
-  } = useCustomAudioUrlImport();
+  } =
+    useCustomAudioUrlImport();
 
   const isSubmitting =
-    status === "submitting";
+    status ===
+    "submitting";
 
   function resetForm(): void {
     reset();
 
-    setUrl("");
-    setTitle("");
-    setLanguageCode("en");
+    setUrl(
+      "",
+    );
+
+    setTitle(
+      "",
+    );
+
+    setLanguageCode(
+      "en",
+    );
   }
 
   return (
-    <Card className="p-5 sm:p-6">
-      <div className="flex items-center gap-2 text-violet-300">
+    <section
+      className="
+        rounded-2xl
+        border
+        border-[#DCE5E3]
+        bg-white
+        p-5
+        shadow-[0_5px_20px_rgba(15,23,42,0.035)]
+        sm:p-6
+      "
+    >
+      <div
+        className="
+          flex
+          items-center
+          gap-2
+          text-[#712AE2]
+        "
+      >
         <Link2
           aria-hidden="true"
           className="h-5 w-5"
         />
 
-        <span className="text-sm font-medium">
+        <span
+          className="
+            text-sm
+            font-black
+          "
+        >
           واردکردن لینک
         </span>
       </div>
 
-      <h2 className="mt-2 text-xl font-bold text-white">
-        لینک صوت یا پادکست را ثبت کن
+      <h2
+        className="
+          mt-2
+          text-xl
+          font-black
+          text-[#0F172A]
+        "
+      >
+        لینک فایل صوتی یا Podcast را ثبت کن
       </h2>
 
-      <p className="mt-2 text-xs leading-6 text-slate-500">
-        لینک برای استخراج Metadata، دریافت کنترل‌شده
-        فایل و ساخت Transcript به Backend ارسال می‌شود.
+      <p
+        className="
+          mt-2
+          text-xs
+          leading-6
+          text-[#64748B]
+        "
+      >
+        BFF فقط URL و Metadata را اعتبارسنجی
+        می‌کند. Download و Speech-to-Text در
+        Backend انجام می‌شود.
       </p>
 
       <form
-        className="mt-5 space-y-4"
+        className="
+          mt-6
+          space-y-4
+        "
         onSubmit={(event) => {
           event.preventDefault();
 
           void submit({
             url,
+
             title:
-              title.trim() || null,
+              title.trim() ||
+              null,
+
             languageCode,
           });
         }}
       >
-        <div>
-          <label
-            htmlFor="custom-audio-url"
-            className="text-xs font-medium text-slate-400"
-          >
-            لینک HTTPS
-          </label>
-
+        <FormField
+          label="لینک HTTPS"
+          htmlFor="custom-audio-url"
+        >
           <input
             id="custom-audio-url"
             type="url"
             required
             value={url}
-            onChange={(event) =>
-              setUrl(event.target.value)
-            }
+            onChange={(event) => {
+              setUrl(
+                event.target.value,
+              );
+            }}
             placeholder="https://example.com/podcast.mp3"
             className="
-              mt-2 h-11 w-full rounded-xl
-              border border-white/[0.08]
-              bg-black/15 px-4
-              text-left text-sm text-slate-200
-              outline-none transition
-              placeholder:text-slate-700
-              focus:border-violet-400/25
+              h-11
+              w-full
+              rounded-xl
+              border
+              border-[#D8E2E0]
+              bg-[#F8FAF9]
+              px-4
+              text-left
+              text-sm
+              text-[#0F172A]
+              outline-none
+              transition
+              placeholder:text-[#94A3B8]
+              focus:border-[#8B5CF6]
+              focus:bg-white
+              focus:ring-2
+              focus:ring-[#8B5CF6]/10
             "
             dir="ltr"
           />
-        </div>
+        </FormField>
 
-        <div>
-          <label
-            htmlFor="custom-url-title"
-            className="text-xs font-medium text-slate-400"
-          >
-            عنوان اختیاری
-          </label>
-
+        <FormField
+          label="عنوان اختیاری"
+          htmlFor="custom-url-title"
+        >
           <input
             id="custom-url-title"
             value={title}
             maxLength={120}
-            onChange={(event) =>
-              setTitle(event.target.value)
-            }
+            onChange={(event) => {
+              setTitle(
+                event.target.value,
+              );
+            }}
             placeholder="عنوان تمرین"
             className="
-              mt-2 h-11 w-full rounded-xl
-              border border-white/[0.08]
-              bg-black/15 px-4
-              text-sm text-slate-200
+              h-11
+              w-full
+              rounded-xl
+              border
+              border-[#D8E2E0]
+              bg-[#F8FAF9]
+              px-4
+              text-sm
+              text-[#0F172A]
               outline-none
-              placeholder:text-slate-700
+              placeholder:text-[#94A3B8]
+              focus:border-[#8B5CF6]
+              focus:bg-white
+              focus:ring-2
+              focus:ring-[#8B5CF6]/10
             "
           />
-        </div>
+        </FormField>
 
-        <div>
-          <label
-            htmlFor="custom-url-language"
-            className="text-xs font-medium text-slate-400"
-          >
-            زبان صوت
-          </label>
-
+        <FormField
+          label="زبان صوت"
+          htmlFor="custom-url-language"
+        >
           <select
             id="custom-url-language"
             value={languageCode}
-            onChange={(event) =>
+            onChange={(event) => {
               setLanguageCode(
                 event.target.value,
-              )
-            }
+              );
+            }}
             className="
-              mt-2 h-11 w-full rounded-xl
-              border border-white/[0.08]
-              bg-[#0B1221] px-4
-              text-sm text-slate-200
+              h-11
+              w-full
+              rounded-xl
+              border
+              border-[#D8E2E0]
+              bg-[#F8FAF9]
+              px-4
+              text-sm
+              text-[#334155]
               outline-none
+              focus:border-[#8B5CF6]
+              focus:bg-white
             "
           >
             <option value="en">
@@ -180,9 +263,16 @@ export function AudioUrlForm() {
               اسپانیایی
             </option>
           </select>
-        </div>
+        </FormField>
 
-        <div className="flex flex-wrap gap-3">
+        <div
+          className="
+            flex
+            flex-wrap
+            gap-3
+            pt-2
+          "
+        >
           <button
             type="submit"
             disabled={
@@ -190,11 +280,20 @@ export function AudioUrlForm() {
               !url.trim()
             }
             className="
-              inline-flex min-h-11 items-center
-              justify-center gap-2 rounded-xl
-              bg-violet-400 px-5 py-2.5
-              text-sm font-bold text-slate-950
-              transition hover:bg-violet-300
+              inline-flex
+              min-h-11
+              items-center
+              justify-center
+              gap-2
+              rounded-xl
+              bg-[#712AE2]
+              px-5
+              py-2.5
+              text-sm
+              font-black
+              text-white
+              transition
+              hover:bg-[#5F20C5]
               disabled:cursor-not-allowed
               disabled:opacity-50
             "
@@ -202,7 +301,11 @@ export function AudioUrlForm() {
             {isSubmitting ? (
               <LoaderCircle
                 aria-hidden="true"
-                className="h-4 w-4 animate-spin"
+                className="
+                  h-4
+                  w-4
+                  animate-spin
+                "
               />
             ) : (
               <Send
@@ -213,19 +316,31 @@ export function AudioUrlForm() {
 
             {isSubmitting
               ? "در حال ثبت لینک..."
-              : "ثبت و پردازش لینک"}
+              : "ثبت و شروع پردازش"}
           </button>
 
           <button
             type="button"
-            onClick={resetForm}
+            onClick={
+              resetForm
+            }
             className="
-              inline-flex min-h-11 items-center
-              justify-center gap-2 rounded-xl
-              border border-white/[0.08]
-              bg-white/[0.04] px-4 py-2.5
-              text-sm text-slate-400
-              transition hover:bg-white/[0.08]
+              inline-flex
+              min-h-11
+              items-center
+              justify-center
+              gap-2
+              rounded-xl
+              border
+              border-[#D8E2E0]
+              bg-white
+              px-4
+              py-2.5
+              text-sm
+              font-bold
+              text-[#52615F]
+              transition
+              hover:bg-[#F8FAF9]
             "
           >
             <RotateCcw
@@ -242,11 +357,16 @@ export function AudioUrlForm() {
         <div
           role="alert"
           className="
-            mt-5 rounded-xl
-            border border-red-400/15
-            bg-red-400/[0.05]
-            px-4 py-3 text-xs
-            leading-6 text-red-200
+            mt-5
+            rounded-xl
+            border
+            border-[#FECACA]
+            bg-[#FEF2F2]
+            px-4
+            py-3
+            text-xs
+            leading-6
+            text-[#B91C1C]
           "
         >
           {errorMessage}
@@ -255,9 +375,45 @@ export function AudioUrlForm() {
 
       {result ? (
         <CustomSourceResultCard
-          result={result}
+          result={
+            result
+          }
         />
       ) : null}
-    </Card>
+    </section>
+  );
+}
+
+function FormField({
+  label,
+  htmlFor,
+  children,
+}: Readonly<{
+  label:
+    string;
+
+  htmlFor:
+    string;
+
+  children:
+    React.ReactNode;
+}>) {
+  return (
+    <div>
+      <label
+        htmlFor={htmlFor}
+        className="
+          mb-2
+          block
+          text-xs
+          font-bold
+          text-[#334155]
+        "
+      >
+        {label}
+      </label>
+
+      {children}
+    </div>
   );
 }

@@ -7,7 +7,6 @@ import {
 
 import {
   Brain,
-  Check,
   Clock3,
   Headphones,
   ListChecks,
@@ -15,10 +14,6 @@ import {
   Sparkles,
   Target,
 } from "lucide-react";
-
-import {
-  Card,
-} from "../../../../components/ui/card";
 
 import {
   cn,
@@ -48,31 +43,41 @@ const numberFormatter =
 
 const RATING_LABELS = [
   {
-    value: 1,
+    value:
+      1,
+
     label:
       "خیلی سخت",
   },
 
   {
-    value: 2,
+    value:
+      2,
+
     label:
       "سخت",
   },
 
   {
-    value: 3,
+    value:
+      3,
+
     label:
       "متوسط",
   },
 
   {
-    value: 4,
+    value:
+      4,
+
     label:
       "خوب",
   },
 
   {
-    value: 5,
+    value:
+      5,
+
     label:
       "تقریباً کامل",
   },
@@ -90,7 +95,9 @@ function formatListeningTime(
 
   const remainingSeconds =
     seconds %
-    60;  if (
+    60;
+
+  if (
     minutes ===
     0
   ) {
@@ -115,21 +122,23 @@ export function ListeningListenOnlySession({
     focusedSeconds,
     setFocusedSeconds,
   ] =
-    useState(0);
+    useState(
+      0,
+    );
 
   const [
     maximumCoverage,
     setMaximumCoverage,
   ] =
-    useState(0);
+    useState(
+      0,
+    );
 
   const [
     comprehensionRating,
     setComprehensionRating,
   ] =
-    useState<
-      number | null
-    >(
+    useState<number | null>(
       null,
     );
 
@@ -137,26 +146,35 @@ export function ListeningListenOnlySession({
     capturedMainIdea,
     setCapturedMainIdea,
   ] =
-    useState(false);
+    useState(
+      false,
+    );
 
   const [
     capturedDetails,
     setCapturedDetails,
   ] =
-    useState(false);
+    useState(
+      false,
+    );
 
   const [
     noticedUnknownWords,
     setNoticedUnknownWords,
   ] =
-    useState(false);
+    useState(
+      false,
+    );
 
   const [
     notes,
     setNotes,
   ] =
-    useState("");
- useEffect(() => {
+    useState(
+      "",
+    );
+
+  useEffect(() => {
     setMaximumCoverage(
       (
         current,
@@ -211,22 +229,32 @@ export function ListeningListenOnlySession({
 
   const recommendation =
     comprehensionRating ===
-      null
+    null
       ? "بعد از یک دور کامل، میزان درکت را ثبت کن تا پیشنهاد مناسب‌تری ببینی."
       : comprehensionRating <=
           2
-        ? "یک بار دیگر با سرعت ۰٫۷۵ گوش بده و این بار فقط روی ایده اصلی و کلمات کلیدی تمرکز کن."
+        ? "یک بار دیگر با سرعت ۰٫۷۵ گوش بده و فقط روی ایده اصلی و کلمات کلیدی تمرکز کن."
         : comprehensionRating ===
             3
           ? "دور بعدی را با سرعت طبیعی گوش بده و روی جزئیات، اعداد و نام‌ها تمرکز کن."
-          : "درک خوبی داری؛ حالا می‌توانی وارد Dictation یا Shadowing شوی تا شنیدن دقیق‌تر را تمرین کنی.";
+          : "درک خوبی داری؛ حالا می‌توانی وارد Dictation یا Shadowing شوی.";
 
   return (
     <section
       aria-labelledby="listen-only-session-title"
- className="space-y-6"
+      className="space-y-5"
     >
-      <Card className="p-5 sm:p-6">
+      <section
+        className="
+          rounded-2xl
+          border
+          border-[#DCE7E5]
+          bg-white
+          p-5
+          shadow-[0_7px_24px_rgba(15,23,42,0.04)]
+          sm:p-6
+        "
+      >
         <div
           className="
             flex
@@ -243,7 +271,7 @@ export function ListeningListenOnlySession({
                 flex
                 items-center
                 gap-2
-                text-cyan-300
+                text-[#00685F]
               "
             >
               <Headphones
@@ -255,8 +283,8 @@ export function ListeningListenOnlySession({
                 id="listen-only-session-title"
                 className="
                   text-lg
-                  font-bold
-                  text-white
+                  font-black
+                  text-[#172321]
                 "
               >
                 جلسه شنیدن متمرکز
@@ -269,22 +297,28 @@ export function ListeningListenOnlySession({
                 max-w-2xl
                 text-sm
                 leading-7
-                text-slate-400
+                text-[#64748B]
               "
             >
-              در این حالت لازم نیست چیزی رونویسی کنی. هدف این است که چند بار با تمرکز گوش بدهی، میزان درکت را ارزیابی کنی و فقط نکات مهم را ثبت کنی.
+              در این حالت لازم نیست چیزی
+              رونویسی کنی. هدف، فهم ایده
+              اصلی، جزئیات و تشخیص بخش‌های
+              دشوار است.
             </p>
           </div>
 
           <span
             className="
-              rounded-fullborder
-              border-cyan-400/15
-              bg-cyan-400/[0.05]
+              self-start
+              rounded-full
+              border
+              border-[#B8DDD7]
+              bg-[#EEF8F6]
               px-3
               py-1.5
               text-xs
-              text-cyan-200
+              font-bold
+              text-[#00685F]
             "
           >
             Listening Only
@@ -301,9 +335,7 @@ export function ListeningListenOnlySession({
           "
         >
           <MetricCard
-            icon={
-              Clock3
-            }
+            icon={Clock3}
             label="زمان گوش دادن"
             value={
               formatListeningTime(
@@ -313,9 +345,7 @@ export function ListeningListenOnlySession({
           />
 
           <MetricCard
-            icon={
-              Target
-            }
+            icon={Target}
             label="بیشترین پوشش"
             value={`${numberFormatter.format(
               Math.round(
@@ -325,9 +355,7 @@ export function ListeningListenOnlySession({
           />
 
           <MetricCard
-            icon={
-              Repeat2
-            }
+            icon={Repeat2}
             label="پخش کامل"
             value={`${numberFormatter.format(
               completedPasses,
@@ -335,40 +363,51 @@ export function ListeningListenOnlySession({
           />
 
           <MetricCard
-            icon={
-              Sparkles
-            }
+            icon={Sparkles}
             label="سرعت فعلی"
             value={`${playback.playbackRate}×`}
           />
         </div>
-      </Card>
+      </section>
 
       <div
-        className=" grid
-          gap-6
+        className="
+          grid
+          gap-5
           xl:grid-cols-2
         "
       >
-        <Card className="p-5 sm:p-6">
+        <section
+          className="
+            rounded-2xl
+            border
+            border-[#DCE7E5]
+            bg-white
+            p-5
+            sm:p-6
+          "
+        >
           <div
             className="
               flex
               items-center
               gap-2
-              text-violet-300
             "
           >
             <ListChecks
               aria-hidden="true"
-              className="h-5 w-5"
+              className="
+                h-5
+                w-5
+                text-[#712AE2]
+              "
             />
 
             <h2
               className="
                 text-base
-                font-bold
-                text-white
+                font-black
+                text-[#172321]
               "
             >
               چک‌لیست شنیدن فعال
@@ -380,10 +419,11 @@ export function ListeningListenOnlySession({
               mt-2
               text-xs
               leading-6
-              text-slate-500
+              text-[#64748B]
             "
           >
-            لازم نیست همه چیز را در دور اول بفهمی. هر بار روی یک لایه از محتوا تمرکز کن.
+            هر دور فقط روی یک لایه از محتوا
+            تمرکز کن.
           </p>
 
           <div
@@ -411,16 +451,18 @@ export function ListeningListenOnlySession({
                 setCapturedDetails
               }
               title="چند جزئیات مهم را تشخیص دادم"
-              description="مثلاً زمان، مکان، دلیل، عدد یا اتفاق مهم."
-            />   <ChecklistItem
+              description="زمان، مکان، عدد، دلیل یا اتفاق مهم را شنیدم."
+            />
+
+            <ChecklistItem
               checked={
                 noticedUnknownWords
               }
               onChange={
                 setNoticedUnknownWords
               }
-              title="کلمات نامفهوم را مشخص کردم"
-              description="قرار نیست معنی آن‌ها را حدس قطعی بزنم؛ فقط متوجه شدم کجا شنیدن سخت بود."
+              title="بخش‌های نامفهوم را پیدا کردم"
+              description="می‌دانم کجای فایل برای من سخت‌تر بود."
             />
           </div>
 
@@ -428,13 +470,12 @@ export function ListeningListenOnlySession({
             className="
               mt-5
               rounded-xl
-              border
-              border-white/[0.06]
-              bg-white/[0.025]
+              bg-[#F8FAF9]
               px-4
               py-3
               text-xs
-              text-slate-500
+              font-medium
+              text-[#64748B]
             "
           >
             {numberFormatter.format(
@@ -442,27 +483,39 @@ export function ListeningListenOnlySession({
             )}{" "}
             از ۳ مرحله ثبت شده
           </div>
-        </Card>
+        </section>
 
-        <Card className="p-5 sm:p-6">
+        <section
+          className="
+            rounded-2xl
+            border
+            border-[#DCE7E5]
+            bg-white
+            p-5
+            sm:p-6
+          "
+        >
           <div
             className="
               flex
               items-center
               gap-2
-              text-amber-300
             "
           >
             <Brain
               aria-hidden="true"
-              className="h-5 w-5"
+              className="
+                h-5
+                w-5
+                text-[#F97316]
+              "
             />
 
             <h2
               className="
                 text-base
-                font-bold
-                text-white
+                font-black
+                text-[#172321]
               "
             >
               چقدر متوجه شدی؟
@@ -474,10 +527,12 @@ export function ListeningListenOnlySession({
               mt-2
               text-xs
               leading-6
-              text-slate-500
+              text-[#64748B]
             "
           >
-            این امتیاز رسمی نیست؛ ارزیابی شخصی تو از میزان درک همین دور شنیدن </p>
+            این امتیاز رسمی نیست و فقط
+            ارزیابی شخصی تو از همین دور است.
+          </p>
 
           <div
             className="
@@ -519,15 +574,15 @@ export function ListeningListenOnlySession({
 
                       active
                         ? [
-                            "border-cyan-300/30",
-                            "bg-cyan-400/10",
-                            "text-cyan-100",
+                            "border-[#A9D4CD]",
+                            "bg-[#E7F4F2]",
+                            "text-[#00685F]",
                           ]
                         : [
-                            "border-white/[0.06]",
-                            "bg-white/[0.025]",
-                            "text-slate-500",
-                            "hover:bg-white/[0.05]",
+                            "border-[#E2E8E6]",
+                            "bg-[#FAFCFB]",
+                            "text-[#64748B]",
+                            "hover:bg-[#F3F7F6]",
                           ],
                     )}
                   >
@@ -535,14 +590,20 @@ export function ListeningListenOnlySession({
                       className="
                         block
                         text-base
-                        font-bold
+                        font-black
                       "
                     >
                       {rating.value}
                     </span>
 
-                    <span className="mt-1 block">
-                      { rating.label
+                    <span
+                      className="
+                        mt-1
+                        block
+                      "
+                    >
+                      {
+                        rating.label
                       }
                     </span>
                   </button>
@@ -556,20 +617,29 @@ export function ListeningListenOnlySession({
               mt-5
               rounded-xl
               border
-              border-violet-400/10
-              bg-violet-400/[0.04]
+              border-[#DED3F5]
+              bg-[#F8F5FF]
               p-4
               text-xs
               leading-6
-              text-slate-400
+              text-[#5F5A6A]
             "
           >
             {recommendation}
           </div>
-        </Card>
+        </section>
       </div>
 
-      <Card className="p-5 sm:p-6">
+      <section
+        className="
+          rounded-2xl
+          border
+          border-[#DCE7E5]
+          bg-white
+          p-5
+          sm:p-6
+        "
+      >
         <div
           className="
             flex
@@ -582,8 +652,8 @@ export function ListeningListenOnlySession({
             <h2
               className="
                 text-base
-                font-bold
-                text-white
+                font-black
+                text-[#172321]
               "
             >
               یادداشت شخصی
@@ -593,29 +663,29 @@ export function ListeningListenOnlySession({
               className="
                 mt-1
                 text-xs
-                text-slate-500
+                text-[#64748B]
               "
             >
-              فقط نکات مهم را بنویس؛ این قسمت برای Dictation نیست.
+              فقط نکات مهم را بنویس؛ این
+              بخش برای Dictation نیست.
             </p>
           </div>
 
           <span
             className="
               text-xs
-              text-slate-600
+              text-[#94A3B8]
             "
           >
             {numberFormatter.format(
               notes.length,
             )}{" "}
             کاراکتر
-          </span> </div>
+          </span>
+        </div>
 
         <textarea
-          value={
-            notes
-          }
+          value={notes}
           onChange={(
             event,
           ) => {
@@ -623,7 +693,7 @@ export function ListeningListenOnlySession({
               event.target.value,
             );
           }}
-          placeholder="مثلاً: درباره سفر بود، ساعت پرواز 10:30 بود، عبارت boarding pass را واضح نشنیدم..."
+          placeholder={`مثلاً: موضوع ${content.topics[0] ?? "فایل"} بود، چند عدد را واضح نشنیدم...`}
           className="
             mt-4
             min-h-32
@@ -631,40 +701,26 @@ export function ListeningListenOnlySession({
             resize-y
             rounded-2xl
             border
-            border-white/[0.07]
-            bg-black/15
+            border-[#D8E2E0]
+            bg-[#FBFCFC]
             px-4
             py-3
             text-sm
             leading-7
-            text-slate-200
+            text-[#334155]
             outline-none
             transition
-            placeholder:text-slate-700
-            focus:border-cyan-300/25
+            placeholder:text-[#A3AFAD]
+            focus:border-[#0D9488]
             focus:ring-2
-            focus:ring-cyan-400/10
+            focus:ring-[#14B8A6]/10
           "
         />
-
-        <p
-          className="
-            mt-3
-            text-xs
-            leading-6
-            text-slate-600
-          "
-        >
-          فایل فعلی حدود{" "}
-          {numberFormatter.format(
-            content.estimatedPracticeMinutes,
-          )}{" "}
-          دقیقه زمان تمرین پیشنهادی دارد.
-        </p>
-      </Card>
+      </section>
     </section>
   );
 }
+
 function MetricCard({
   icon: Icon,
   label,
@@ -680,12 +736,12 @@ function MetricCard({
     string;
 }>) {
   return (
-    <div
+    <article
       className="
-        rounded-2xl
+        rounded-xl
         border
-        border-white/[0.06]
-        bg-white/[0.025]
+        border-[#E2E8E6]
+        bg-[#F8FAF9]
         p-4
       "
     >
@@ -694,15 +750,15 @@ function MetricCard({
         className="
           h-4
           w-4
-          text-cyan-300
+          text-[#00685F]
         "
       />
 
       <p
         className="
           mt-3
-          text-xs
-          text-slate-500
+          text-[10px]
+          text-[#64748B]
         "
       >
         {label}
@@ -711,14 +767,14 @@ function MetricCard({
       <p
         className="
           mt-1
-          text-lg
-          font-bold
-          text-white
+          text-sm
+          font-black
+          text-[#172321]
         "
       >
         {value}
       </p>
-    </div>
+    </article>
   );
 }
 
@@ -729,9 +785,11 @@ function ChecklistItem({
   description,
 }: Readonly<{
   checked:
-    boolean; onChange:
+    boolean;
+
+  onChange:
     (
-      checked:
+      value:
         boolean,
     ) => void;
 
@@ -742,81 +800,49 @@ function ChecklistItem({
     string;
 }>) {
   return (
-    <button
-      type="button"
-      role="checkbox"
-      aria-checked={
-        checked
-      }
-      onClick={() => {
-        onChange(
-          !checked,
-        );
-      }}
-      className={cn(
-        "flex",
-        "w-full",
-        "items-start",
-        "gap-3",
-        "rounded-xl",
-        "border",
-        "p-4",
-        "text-right",
-        "transition",
-
-        checked
-          ? [
-              "border-emerald-400/15",
-              "bg-emerald-400/[0.04]",
-            ]
-          : [
-              "border-white/[0.06]",
-              "bg-white/[0.02]",
-              "hover:bg-white/[0.04]",
-            ],
-      )}
+    <label
+      className="
+        flex
+        cursor-pointer
+        items-start
+        gap-3
+        rounded-xl
+        border
+        border-[#E2E8E6]
+        bg-[#FAFCFB]
+        p-3
+        transition
+        hover:border-[#B9D7D1]
+      "
     >
-      <span
-        className={cn(
-          "mt-0.5",
-          "flex",
-          "h-5",
-          "w-5",
-          "shrink-0",
-          "items-center",
-          "justify-center",
-          "rounded-md",
-          "border",
-
-          checked
-            ? [
-                "border-emerald-300/30",
-                "bg-emerald-400/15",
-            "text-emerald-300",
-              ]
-            : [
-                "border-white/10",
-                "text-transparent",
-              ],
-        )}
-      >
-        <Check
-          aria-hidden="true"
-          className="h-3 w-3"
-        />
-      </span>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(
+          event,
+        ) => {
+          onChange(
+            event.target.checked,
+          );
+        }}
+        className="
+          mt-1
+          h-4
+          w-4
+          accent-[#00685F]
+        "
+      />
 
       <span>
-        <span
+        <strong
           className="
             block
             text-sm
-            font-medium
-            text-slate-200
+            text-[#334155]
           "
         >
           {title}
-        </span>
+        </strong>
 
         <span
           className="
@@ -824,12 +850,12 @@ function ChecklistItem({
             block
             text-xs
             leading-6
-            text-slate-600
+            text-[#64748B]
           "
         >
           {description}
         </span>
       </span>
-    </button>
+    </label>
   );
 }
